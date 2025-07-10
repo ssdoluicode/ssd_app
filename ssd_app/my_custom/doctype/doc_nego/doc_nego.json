@@ -1,0 +1,200 @@
+{
+ "actions": [],
+ "autoname": "nego-.####",
+ "creation": "2025-06-15 20:35:48.907633",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_atoq",
+  "amended_from",
+  "inv_no",
+  "inv_date",
+  "category",
+  "column_break_qgvl",
+  "notify",
+  "customer",
+  "bank",
+  "column_break_wnmb",
+  "payment_term",
+  "due_date",
+  "document",
+  "section_break_hfiw",
+  "nego_date",
+  "nego_amount",
+  "column_break_fpzm",
+  "term_days",
+  "bank_due_date",
+  "column_break_clxl",
+  "due_date_confirm",
+  "note"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_atoq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Doc Nego",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "inv_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Inv No",
+   "options": "CIF Sheet",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "Product Category",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "notify",
+   "fieldtype": "Link",
+   "label": "Notify",
+   "options": "Notify",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "column_break_qgvl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "column_break_wnmb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_term",
+   "fieldtype": "Data",
+   "label": "Payment Term",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "document",
+   "fieldtype": "Float",
+   "label": "Document",
+   "precision": "2",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "section_break_hfiw",
+   "fieldtype": "Section Break",
+   "label": "Nego Details"
+  },
+  {
+   "fieldname": "nego_date",
+   "fieldtype": "Date",
+   "label": "Nego Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fpzm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "nego_amount",
+   "fieldtype": "Float",
+   "label": "Nego Amount",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_clxl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "-",
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note",
+   "reqd": 1
+  },
+  {
+   "fieldname": "term_days",
+   "fieldtype": "Int",
+   "label": "Term Days",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_due_date",
+   "fieldtype": "Date",
+   "label": "Bank Due Date",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "due_date_confirm",
+   "fieldtype": "Check",
+   "label": "Due Date Confirm",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inv_date",
+   "fieldtype": "Date",
+   "label": "Inv Date",
+   "set_only_once": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-03 15:56:05.536531",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "Doc Nego",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
