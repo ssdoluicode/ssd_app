@@ -3,13 +3,6 @@
 
 
 frappe.query_reports["Dynamic Sales Report"] = {
-    onload: function(report) {
-        // Wait until datatable is ready
-        report.datatable.then(dt => {
-            dt.freezeColumn = 1;  // freeze first column
-            dt.refresh();
-        });
-    },
     
     formatter: function (value, row, column, data, default_formatter) {
         // Use default_formatter first for non-numeric columns
