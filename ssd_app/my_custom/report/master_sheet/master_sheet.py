@@ -23,9 +23,9 @@ def execute(filters=None):
     noti.notify AS notify, cost.supplier, 
     cif.gross_sales, cif.handling_charges, cif.sales, cif.document, cif.cc, 
     cost.purchase, 
-    cost.Freight,
-    cost.`Local Exp`,
-    cost.`Other Exp`,
+    cost.freight,
+    cost.local_exp,
+    cost.other_exp,
     cost.commission, cost.cost, cost.profit, cost.profit_pct,
     IF(cif.payment_term IN ('LC', 'DA'), CONCAT(cif.payment_term, '- ', cif.term_days), cif.payment_term) AS p_term,
     cif.from_country AS f_country, lport.port AS l_port, 
@@ -48,9 +48,9 @@ LEFT JOIN (
         cost_s.profit, 
         cost_s.profit_pct, 
         IFNULL(sup.supplier, '## Misc Supplier') AS supplier,
-        IFNULL(exp.Freight, 0) AS `Freight`,
-        IFNULL(exp.`Local Exp`, 0) AS `Local Exp`,
-        IFNULL(exp.`Other Exp`, 0) AS `Other Exp`
+        IFNULL(exp.freight, 0) AS freight,
+        IFNULL(exp.local_exp, 0) AS local_exp,
+        IFNULL(exp.other_exp, 0) AS other_exp
     FROM 
         `tabCost Sheet` cost_s 
     LEFT JOIN 
@@ -59,9 +59,9 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT 
             parent AS cost_id,
-            SUM(CASE WHEN expenses = 'Freight' THEN amount_usd ELSE 0 END) AS `Freight`,
-            SUM(CASE WHEN expenses = 'Local Exp' THEN amount_usd ELSE 0 END) AS `Local Exp`,
-            SUM(CASE WHEN expenses IN ('Inland Charges', 'Switch B/L Charges', 'Others') THEN amount_usd ELSE 0 END) AS `Other Exp`
+            SUM(CASE WHEN expenses = 'Freight' THEN amount_usd ELSE 0 END) AS freight,
+            SUM(CASE WHEN expenses = 'Local Exp' THEN amount_usd ELSE 0 END) AS local_exp,
+            SUM(CASE WHEN expenses IN ('Inland Charges', 'Switch B/L Charges', 'Others') THEN amount_usd ELSE 0 END) AS other_exp
         FROM 
             `tabExpenses Cost`
         GROUP BY 
@@ -89,8 +89,8 @@ LEFT JOIN (
         {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 110},
         {"label": "CC", "fieldname": "cc", "fieldtype": "Float", "width": 110},
         {"label": "Purchase", "fieldname": "purchase", "fieldtype": "Float", "width": 110},
-        {"label": "Freight", "fieldname": "Freight", "fieldtype": "Float", "width": 110},
-        {"label": "Local Exp", "fieldname": "Local Exp", "fieldtype": "Float", "width": 110},
+        {"label": "Freight", "fieldname": "freight", "fieldtype": "Float", "width": 110},
+        {"label": "Local Exp", "fieldname": "local_exp", "fieldtype": "Float", "width": 110},
         {"label": "Other Exp", "fieldname": "other_exp", "fieldtype": "Float", "width": 110},
         {"label": "Comm", "fieldname": "commission", "fieldtype": "Float", "width": 110},
         {"label": "Cost", "fieldname": "cost", "fieldtype": "Float", "width": 110},
