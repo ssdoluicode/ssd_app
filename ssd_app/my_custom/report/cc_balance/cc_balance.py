@@ -3,6 +3,7 @@
 
 # import frappe
 import frappe
+from frappe.utils import today
 
 def get_cc_vs_rec(as_on):
     """
