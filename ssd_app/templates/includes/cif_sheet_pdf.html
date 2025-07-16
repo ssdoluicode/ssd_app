@@ -112,6 +112,12 @@
             <td> Insurance</td>
             <td style="text-align: right;">{{"{:,.2f}".format(doc.insurance)}}</td>
         </tr>
+        <tr>
+            <td> Handling {% if doc.handling_charges %}
+                    ({{ doc.handling_pct}}%)
+                {% endif %}</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(doc.handling_charges)}}</td>
+        </tr>
     </table>
 
     <hr>

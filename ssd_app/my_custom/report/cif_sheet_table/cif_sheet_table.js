@@ -15,7 +15,7 @@ frappe.query_reports["CIF Sheet Table"] = {
             frappe.set_route("List", "CIF Sheet");
         });
     },
-        formatter: function(value, row, column, data, default_formatter) {
+    formatter: function(value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
 
         // 🎯 Highlight status column

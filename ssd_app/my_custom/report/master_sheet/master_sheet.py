@@ -18,7 +18,7 @@ def execute(filters=None):
 
     query = f"""
     SELECT 
-    cif.inv_no, cif.inv_date, com.company_code AS company, 
+    cif.name, cif.inv_no, cif.inv_date, com.company_code AS company, 
     pcat.product_category AS category, cus.customer AS customer, 
     noti.notify AS notify, cost.supplier, 
     cif.gross_sales, cif.handling_charges, cif.sales, cif.document, cif.cc, 
@@ -78,7 +78,7 @@ LEFT JOIN (
     columns = [
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90},
         {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
-        {"label": "Com", "fieldname": "company", "fieldtype": "Data", "width": 110},
+        {"label": "Com", "fieldname": "company", "fieldtype": "Data", "width": 90},
         {"label": "Category", "fieldname": "category", "fieldtype": "Data", "width": 110},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 110},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 110},
