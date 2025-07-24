@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "nfy-.####",
  "creation": "2025-06-03 16:44:32.863472",
  "doctype": "DocType",
@@ -72,7 +73,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-27 15:57:56.000869",
+ "modified": "2025-07-20 17:40:34.594932",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Notify",

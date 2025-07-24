@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "cif-.####",
  "creation": "2025-06-03 17:38:34.042582",
  "default_view": "Report",
@@ -402,7 +403,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-02 20:53:07.063730",
+ "modified": "2025-07-18 12:10:19.982720",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CIF Sheet",

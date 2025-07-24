@@ -29,7 +29,8 @@ frappe.query_reports["CC Report"] = {
             "label": __("Customer"),
             "fieldtype": "Link",
             "options": "Customer",
-            "reqd": 0
+            // "default": "cus-0003",
+            "reqd": 1
         }
     ]
 };

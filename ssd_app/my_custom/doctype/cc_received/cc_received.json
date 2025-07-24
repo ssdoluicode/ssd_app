@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "cc_rec-.####",
  "creation": "2025-06-30 00:22:40.036593",
  "doctype": "DocType",
@@ -68,7 +69,7 @@
   },
   {
    "fieldname": "note",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Note"
   },
   {
@@ -96,29 +97,26 @@
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
-   "options": "Company",
-   "reqd": 1
+   "options": "Company"
   },
   {
    "fieldname": "bank",
    "fieldtype": "Link",
    "label": "Bank",
-   "options": "Bank",
-   "reqd": 1
+   "options": "Bank"
   },
   {
    "default": "0",
    "fieldname": "bank_charges",
    "fieldtype": "Float",
    "label": "Bank Charges",
-   "precision": "2",
-   "reqd": 1
+   "precision": "2"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-08 01:04:45.042861",
+ "modified": "2025-07-23 11:45:38.752785",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CC Received",

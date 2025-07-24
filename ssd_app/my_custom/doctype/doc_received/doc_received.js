@@ -16,7 +16,7 @@ function get_cif_data(frm) {
             callback: function (r) {
                 const data = r.message;
                 if (!data) return;
-                const fields_to_lock = ['inv_date', 'category', 'bank','notify', 'customer', 'payment_term'];
+                const fields_to_lock = ['inv_date', 'category', 'bank','notify', 'customer', 'payment_term', "term_days", "document"];
                 fields_to_lock.forEach(field => {
                         frm.set_df_property(field, 'read_only', 0);
                     });

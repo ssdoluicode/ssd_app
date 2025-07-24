@@ -22,8 +22,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Product",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "unit",
@@ -63,7 +62,8 @@
    "fieldname": "custom_title",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Custom Title"
+   "label": "Custom Title",
+   "unique": 1
   },
   {
    "fieldname": "column_break_ijkn",
@@ -80,7 +80,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-27 17:06:07.825502",
+ "modified": "2025-07-24 14:32:41.980625",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Product",
