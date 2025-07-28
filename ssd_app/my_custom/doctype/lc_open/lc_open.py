@@ -6,4 +6,6 @@ from frappe.model.document import Document
 
 
 class LCOpen(Document):
-	pass
+    def before_save(self):
+        if self.amount and self.ex_rate:
+            self.amount_usd = round(self.amount / self.ex_rate, 2)
