@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "cost-.####",
  "creation": "2025-06-09 09:33:25.556621",
  "default_view": "Report",
@@ -349,7 +350,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-30 01:41:31.401755",
+ "modified": "2025-07-24 17:39:44.384056",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Sheet",
