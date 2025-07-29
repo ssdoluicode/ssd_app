@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "autoname": "u_lc-.#####",
+ "creation": "2025-07-29 17:52:18.934761",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "inv_no",
+  "lc_no",
+  "usance_lc_date",
+  "usance_lc_amount",
+  "term_days",
+  "due_date",
+  "note"
+ ],
+ "fields": [
+  {
+   "fieldname": "inv_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Inv No",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "lc_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "LC No",
+   "options": "LC Open",
+   "reqd": 1
+  },
+  {
+   "fieldname": "usance_lc_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Usance LC Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "usance_lc_amount",
+   "fieldtype": "Float",
+   "label": "Usance LC Amount"
+  },
+  {
+   "fieldname": "term_days",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Term Days",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-29 18:13:02.826595",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "Usance LC",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "inv_no"
+}

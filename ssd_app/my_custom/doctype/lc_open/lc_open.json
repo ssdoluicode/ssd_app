@@ -6,11 +6,11 @@
  "engine": "InnoDB",
  "field_order": [
   "supplier",
+  "lc_no",
   "lc_open_date",
   "lc_type",
-  "term_days",
   "column_break_vpri",
-  "lc_no",
+  "term_days",
   "bank",
   "currency",
   "ex_rate",
@@ -49,7 +49,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "LC No",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "column_break_vpri",
@@ -121,7 +122,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-29 00:08:47.251578",
+ "modified": "2025-07-29 18:02:56.189862",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Open",
@@ -143,7 +144,9 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "lc_no"
 }

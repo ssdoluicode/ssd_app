@@ -9,6 +9,11 @@ function calculate_usd(frm) {
 }
 
 frappe.ui.form.on("LC Open", {
+    onload: function(frm) {
+        if (!frm.doc.lc_open_date) {
+            frm.set_value('lc_open_date', frappe.datetime.get_today());
+        }
+    },
     ex_rate: function(frm) {
         calculate_usd(frm);
     },
