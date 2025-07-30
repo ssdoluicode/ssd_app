@@ -9,9 +9,12 @@
   "lc_no",
   "usance_lc_date",
   "usance_lc_amount",
+  "column_break_dpjv",
+  "currency",
   "term_days",
   "due_date",
-  "note"
+  "note",
+  "custom_title"
  ],
  "fields": [
   {
@@ -60,12 +63,30 @@
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
+  },
+  {
+   "fieldname": "column_break_dpjv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "custom_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Custom Title",
+   "unique": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-29 18:13:02.826595",
+ "modified": "2025-07-30 18:31:20.734493",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC",
@@ -90,5 +111,5 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "inv_no"
+ "title_field": "custom_title"
 }

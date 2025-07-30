@@ -8,7 +8,9 @@
   "lc_no",
   "inv_no",
   "date",
+  "column_break_blgc",
   "amount",
+  "currency",
   "note",
   "custom_title"
  ],
@@ -53,12 +55,23 @@
    "hidden": 1,
    "label": "Custom Title",
    "unique": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_blgc",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 00:46:52.488594",
+ "modified": "2025-07-30 18:24:46.941493",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment",
