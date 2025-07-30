@@ -5,6 +5,7 @@
 from frappe.model.document import Document
 
 
+
 class LCOpen(Document):
     def before_save(self):
         if self.amount and self.ex_rate:

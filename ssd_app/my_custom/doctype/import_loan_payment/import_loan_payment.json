@@ -5,7 +5,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "inv_no"
+  "inv_no",
+  "payment_date",
+  "amount"
  ],
  "fields": [
   {
@@ -15,12 +17,25 @@
    "label": "Inv No",
    "options": "Import Loan",
    "reqd": 1
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Data",
+   "label": "Payment Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "label": "Amount",
+   "non_negative": 1,
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-29 18:33:20.146140",
+ "modified": "2025-07-29 23:57:59.172749",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan Payment",

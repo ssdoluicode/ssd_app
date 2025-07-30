@@ -1,31 +1,29 @@
 {
  "actions": [],
- "autoname": "lc_p-.#####",
- "creation": "2025-07-29 18:21:00.164648",
+ "allow_rename": 1,
+ "creation": "2025-07-29 23:59:19.642518",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "lc_no",
   "inv_no",
-  "date",
+  "payment_date",
   "amount",
-  "note",
-  "custom_title"
+  "note"
  ],
  "fields": [
   {
-   "fieldname": "lc_no",
+   "fieldname": "inv_no",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "LC No",
-   "options": "LC Open",
+   "label": "Inv No",
+   "options": "Usance LC",
    "reqd": 1
   },
   {
-   "fieldname": "inv_no",
+   "fieldname": "payment_date",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Inv No",
+   "label": "Payment Date",
    "reqd": 1
   },
   {
@@ -37,32 +35,18 @@
    "reqd": 1
   },
   {
-   "fieldname": "date",
-   "fieldtype": "Date",
-   "label": "Date",
-   "reqd": 1
-  },
-  {
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
-  },
-  {
-   "fieldname": "custom_title",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Custom Title",
-   "unique": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 00:46:52.488594",
+ "modified": "2025-07-30 00:07:23.205668",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "LC Payment",
- "naming_rule": "Expression (old style)",
+ "name": "Usance LC Payment",
  "owner": "Administrator",
  "permissions": [
   {
@@ -79,9 +63,7 @@
   }
  ],
  "row_format": "Dynamic",
- "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
- "title_field": "custom_title"
+ "states": []
 }
