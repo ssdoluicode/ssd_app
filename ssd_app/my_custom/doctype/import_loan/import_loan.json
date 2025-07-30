@@ -5,12 +5,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "inv_no",
   "lc_no",
+  "inv_no",
   "loan_date",
   "loan_amount",
   "column_break_rhpt",
-  "currency",
   "term_days",
   "due_date",
   "note",
@@ -74,19 +73,12 @@
    "hidden": 1,
    "label": "Custom Title",
    "unique": 1
-  },
-  {
-   "fieldname": "currency",
-   "fieldtype": "Link",
-   "label": "Currency",
-   "options": "Currency",
-   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 18:29:54.217588",
+ "modified": "2025-07-31 02:01:21.444103",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",
@@ -106,6 +98,7 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",

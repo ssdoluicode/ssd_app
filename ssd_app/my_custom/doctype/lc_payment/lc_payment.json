@@ -10,7 +10,6 @@
   "date",
   "column_break_blgc",
   "amount",
-  "currency",
   "note",
   "custom_title"
  ],
@@ -57,13 +56,6 @@
    "unique": 1
   },
   {
-   "fieldname": "currency",
-   "fieldtype": "Link",
-   "label": "Currency",
-   "options": "Currency",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_blgc",
    "fieldtype": "Column Break"
   }
@@ -71,7 +63,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 18:24:46.941493",
+ "modified": "2025-07-31 02:01:37.081121",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment",
