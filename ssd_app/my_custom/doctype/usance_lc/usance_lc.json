@@ -5,8 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "inv_no",
   "lc_no",
+  "inv_no",
   "usance_lc_date",
   "usance_lc_amount",
   "column_break_dpjv",
@@ -86,7 +86,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 18:31:20.734493",
+ "modified": "2025-07-31 21:28:24.538552",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC",

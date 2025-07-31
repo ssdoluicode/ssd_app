@@ -1,45 +1,52 @@
 {
  "actions": [],
- "allow_rename": 1,
- "autoname": "imp_l_p-.#####",
- "creation": "2025-07-29 18:31:34.175565",
+ "autoname": "cash_l_p-.#####",
+ "creation": "2025-08-01 01:26:39.812107",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "inv_no",
+  "cash_loan_no",
   "payment_date",
-  "amount"
+  "amount",
+  "note"
  ],
  "fields": [
   {
-   "fieldname": "inv_no",
+   "fieldname": "cash_loan_no",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Inv No",
-   "options": "Import Loan",
+   "label": "Cash Loan No",
+   "options": "Cash Loan",
    "reqd": 1
   },
   {
    "fieldname": "payment_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Payment Date",
    "reqd": 1
   },
   {
    "fieldname": "amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Amount",
    "non_negative": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-01 00:31:06.727625",
+ "modified": "2025-08-01 01:34:17.447488",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "Import Loan Payment",
+ "name": "Cash Loan Payment",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [

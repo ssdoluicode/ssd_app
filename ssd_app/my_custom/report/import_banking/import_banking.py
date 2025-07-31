@@ -2,41 +2,42 @@
 # For license information, please see license.txt
 
 import frappe
-import pandas as pd
 
 def execute(filters=None):
-	# Define the report columns
-	columns = [
-		{"label": "LC NO", "fieldname": "lc_no", "fieldtype": "Data", "width": 85},
+	columns = get_columns()
+	data = get_lc_combined_data()
+	return columns, data
+
+def get_columns():
+	return [
+		{"label": "LC No", "fieldname": "lc_no", "fieldtype": "Data", "width": 110},
 		{"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
-		{"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 120},
+		{"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 280},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},
-		{"label": "LC Open", "fieldname": "lc_o_balance", "fieldtype": "Currency", "options": "currency", "width": 130},
-		{"label": "LC Payment", "fieldname": "lc_p_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
+		{"label": "LC Open", "fieldname": "lc_o_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Import Loan", "fieldname": "imp_loan_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
-		{"label": "Cash Loan", "fieldname": "cash_loan", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Usance LC", "fieldname": "u_lc_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
+		{"label": "Cash Loan", "fieldname": "cash_loan", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Due Date", "fieldname": "due_date", "fieldtype": "Date", "width": 110},
 	]
 
-	# Raw SQL data query
-	raw_data = frappe.db.sql("""
+def get_lc_combined_data():
+	query = """
 		SELECT 
 			lc_o.name, 
 			lc_o.lc_no,
 			'' AS inv_no,
-			0 AS cash_loan,
-			NULL AS due_date,
 			lc_o.lc_open_date AS date, 
 			sup.supplier AS supplier, 
 			bank.bank AS bank, 
 			lc_o.currency, 
-			lc_o.amount AS lc_o_amount, 
-			lc_o.amount_usd AS lc_o_amount_usd, 
-			lc_p.lc_p_amount, 
-			imp_loan.imp_loan_amount, 
-			u_lc.u_lc_amount
+			IFNULL(lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0), 0) AS lc_o_amount,
+			0 AS amount_usd, 
+			0 AS imp_loan_amount,
+			0 AS u_lc_amount,
+			0 AS cash_loan,
+			NULL AS due_date
 		FROM `tabLC Open` lc_o
 		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
 		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
@@ -52,38 +53,84 @@ def execute(filters=None):
 		) imp_loan ON imp_loan.lc_no = lc_o.name
 		LEFT JOIN (
 			SELECT lc_no, SUM(usance_lc_amount) AS u_lc_amount 
-			FROM `tabUsance LC` 
+			FROM `tabUsance LC`
 			GROUP BY lc_no
 		) u_lc ON u_lc.lc_no = lc_o.name
-	""", as_dict=True)
 
-	# Convert to plain Python dicts from frappe._dict
-	data_dicts = [dict(row) for row in raw_data]
+		UNION ALL
 
-	# Convert to Pandas DataFrame
-	df = pd.DataFrame(data_dicts)
+		SELECT 
+			imp_l.name, 
+			lc_o.lc_no,
+			imp_l.inv_no,
+			imp_l.loan_date AS date, 
+			sup.supplier AS supplier, 
+			bank.bank AS bank, 
+			lc_o.currency, 
+			0 AS lc_o_amount,
+			0 AS amount_usd, 
+			IFNULL(imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 0) AS imp_loan_amount,
+			0 AS u_lc_amount,
+			0 AS cash_loan,
+			imp_l.due_date
+		FROM `tabImport Loan` imp_l
+		LEFT JOIN `tabLC Open` lc_o ON imp_l.lc_no = lc_o.name
+		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
+		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+		LEFT JOIN (
+			SELECT inv_no, SUM(amount) AS imp_l_p_amount
+			FROM `tabImport Loan Payment` 
+			GROUP BY inv_no
+		) imp_l_p ON imp_l_p.inv_no = imp_l.name
 
-	# Handle missing numeric fields
-	numeric_columns = ['lc_o_amount', 'lc_p_amount', 'imp_loan_amount', 'u_lc_amount', 'cash_loan']
-	for col in numeric_columns:
-		if col in df.columns:
-			df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+		UNION ALL
 
-	# Handle date columns
-	if 'date' in df.columns:
-		df['date'] = pd.to_datetime(df['date'], errors='coerce').dt.date
+		SELECT 
+			u_lc.name, 
+			lc_o.lc_no,
+			u_lc.inv_no,
+			u_lc.usance_lc_date AS date, 
+			sup.supplier AS supplier, 
+			bank.bank AS bank, 
+			lc_o.currency, 
+			0 AS lc_o_amount,
+			0 AS amount_usd, 
+			0 AS imp_loan_amount,
+			IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0) AS u_lc_amount,
+			0 AS cash_loan,
+			u_lc.due_date
+		FROM `tabUsance LC` u_lc
+		LEFT JOIN `tabLC Open` lc_o ON u_lc.lc_no = lc_o.name
+		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
+		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+		LEFT JOIN (
+			SELECT inv_no, SUM(amount) AS u_lc_p_amount
+			FROM `tabUsance LC Payment` 
+			GROUP BY inv_no
+		) u_lc_p ON u_lc_p.inv_no = u_lc.name
 
-	if 'due_date' in df.columns:
-		df['due_date'] = pd.to_datetime(df['due_date'], errors='coerce').dt.date
+		UNION ALL
 
-	# Business logic: e.g. Calculate outstanding LC balance
-	if all(col in df.columns for col in ['lc_o_amount', 'lc_p_amount']):
-		df['lc_o_balance'] = df['lc_o_amount'] - df['lc_p_amount']- df['imp_loan_amount']- df['u_lc_amount']
-
-	# You can optionally return 'lc_balance' if you want to include it
-	# To include it, add to columns list too
-
-	# Final output: list of dicts
-	data = df.to_dict("records")
-
-	return columns, data
+		SELECT 
+			c_loan.name, 
+			c_loan.cash_loan_no AS lc_no,
+			"" AS inv_no,
+			c_loan.cash_loan_date AS date, 
+			"" AS supplier, 
+			bank.bank AS bank,
+			c_loan.currency, 
+			0 AS lc_o_amount,
+			0 AS amount_usd, 
+			0 AS imp_loan_amount,
+			0 AS u_lc_amount,
+			IFNULL(c_loan.cash_loan_amount-IFNULL(c_loan_p.c_loan_p_amount,0), 0) AS cash_loan,
+			c_loan.due_date
+		FROM `tabCash Loan` c_loan
+		LEFT JOIN `tabBank` bank ON bank.name = c_loan.bank
+		LEFT JOIN (
+			SELECT cash_loan_no, SUM(amount) AS c_loan_p_amount
+			FROM `tabCash Loan Payment` 
+			GROUP BY cash_loan_no
+		) c_loan_p ON c_loan_p.cash_loan_no = c_loan.name;
+	"""
+	return frappe.db.sql(query, as_dict=True)

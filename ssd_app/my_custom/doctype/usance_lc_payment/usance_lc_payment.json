@@ -21,7 +21,7 @@
   },
   {
    "fieldname": "payment_date",
-   "fieldtype": "Data",
+   "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Payment Date",
    "reqd": 1
@@ -43,7 +43,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 00:07:23.205668",
+ "modified": "2025-08-01 00:31:48.411395",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC Payment",
