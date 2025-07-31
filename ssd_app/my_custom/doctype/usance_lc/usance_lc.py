@@ -10,9 +10,6 @@ def set_custom_title(doc):
 	doc.custom_title = f"{lc_no.strip()} :: {doc.inv_no.strip()}".strip()
 	# doc.title = doc.custom_title
 
-
-
-
 class UsanceLC(Document):
 	def before_save(self):
 		if self.lc_no and self.inv_no:

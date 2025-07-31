@@ -21,6 +21,3 @@ frappe.ui.form.on("LC Open", {
         calculate_usd(frm);
     }
 });
-
-
-
