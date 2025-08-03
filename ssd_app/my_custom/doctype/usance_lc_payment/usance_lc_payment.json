@@ -7,8 +7,10 @@
  "field_order": [
   "inv_no",
   "payment_date",
+  "column_break_gzrb",
   "amount",
-  "note"
+  "note",
+  "currency"
  ],
  "fields": [
   {
@@ -20,6 +22,7 @@
    "reqd": 1
   },
   {
+   "default": "Today",
    "fieldname": "payment_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -38,12 +41,23 @@
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
+  },
+  {
+   "fieldname": "column_break_gzrb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "inv_no.currency",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-01 00:31:48.411395",
+ "modified": "2025-08-03 02:54:45.409582",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC Payment",
@@ -62,6 +76,7 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",

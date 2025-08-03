@@ -9,6 +9,7 @@
   "inv_no",
   "loan_date",
   "loan_amount",
+  "currency",
   "column_break_rhpt",
   "term_days",
   "due_date",
@@ -25,6 +26,7 @@
    "reqd": 1
   },
   {
+   "default": "Today",
    "fieldname": "loan_date",
    "fieldtype": "Date",
    "label": "Loan Date",
@@ -61,11 +63,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "term_days",
    "fieldtype": "Int",
    "label": "Term Days",
-   "non_negative": 1,
-   "reqd": 1
+   "non_negative": 1
   },
   {
    "fieldname": "custom_title",
@@ -73,12 +75,20 @@
    "hidden": 1,
    "label": "Custom Title",
    "unique": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fetch_from": "lc_no.currency",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-31 02:01:21.444103",
+ "modified": "2025-08-03 00:42:12.327659",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",

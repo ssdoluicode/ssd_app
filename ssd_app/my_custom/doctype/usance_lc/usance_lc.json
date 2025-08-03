@@ -34,6 +34,7 @@
    "reqd": 1
   },
   {
+   "default": "Today",
    "fieldname": "usance_lc_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -43,15 +44,17 @@
   {
    "fieldname": "usance_lc_amount",
    "fieldtype": "Float",
-   "label": "Usance LC Amount"
+   "label": "Usance LC Amount",
+   "non_negative": 1,
+   "reqd": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "term_days",
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Term Days",
-   "non_negative": 1,
-   "reqd": 1
+   "non_negative": 1
   },
   {
    "fieldname": "due_date",
@@ -76,17 +79,18 @@
    "unique": 1
   },
   {
+   "allow_in_quick_entry": 1,
+   "fetch_from": "lc_no.currency",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
-   "options": "Currency",
-   "read_only": 1
+   "options": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-31 21:28:24.538552",
+ "modified": "2025-08-03 01:30:49.316130",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC",
@@ -106,6 +110,7 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "modified",

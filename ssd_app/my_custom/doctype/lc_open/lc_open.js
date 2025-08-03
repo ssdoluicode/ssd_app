@@ -19,5 +19,10 @@ frappe.ui.form.on("LC Open", {
     },
     amount: function(frm) {
         calculate_usd(frm);
+    },
+    after_save: function (frm) {
+        if (frappe.route_options && frappe.route_options.from_report) {
+            frappe.set_route("query-report", frappe.route_options.from_report);
+        }
     }
 });

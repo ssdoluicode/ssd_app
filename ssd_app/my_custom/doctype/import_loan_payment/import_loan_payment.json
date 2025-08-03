@@ -8,7 +8,10 @@
  "field_order": [
   "inv_no",
   "payment_date",
-  "amount"
+  "column_break_iavh",
+  "amount",
+  "currency",
+  "note"
  ],
  "fields": [
   {
@@ -20,6 +23,7 @@
    "reqd": 1
   },
   {
+   "default": "Today",
    "fieldname": "payment_date",
    "fieldtype": "Date",
    "label": "Payment Date",
@@ -31,12 +35,28 @@
    "label": "Amount",
    "non_negative": 1,
    "reqd": 1
+  },
+  {
+   "fetch_from": "inv_no.currency",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "fieldname": "column_break_iavh",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-01 00:31:06.727625",
+ "modified": "2025-08-03 02:13:46.734018",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan Payment",
@@ -56,6 +76,7 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
