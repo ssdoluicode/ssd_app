@@ -34,7 +34,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "LC Type",
-   "options": "LC at Sight\nLC",
+   "options": "LC at Sight\nUsance LC",
    "reqd": 1
   },
   {
@@ -124,7 +124,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-04 00:14:48.795856",
+ "modified": "2025-08-05 00:26:09.310788",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Open",

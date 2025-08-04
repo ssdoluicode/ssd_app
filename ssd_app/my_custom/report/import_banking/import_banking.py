@@ -15,6 +15,7 @@ def get_columns():
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
 		{"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 280},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},
+		{"label": "DocType", "fieldname": "dc_name", "fieldtype": "Data", "width": 70},#
 		{"label": "LC Open", "fieldname": "lc_o_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Import Loan", "fieldname": "imp_loan_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Usance LC", "fieldname": "u_lc_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
@@ -30,7 +31,11 @@ def get_lc_combined_data():
 			'' AS inv_no,
 			lc_o.lc_open_date AS date, 
 			sup.supplier AS supplier, 
-			bank.bank AS bank, 
+			bank.bank AS bank,
+			CASE 
+				WHEN lc_o.lc_type = 'LC at Sight' THEN 's_lc_o' 
+				ELSE 'u_lc_o' 
+			END AS dc_name,
 			lc_o.currency, 
 			IF(
 				lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0) < lc_o.amount * lc_o.tolerance / 100,
@@ -69,7 +74,8 @@ def get_lc_combined_data():
 			imp_l.inv_no,
 			imp_l.loan_date AS date, 
 			sup.supplier AS supplier, 
-			bank.bank AS bank, 
+			bank.bank AS bank,
+			'imp_l' AS dc_name,
 			lc_o.currency, 
 			0 AS lc_o_amount,
 			0 AS amount_usd, 
@@ -95,7 +101,8 @@ def get_lc_combined_data():
 			u_lc.inv_no,
 			u_lc.usance_lc_date AS date, 
 			sup.supplier AS supplier, 
-			bank.bank AS bank, 
+			bank.bank AS bank,
+			'u_lc' AS dc_name,
 			lc_o.currency, 
 			0 AS lc_o_amount,
 			0 AS amount_usd, 
@@ -122,6 +129,7 @@ def get_lc_combined_data():
 			c_loan.cash_loan_date AS date, 
 			"" AS supplier, 
 			bank.bank AS bank,
+			'c_loan' AS dc_name,
 			c_loan.currency, 
 			0 AS lc_o_amount,
 			0 AS amount_usd, 
@@ -138,3 +146,29 @@ def get_lc_combined_data():
 		) c_loan_p ON c_loan_p.cash_loan_no = c_loan.name;
 	"""
 	return frappe.db.sql(query, as_dict=True)
+
+
+
+
+
+@frappe.whitelist()
+def get_import_banking_flow(lc_no, inv_no, dc_name):
+	if dc_name== "s_lc_o":
+		lc_id = frappe.db.get_value("LC Open", {"lc_no": lc_no}, "name")
+
+		entries = frappe.db.sql("""
+		SELECT name, 'LC Open' AS Type, lc_open_date AS Date, amount AS Amount,"" AS Inv_no, currency AS Curr FROM `tabLC Open` WHERE name=%s
+		UNION ALL
+		SELECT name, 'LC Paid', date, amount, inv_no, currency FROM `tabLC Payment` WHERE lc_no=%s
+		UNION ALL
+		SELECT name, 'Import Loan', loan_date, loan_amount, inv_no, currency FROM `tabImport Loan` WHERE lc_no=%s
+		UNION ALL
+		select imp_l_p.name,"Loan Payment",imp_l_p.payment_date, imp_l_p.amount, imp_l.inv_no, imp_l.currency 
+						  from `tabImport Loan Payment` imp_l_p left join  `tabImport Loan` imp_l on imp_l.name= imp_l_p.inv_no WHERE imp_l.lc_no=%s
+	""", (lc_no, lc_id, lc_id, lc_id), as_dict=1)
+		print("xxxxxxxxxxxxxxxxxxxxxxx",lc_no)
+	else:
+		entries= "no data"
+	html= f"<div> {entries} </div>"
+	# html= "hiiiii"
+	return html
