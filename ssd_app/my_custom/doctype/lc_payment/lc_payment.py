@@ -43,7 +43,7 @@ def final_validation(doc):
 		SELECT SUM(usance_lc_amount) AS total_usance_lc
 		FROM `tabUsance LC`
 		WHERE lc_no = %(lc_no)s
-	""", {"lc_no": doc.lc_no}, as_dict=True)
+	""", {"lc_no": doc.lc_no}, as_dict=True)    
 	u_lc_amount = (usance_lc_data[0]["total_usance_lc"] or 0) if usance_lc_data else 0
 
 	# Check if LC balance is exceeded

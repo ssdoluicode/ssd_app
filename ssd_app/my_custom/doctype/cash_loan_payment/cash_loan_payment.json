@@ -8,7 +8,8 @@
   "cash_loan_no",
   "payment_date",
   "amount",
-  "note"
+  "note",
+  "currency"
  ],
  "fields": [
   {
@@ -38,12 +39,19 @@
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Currency",
+   "options": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-01 01:34:17.447488",
+ "modified": "2025-08-05 23:26:34.357051",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cash Loan Payment",

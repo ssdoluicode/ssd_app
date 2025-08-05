@@ -4,6 +4,11 @@
 import frappe
 from frappe.model.document import Document
 
+def set_currency(doc):
+	curr = frappe.db.get_value('Import Loan', doc.inv_no, 'currency')
+	doc.currency = curr
+
+
 def final_validation(doc):
 	imp_l_amount = frappe.db.get_value("Import Loan", doc.inv_no, "loan_amount") or 0
 
@@ -28,5 +33,9 @@ def final_validation(doc):
 
 
 class ImportLoanPayment(Document):
+	def before_save(self):
+		set_currency(self)
+
 	def validate(self):
 		final_validation(self)
+	

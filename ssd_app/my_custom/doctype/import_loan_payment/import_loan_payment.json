@@ -37,9 +37,9 @@
    "reqd": 1
   },
   {
-   "fetch_from": "inv_no.currency",
    "fieldname": "currency",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Currency",
    "options": "Currency"
   },
@@ -56,7 +56,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-03 02:13:46.734018",
+ "modified": "2025-08-05 23:02:49.786437",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan Payment",

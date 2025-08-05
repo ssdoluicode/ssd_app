@@ -47,9 +47,9 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "inv_no.currency",
    "fieldname": "currency",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Currency",
    "options": "Currency"
   }
@@ -57,7 +57,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-03 02:54:45.409582",
+ "modified": "2025-08-05 23:06:40.455078",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC Payment",

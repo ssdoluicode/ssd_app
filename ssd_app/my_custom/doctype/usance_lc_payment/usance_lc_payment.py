@@ -4,6 +4,10 @@
 import frappe
 from frappe.model.document import Document
 
+def set_currency(doc):
+	curr = frappe.db.get_value('Usance LC', doc.inv_no, 'currency')
+	doc.currency = curr
+
 def final_validation(doc):
 	u_lc_amount = frappe.db.get_value("Usance LC", doc.inv_no, "usance_lc_amount") or 0
 
@@ -28,5 +32,8 @@ def final_validation(doc):
 
 
 class UsanceLCPayment(Document):
+	def before_save(self):
+		set_currency(self)
+
 	def validate(self):
 		final_validation(self)

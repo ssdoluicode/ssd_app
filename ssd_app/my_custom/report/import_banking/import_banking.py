@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from datetime import date, timedelta
 
 def execute(filters=None):
 	columns = get_columns()
@@ -153,9 +154,17 @@ def get_lc_combined_data():
 
 @frappe.whitelist()
 def get_import_banking_flow(lc_no, inv_no, dc_name):
-	if dc_name== "s_lc_o":
-		lc_id = frappe.db.get_value("LC Open", {"lc_no": lc_no}, "name")
+	bank= "SBI"
+	customer= "SSD"
+	dc_name_labels_1 = {"u_lc_o": "Open LC","s_lc_o": "Open LC","imp_loan": "Import Loan", "u_lc": "Usance LC",
+					 "c_loan": "Cash Loan"}
 
+	dc_name_labels_2 = {"u_lc_o": "Usance LC","s_lc_o": "Import Loan"}
+
+	table_head_label_1 = dc_name_labels_1.get(dc_name, "")
+	table_head_label_2 = dc_name_labels_2.get(dc_name, "Payment")
+
+	if dc_name== "s_lc_o":
 		entries = frappe.db.sql("""
 		SELECT name, 'LC Open' AS Type, lc_open_date AS Date, amount AS Amount,"" AS Inv_no, currency AS Curr FROM `tabLC Open` WHERE name=%s
 		UNION ALL
@@ -163,12 +172,99 @@ def get_import_banking_flow(lc_no, inv_no, dc_name):
 		UNION ALL
 		SELECT name, 'Import Loan', loan_date, loan_amount, inv_no, currency FROM `tabImport Loan` WHERE lc_no=%s
 		UNION ALL
-		select imp_l_p.name,"Loan Payment",imp_l_p.payment_date, imp_l_p.amount, imp_l.inv_no, imp_l.currency 
+		select imp_l_p.name,"Imp Loan Payment",imp_l_p.payment_date, imp_l_p.amount, imp_l.inv_no, imp_l.currency 
 						  from `tabImport Loan Payment` imp_l_p left join  `tabImport Loan` imp_l on imp_l.name= imp_l_p.inv_no WHERE imp_l.lc_no=%s
 	""", (lc_no, lc_no, lc_no, lc_no), as_dict=1)
-		# frappe.msgprint(lc_no)
+	
+	elif dc_name== "u_lc_o":
+		entries = frappe.db.sql("""
+		SELECT name, 'LC Open' AS Type, lc_open_date AS Date, amount AS Amount,"" AS Inv_no, currency AS Curr FROM `tabLC Open` WHERE name=%s
+		UNION ALL
+		SELECT name, 'LC Paid', date, amount, inv_no, currency FROM `tabLC Payment` WHERE lc_no=%s
+		UNION ALL
+		SELECT name, 'Usance LC', usance_lc_date, usance_lc_amount, inv_no, currency FROM `tabUsance LC` WHERE lc_no=%s
+		UNION ALL
+		select u_lc_p.name,"Usance LC Payment",u_lc_p.payment_date, u_lc_p.amount, u_lc_p.inv_no, u_lc_p.currency 
+						  from `tabUsance LC Payment` u_lc_p left join  `tabUsance LC` u_lc on u_lc.name= u_lc_p.inv_no WHERE u_lc.lc_no=%s
+	""", (lc_no, lc_no, lc_no, lc_no), as_dict=1)
+		
+	elif dc_name== "c_loan":
+		entries = frappe.db.sql("""
+		SELECT name, 'Cash Loan' AS Type, cash_loan_date AS Date, cash_loan_amount AS Amount, "" AS Inv_no, currency AS Curr FROM `tabCash Loan` imp_l WHERE name=%s 
+		UNION ALL
+		SELECT name, "Cash Loan Payment", payment_date, amount, cash_loan_no, currency FROM `tabCash Loan Payment` WHERE cash_loan_no=%s
+
+	""", (lc_no,lc_no), as_dict=1)
+
 	else:
-		entries= "no data"
-	html= f"<div> {entries} </div>"
-	# html= "hiiiii"
+		entries= "Error"
+
+	entries.sort(key=lambda x: x["Date"] or date.today())
+
+	rows = []
+	col_1=0
+	col_2=0
+
+	for entry in entries:
+		if (entry['Type']== "LC Open"):
+			col_1+=entry["Amount"]
+		
+		if (entry['Type']== "LC Paid"):
+			col_1-=entry["Amount"]
+		
+		if (entry['Type']== "Import Loan" or entry['Type']== "Usance LC"):
+			col_1-=entry["Amount"]
+			col_2+=entry["Amount"]
+
+		if (entry['Type']== "Imp Loan Payment" or entry['Type']== "Usance LC Payment"):
+			col_2-=entry["Amount"]
+		
+
+		rows.append(f"""
+			<tr>
+			  	<td>{entry['Date']}</td>
+				  <td>{entry['Inv_no']}</td>
+				<td style="text-align:right;">{entry["Amount"]}</td>
+				<td>{entry['Type']}</td>
+				<td style="text-align:right;">{col_1}</td>
+				<td style="text-align:right;">{col_2}</td>
+
+				<td style="text-align:right;">note</td>
+			</tr>
+		""")
+
+
+	# Build final HTML
+	html = f"""
+	<div style="bmargin-bottom: 12px; background-color: #f9f9f9; padding: 8px 12px;  border-radius: 6px; 
+	box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <table style="width:100%; font-size:13px; margin-bottom:0;">
+			<tr><td><b>Invoice Date:</b> </td><td><b>Customer:</b> {customer}</td><td><b>Notify:</b> </td></tr>
+			<tr><td><b>Bank:</b> {bank}</td><td><b>Payment Term:</b> </td><td><b>Category:</b></td></tr>
+		</table>
+	</div>
+	<table class="table table-bordered" style="font-size:14px; border:1px solid #ddd;">
+		<thead style="background-color: #f1f1f1;">
+			<tr>
+				<th style="width:15%; text-align:center;">Date</th>
+				<th style="width:15%; text-align:center;">Inv No</th>
+				<th style="width:10%;text-align:center;">Amount</th>
+				<th style="width:10%; text-align:center;">Type</th>
+				<th style="width:10%;text-align:center;">{table_head_label_1}</th>
+				<th style="width:10%;text-align:center;">{table_head_label_2}</th>
+				<th style="width:15%;text-align:center;">Note</th>
+			</tr>
+		</thead>
+		<tbody style="border-top:1px solid #ddd;">
+
+			{''.join(rows)}
+		</tbody>
+	</table>
+	<div style="text-align:right; margin-top:12px;padding:8px; border-top:1px solid #eee;">
+	{entries}
+	</div>
+	"""
 	return html
+
+	
+	
