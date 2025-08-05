@@ -80,9 +80,9 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "fetch_from": "lc_no.currency",
    "fieldname": "currency",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Currency",
    "options": "Currency"
   }
@@ -90,7 +90,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-03 01:30:49.316130",
+ "modified": "2025-08-05 18:11:15.913390",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC",

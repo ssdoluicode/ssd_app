@@ -62,19 +62,17 @@
    "fieldtype": "Column Break"
   },
   {
-   "allow_in_quick_entry": 1,
-   "fetch_from": "lc_no.currency",
    "fieldname": "currency",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Currency",
-   "options": "Currency",
-   "read_only": 1
+   "options": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-03 00:59:06.280178",
+ "modified": "2025-08-05 18:06:52.589741",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment",

@@ -78,17 +78,17 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "fetch_from": "lc_no.currency",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
-   "options": "Currency"
+   "options": "Currency",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-03 00:42:12.327659",
+ "modified": "2025-08-05 18:14:20.475851",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",

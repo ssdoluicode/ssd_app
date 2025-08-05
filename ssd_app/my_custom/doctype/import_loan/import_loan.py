@@ -10,6 +10,11 @@ def set_custom_title(doc):
 	doc.custom_title = f"{lc_no.strip()} :: {doc.inv_no.strip()}".strip()
 	# doc.title = doc.custom_title
 
+def set_currency(doc):
+	curr = frappe.db.get_value('LC Open', doc.lc_no, 'currency')
+	doc.currency = curr
+
+
 def final_validation(doc):
 	# Get LC Open amount and tolerance
 	lc_amount = frappe.db.get_value("LC Open", doc.lc_no, "amount") or 0
@@ -65,6 +70,7 @@ def final_validation(doc):
 
 class ImportLoan(Document):
 	def before_save(self):
+		set_currency(self)
 		if self.lc_no and self.inv_no:
 			set_custom_title(self)
 

@@ -165,8 +165,8 @@ def get_import_banking_flow(lc_no, inv_no, dc_name):
 		UNION ALL
 		select imp_l_p.name,"Loan Payment",imp_l_p.payment_date, imp_l_p.amount, imp_l.inv_no, imp_l.currency 
 						  from `tabImport Loan Payment` imp_l_p left join  `tabImport Loan` imp_l on imp_l.name= imp_l_p.inv_no WHERE imp_l.lc_no=%s
-	""", (lc_no, lc_id, lc_id, lc_id), as_dict=1)
-		print("xxxxxxxxxxxxxxxxxxxxxxx",lc_no)
+	""", (lc_no, lc_no, lc_no, lc_no), as_dict=1)
+		# frappe.msgprint(lc_no)
 	else:
 		entries= "no data"
 	html= f"<div> {entries} </div>"

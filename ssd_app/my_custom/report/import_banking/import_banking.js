@@ -10,7 +10,7 @@ frappe.query_reports["Import Banking"] = {
         //     return `<a style="color:blue;"  href="#" onclick="showDocFlow('${data.name}', '${data.inv_no}'); return false;">${Number(data.document).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</a>`;
         // }
         if (column.fieldname === "bank" && data?.bank) {
-            return `<a style="color:blue;"  href="#" onclick="showImportBankingFlow('${data.lc_no}', '${data.inv_no}', '${data.dc_name}'); return false;">${data.bank}</a>`;
+            return `<a style="color:blue;"  href="#" onclick="showImportBankingFlow('${data.name}', '${data.inv_no}', '${data.dc_name}'); return false;">${data.bank}</a>`;
         }
         
 
