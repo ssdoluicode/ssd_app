@@ -29,7 +29,9 @@ def final_validation(doc):
 		<b>Entered Amount:</b> {doc.amount:,.2f}
 		"""
 		frappe.throw(msg)
-	
+
+	if not doc.amount:
+		frappe.throw("❌ Amount cannot be empty. Please enter the amount.")
 
 
 class ImportLoanPayment(Document):

@@ -29,7 +29,8 @@ def final_validation(doc):
 		"""
 		frappe.throw(msg)
 	
-
+	if not doc.amount:
+		frappe.throw("❌ Amount cannot be empty. Please enter the amount.")
 
 class UsanceLCPayment(Document):
 	def before_save(self):

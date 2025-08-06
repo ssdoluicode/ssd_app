@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+
 def final_validation(doc):
     if not doc.amount:
         frappe.throw("❌ LC Amount cannot be empty. Please enter the amount.")
