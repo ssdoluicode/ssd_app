@@ -62,7 +62,7 @@ function showImportBankingFlow(lc_no, inv_no, dc_name) {
             if (r.message) {
                 const d = new frappe.ui.Dialog({
                     title: `Document Flow for: ${inv_no}`,
-                    size: 'extra-large',
+                    size: 'large',
                     fields: [
                         {
                             fieldtype: 'HTML',
