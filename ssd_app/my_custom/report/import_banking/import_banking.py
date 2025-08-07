@@ -174,8 +174,10 @@ def get_import_banking_flow(lc_no, inv_no, dc_name):
 	# Generate rows
 	rows_html, col_1, col_2 = build_rows(entries, dc_name)
 
+	buttons_html= build_buttons(dc_name, lc_no, col_1, col_2)
+
 	# Final HTML output
-	return build_html(customer, bank, label_1, label_2, rows_html)
+	return build_html(customer, bank, label_1, label_2, rows_html, buttons_html)
 
 
 def get_entries(dc_name, lc_no):
@@ -302,8 +304,32 @@ def build_rows(entries, dc_name):
 
 	return rows, col_1, col_2
 
+def build_buttons(dc_name, lc_no, col_1, col_2):
+	today_str = date.today().strftime("%Y-%m-%d")
+	buttons_html = ""
+	if dc_name =="s_lc_o":
+		if col_1 > 0:
+			buttons_html += f"""
+			<a href="#" onclick="frappe.new_doc('Import Loan', {{ lc_no: '{lc_no}', loan_date:'{today_str}', loan_amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Import Loan</a>
+			<a href="#" onclick="frappe.new_doc('LC Payment', {{ lc_no: '{lc_no}', loan_date:'{today_str}', amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:green;">LC Payment</a>
+			"""
+	if dc_name =="u_lc_o":
+		if col_1 > 0:
+			buttons_html += f"""
+			<a href="#" onclick="frappe.new_doc('Usance LC', {{ lc_no: '{lc_no}', usance_lc_date:'{today_str}', usance_lc_amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Usance LC</a>
+			<a href="#" onclick="frappe.new_doc('LC Payment', {{ lc_no: '{lc_no}', loan_date:'{today_str}', amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:green;">LC Payment</a>
+			"""
+			# if nego_amt > 0:
+	# 	buttons_html += f"""
+	# 	<a href="#" onclick="frappe.new_doc('Doc Refund', {{ inv_no: '{inv_name}', refund_date:'{today_str}', refund_amount:'{nego_amt}' }}); return false;" class="btn btn-danger btn-sm" style="margin-left:8px;background-color:red;">Refund</a>"""
+	# if (doc_amount - received) > 0:
+	# 	buttons_html += f"""
+	# 	<a href="#" onclick="frappe.new_doc('Doc Received', {{ inv_no: '{inv_name}', received_date:'{today_str}', received:'{doc_amount - received}' }}); return false;" class="btn btn-success btn-sm" style="margin-left:8px;background-color:green;">Received</a>"""
 
-def build_html(customer, bank, label_1, label_2, rows):
+	return buttons_html
+
+
+def build_html(customer, bank, label_1, label_2, rows_html, buttons_html):
 	return f"""
 	<div style="margin-bottom: 12px; background-color: #f9f9f9; padding: 8px 12px; border-radius: 6px;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -332,10 +358,10 @@ def build_html(customer, bank, label_1, label_2, rows):
 			</tr>
 		</thead>
 		<tbody>
-			{''.join(rows)}
+			{''.join(rows_html)}
 		</tbody>
 	</table>
-
+	{buttons_html}
 	<div style="text-align:right; margin-top:12px; padding:8px; border-top:1px solid #eee;"></div>
 	"""
 
