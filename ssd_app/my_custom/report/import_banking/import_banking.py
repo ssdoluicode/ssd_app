@@ -206,10 +206,10 @@ def get_entries(dc_name, lc_no):
 			SELECT name, 'LC Paid', date, amount, inv_no, currency 
 			FROM `tabLC Payment` WHERE lc_no=%s
 			UNION ALL
-			SELECT name, 'Usance LC', usance_lc_date, usance_lc_amount AS amount, inv_no, currency 
+			SELECT name, 'U LC', usance_lc_date, usance_lc_amount AS amount, inv_no, currency 
 			FROM `tabUsance LC` WHERE lc_no=%s
 			UNION ALL
-			SELECT u_lc_p.name, 'Usance LC Payment', u_lc_p.payment_date, u_lc_p.amount, u_lc_p.inv_no, u_lc_p.currency 
+			SELECT u_lc_p.name, 'U LC Payment', u_lc_p.payment_date, u_lc_p.amount, u_lc_p.inv_no, u_lc_p.currency 
 			FROM `tabUsance LC Payment` u_lc_p 
 			LEFT JOIN `tabUsance LC` u_lc ON u_lc.name = u_lc_p.inv_no 
 			WHERE u_lc.lc_no=%s
@@ -237,10 +237,11 @@ def get_entries(dc_name, lc_no):
 	
 	elif dc_name == "u_lc":
 		return frappe.db.sql("""
-			SELECT name, 'Usance LC' AS Type, usance_lc_date AS Date, usance_lc_amount AS amount, inv_no AS Inv_no, currency 
+			SELECT name, 'U
+			 LC' AS Type, usance_lc_date AS Date, usance_lc_amount AS amount, inv_no AS Inv_no, currency 
 			FROM `tabUsance LC` WHERE name=%s
 			UNION ALL
-			SELECT u_lc_p.name, 'Usance LC Payment', u_lc_p.payment_date , u_lc_p.amount, u_lc.inv_no, u_lc_p.currency 
+			SELECT u_lc_p.name, 'U LC Payment', u_lc_p.payment_date , u_lc_p.amount, u_lc.inv_no, u_lc_p.currency 
 			FROM `tabUsance LC Payment` u_lc_p 
 			LEFT JOIN `tabUsance LC` u_lc ON u_lc.name = u_lc_p.inv_no 
 			WHERE u_lc_p.inv_no=%s
@@ -270,21 +271,21 @@ def build_rows(entries, dc_name):
 		elif dc_name == "s_lc_o" and type_ == "Import Loan":
 			col_1 -= amount
 			col_2 += amount
-		elif dc_name == "u_lc_o" and type_ == "Usance LC":
+		elif dc_name == "u_lc_o" and type_ == "U LC":
 			col_1 -= amount
 			col_2 += amount
 		elif dc_name == "s_lc_o" and type_ == "Imp Loan Payment":
 			col_2 -= amount
-		elif dc_name == "u_lc_o" and type_ == "Usance LC Payment":
+		elif dc_name == "u_lc_o" and type_ == "U LC Payment":
 			col_2 -= amount
 		elif dc_name == "imp_l" and type_ == "Import Loan":
 			col_1 += amount
 		elif dc_name == "imp_l" and type_ == "Imp Loan Payment":
 			col_1 -= amount
 			col_2 += amount
-		elif dc_name == "u_lc" and type_ == "Usance LC":
+		elif dc_name == "u_lc" and type_ == "U LC":
 			col_1 += amount
-		elif dc_name == "u_lc" and type_ == "Usance LC Payment":
+		elif dc_name == "u_lc" and type_ == "U LC Payment":
 			col_1 -= amount
 			col_2 += amount
 			
@@ -307,26 +308,64 @@ def build_rows(entries, dc_name):
 def build_buttons(dc_name, lc_no, col_1, col_2):
 	today_str = date.today().strftime("%Y-%m-%d")
 	buttons_html = ""
-	if dc_name =="s_lc_o":
-		if col_1 > 0:
-			buttons_html += f"""
-			<a href="#" onclick="frappe.new_doc('Import Loan', {{ lc_no: '{lc_no}', loan_date:'{today_str}', loan_amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Import Loan</a>
-			<a href="#" onclick="frappe.new_doc('LC Payment', {{ lc_no: '{lc_no}', loan_date:'{today_str}', amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:green;">LC Payment</a>
-			"""
-	if dc_name =="u_lc_o":
-		if col_1 > 0:
-			buttons_html += f"""
-			<a href="#" onclick="frappe.new_doc('Usance LC', {{ lc_no: '{lc_no}', usance_lc_date:'{today_str}', usance_lc_amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Usance LC</a>
-			<a href="#" onclick="frappe.new_doc('LC Payment', {{ lc_no: '{lc_no}', loan_date:'{today_str}', amount: {col_1} }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:green;">LC Payment</a>
-			"""
-			# if nego_amt > 0:
-	# 	buttons_html += f"""
-	# 	<a href="#" onclick="frappe.new_doc('Doc Refund', {{ inv_no: '{inv_name}', refund_date:'{today_str}', refund_amount:'{nego_amt}' }}); return false;" class="btn btn-danger btn-sm" style="margin-left:8px;background-color:red;">Refund</a>"""
-	# if (doc_amount - received) > 0:
-	# 	buttons_html += f"""
-	# 	<a href="#" onclick="frappe.new_doc('Doc Received', {{ inv_no: '{inv_name}', received_date:'{today_str}', received:'{doc_amount - received}' }}); return false;" class="btn btn-success btn-sm" style="margin-left:8px;background-color:green;">Received</a>"""
 
-	return buttons_html
+	if dc_name == "s_lc_o" and col_1 > 0:
+		buttons_html += f"""
+		<button class="btn btn-primary btn-sm import-loan-btn"
+			data-lc_no="{lc_no}" data-loan_date="{today_str}" data-loan_amount="{col_1}"
+			style="margin: 4px;">
+			Import Loan
+		</button>
+		<button class="btn btn-success btn-sm lc-payment-btn"
+			data-lc_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
+			style="margin: 4px;">
+			LC Payment
+		</button>
+		"""
+
+	elif dc_name == "u_lc_o" and col_1 > 0:
+		buttons_html += f"""
+		<button class="btn btn-primary btn-sm usance-lc-btn"
+			data-lc_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
+			style="margin: 4px;">
+			U LC
+		</button>
+		<button class="btn btn-success btn-sm lc-payment-btn"
+			data-lc_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
+			style="margin: 4px;">
+			LC Payment
+		</button>
+		"""
+	elif dc_name == "imp_l" and col_1 > 0:
+		buttons_html += f"""
+		<button class="btn btn-primary btn-sm imp_l_p-btn"
+			data-inv_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
+			style="margin: 4px;">
+			Imp Loan Paymnet
+		</button>
+		"""
+
+	elif dc_name == "u_lc" and col_1 > 0:
+		buttons_html += f"""
+		<button class="btn btn-primary btn-sm u_lc_p-btn"
+			data-inv_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
+			style="margin: 4px;">
+			U LC Payment
+		</button>
+		"""
+
+	elif dc_name == "c_loan" and col_1 > 0:
+		buttons_html += f"""
+		<button class="btn btn-primary btn-sm c_loan_p-btn"
+			data-cash_loan_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
+			style="margin: 4px;">
+			Cash Loan Payment
+		</button>
+		"""
+
+	return f'<div id="lc-buttons" style="margin-top: 12px;">{buttons_html}</div>'
+
+
 
 
 def build_html(customer, bank, label_1, label_2, rows_html, buttons_html):

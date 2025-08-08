@@ -18,6 +18,7 @@ frappe.query_reports["Import Banking"] = {
     },
 
 	onload: function (report) {
+        setup_lc_button_events();
 		// report.page.add_inner_button("New LC Open", function () {
         //     frappe.new_doc("LC Open");
         // });
@@ -51,6 +52,67 @@ frappe.query_reports["Import Banking"] = {
 };
 
 
+function setup_lc_button_events() {
+	// Handle Import Loan button
+	$(document).on("click", ".import-loan-btn", function () {
+		const btn = $(this);
+		frappe.new_doc("Import Loan", {
+			lc_no: btn.data("lc_no"),
+			loan_date: btn.data("loan_date"),
+			loan_amount: btn.data("loan_amount")
+		});
+	});
+
+	// Handle LC Payment button
+	$(document).on("click", ".lc-payment-btn", function () {
+		const btn = $(this);
+		frappe.new_doc("LC Payment", {
+			lc_no: btn.data("lc_no"),
+			date: btn.data("date"),
+			amount: btn.data("amount")
+		});
+	});
+
+	// Handle Usance LC button
+	$(document).on("click", ".usance-lc-btn", function () {
+		const btn = $(this);
+		frappe.new_doc("Usance LC", {
+			lc_no: btn.data("lc_no"),
+			usance_lc_date: btn.data("date"),
+			usance_lc_amount: btn.data("amount")
+		});
+	});
+
+    // Handle Usance LC button
+	$(document).on("click", ".imp_l_p-btn", function () {
+		const btn = $(this);
+		frappe.new_doc("Import Loan Payment", {
+			inv_no: btn.data("inv_no"),
+			payment_date: btn.data("date"),
+			amount: btn.data("amount")
+		});
+	});
+
+    // Handle Usance LC button
+	$(document).on("click", ".u_lc_p-btn", function () {
+		const btn = $(this);
+		frappe.new_doc("Usance LC Payment", {
+			inv_no: btn.data("inv_no"),
+			payment_date: btn.data("date"),
+			amount: btn.data("amount")
+		});
+	});
+
+    // Handle Cash Loan Payment button
+	$(document).on("click", ".c_loan_p-btn", function () {
+		const btn = $(this);
+		frappe.new_doc("Cash Loan Payment", {
+			cash_loan_no: btn.data("cash_loan_no"),
+			payment_date: btn.data("date"),
+			amount: btn.data("amount")
+		});
+	});
+}
 
 
 
