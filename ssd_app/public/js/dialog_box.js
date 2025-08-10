@@ -154,3 +154,69 @@ function showCostDetails(cost_id, inv_no) {
 } 
 
 
+function showImportBankingFlow(lc_no, inv_no, dc_name) {
+    frappe.call({
+        method: "ssd_app.my_custom.report.import_banking.import_banking.get_import_banking_flow",
+        args: { lc_no, inv_no, dc_name },
+        callback: function (r) {
+            if (r.message) {
+                const d = new frappe.ui.Dialog({
+                    title: `Document Flow for: ${inv_no}`,
+                    size: 'large',
+                    fields: [
+                        {
+                            fieldtype: 'HTML',
+                            fieldname: 'details_html',
+                            options: `
+                                <div id="cif-details-a4" style="box-shadow: 0 0 8px rgba(0,0,0,0.2);">
+                                    ${r.message}
+                                </div>`
+                        }
+                    ]
+                });
+
+                d.show();
+
+                // Add refresh button with better styling
+                const $header = $(d.$wrapper).find('.modal-header');
+                const refreshBtn = $(`
+                    <button 
+                        type="button" 
+                        class="btn btn-light btn-sm" 
+                        title="Refresh"
+                        style="
+                            margin-left: auto; 
+                            margin-right: 20px; 
+                            display: flex; 
+                            align-items: center; 
+                            gap: 8px;
+                            border: 1px solid #ddd;
+                            padding: 4px 8px;
+                            font-size: 13px;
+                        ">
+                        <span style="font-size: 14px;">🔄</span> Refresh
+                    </button>
+                `);
+
+                refreshBtn.on('click', function(e) {
+                    e.preventDefault();
+                    frappe.call({
+                        method: "ssd_app.my_custom.report.import_banking.import_banking.get_import_banking_flow",
+                        args: { lc_no, inv_no, dc_name },
+                        callback: function (res) {
+                            if (res.message) {
+                                d.set_value('details_html', `
+                                    <div id="cif-details-a4" style="box-shadow: 0 0 8px rgba(0,0,0,0.2);">
+                                        ${res.message}
+                                    </div>`);
+                            }
+                        }
+                    });
+                });
+
+                // Insert before the close (X) button for better spacing
+                $header.find('.modal-title').after(refreshBtn);
+            }
+        }
+    });
+}

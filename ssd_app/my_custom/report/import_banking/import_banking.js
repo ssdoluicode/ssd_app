@@ -10,15 +10,12 @@ frappe.query_reports["Import Banking"] = {
         //     return `<a style="color:blue;"  href="#" onclick="showDocFlow('${data.name}', '${data.inv_no}'); return false;">${Number(data.document).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</a>`;
         // }
         if (column.fieldname === "bank" && data?.bank) {
-            return `<a style="color:blue;"  href="#" onclick="showImportBankingFlow('${data.name}', '${data.inv_no}', '${data.dc_name}'); return false;">${data.bank}</a>`;
+            return `<a style="color:blue;"  href="#" onclick="showImportBankingFlow('${data.name}', '${data.dc_name}', '${data.supplier}', '${data.bank}'); return false;">${data.bank}</a>`;
         }
-        
-
         return value;
     },
 
 	onload: function (report) {
-        setup_lc_button_events();
 		// report.page.add_inner_button("New LC Open", function () {
         //     frappe.new_doc("LC Open");
         // });
@@ -52,78 +49,15 @@ frappe.query_reports["Import Banking"] = {
 };
 
 
-function setup_lc_button_events() {
-	// Handle Import Loan button
-	$(document).on("click", ".import-loan-btn", function () {
-		const btn = $(this);
-		frappe.new_doc("Import Loan", {
-			lc_no: btn.data("lc_no"),
-			loan_date: btn.data("loan_date"),
-			loan_amount: btn.data("loan_amount")
-		});
-	});
 
-	// Handle LC Payment button
-	$(document).on("click", ".lc-payment-btn", function () {
-		const btn = $(this);
-		frappe.new_doc("LC Payment", {
-			lc_no: btn.data("lc_no"),
-			date: btn.data("date"),
-			amount: btn.data("amount")
-		});
-	});
-
-	// Handle Usance LC button
-	$(document).on("click", ".usance-lc-btn", function () {
-		const btn = $(this);
-		frappe.new_doc("Usance LC", {
-			lc_no: btn.data("lc_no"),
-			usance_lc_date: btn.data("date"),
-			usance_lc_amount: btn.data("amount")
-		});
-	});
-
-    // Handle Usance LC button
-	$(document).on("click", ".imp_l_p-btn", function () {
-		const btn = $(this);
-		frappe.new_doc("Import Loan Payment", {
-			inv_no: btn.data("inv_no"),
-			payment_date: btn.data("date"),
-			amount: btn.data("amount")
-		});
-	});
-
-    // Handle Usance LC button
-	$(document).on("click", ".u_lc_p-btn", function () {
-		const btn = $(this);
-		frappe.new_doc("Usance LC Payment", {
-			inv_no: btn.data("inv_no"),
-			payment_date: btn.data("date"),
-			amount: btn.data("amount")
-		});
-	});
-
-    // Handle Cash Loan Payment button
-	$(document).on("click", ".c_loan_p-btn", function () {
-		const btn = $(this);
-		frappe.new_doc("Cash Loan Payment", {
-			cash_loan_no: btn.data("cash_loan_no"),
-			payment_date: btn.data("date"),
-			amount: btn.data("amount")
-		});
-	});
-}
-
-
-
-function showImportBankingFlow(lc_no, inv_no, dc_name) {
+function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
     frappe.call({
         method: "ssd_app.my_custom.report.import_banking.import_banking.get_import_banking_flow",
-        args: { lc_no, inv_no, dc_name },
+        args: { lc_no,  dc_name, supplier_name, bank_name },
         callback: function (r) {
             if (r.message) {
                 const d = new frappe.ui.Dialog({
-                    title: `Document Flow for: ${inv_no}`,
+                    title: `Document Flow for: `,
                     size: 'large',
                     fields: [
                         {

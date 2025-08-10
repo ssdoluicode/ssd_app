@@ -152,9 +152,7 @@ def get_lc_combined_data():
 
 
 @frappe.whitelist()
-def get_import_banking_flow(lc_no, inv_no, dc_name):
-	bank = "SBI"
-	customer = "SSD"
+def get_import_banking_flow(lc_no, dc_name, supplier_name, bank_name):
 
 	# Table headers
 	dc_labels = {
@@ -170,6 +168,8 @@ def get_import_banking_flow(lc_no, inv_no, dc_name):
 	entries = get_entries(dc_name, lc_no)
 	if entries == "Error":
 		return "<p>Error: Invalid dc_name provided.</p>"
+	else:
+		entries = sorted(entries, key=lambda x: x.get("Date") or "")
 
 	# Generate rows
 	rows_html, col_1, col_2 = build_rows(entries, dc_name)
@@ -177,7 +177,7 @@ def get_import_banking_flow(lc_no, inv_no, dc_name):
 	buttons_html= build_buttons(dc_name, lc_no, col_1, col_2)
 
 	# Final HTML output
-	return build_html(customer, bank, label_1, label_2, rows_html, buttons_html)
+	return build_html(supplier_name, bank_name, dc_name, label_1, label_2, rows_html, buttons_html)
 
 
 def get_entries(dc_name, lc_no):
@@ -237,8 +237,7 @@ def get_entries(dc_name, lc_no):
 	
 	elif dc_name == "u_lc":
 		return frappe.db.sql("""
-			SELECT name, 'U
-			 LC' AS Type, usance_lc_date AS Date, usance_lc_amount AS amount, inv_no AS Inv_no, currency 
+			SELECT name, 'U LC' AS Type, usance_lc_date AS Date, usance_lc_amount AS amount, inv_no AS Inv_no, currency 
 			FROM `tabUsance LC` WHERE name=%s
 			UNION ALL
 			SELECT u_lc_p.name, 'U LC Payment', u_lc_p.payment_date , u_lc_p.amount, u_lc.inv_no, u_lc_p.currency 
@@ -305,80 +304,65 @@ def build_rows(entries, dc_name):
 
 	return rows, col_1, col_2
 
+
 def build_buttons(dc_name, lc_no, col_1, col_2):
-	today_str = date.today().strftime("%Y-%m-%d")
-	buttons_html = ""
+    today_str = date.today().strftime("%Y-%m-%d")
+    buttons_html = ""
 
-	if dc_name == "s_lc_o" and col_1 > 0:
-		buttons_html += f"""
-		<button class="btn btn-primary btn-sm import-loan-btn"
-			data-lc_no="{lc_no}" data-loan_date="{today_str}" data-loan_amount="{col_1}"
-			style="margin: 4px;">
-			Import Loan
-		</button>
-		<button class="btn btn-success btn-sm lc-payment-btn"
-			data-lc_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
-			style="margin: 4px;">
-			LC Payment
-		</button>
-		"""
+    def quick_btn(label, doctype, **kwargs):
+        # Convert kwargs to JS object string for frappe.new_doc
+        params_js = "{" + ", ".join([f'"{k}": "{v}"' for k, v in kwargs.items()]) + "}"
+        return f"""
+        <button class="btn btn-primary btn-sm"
+            style="margin:4px;"
+            onclick='frappe.new_doc("{doctype}", {params_js})'>
+            {label}
+        </button>
+        """
 
-	elif dc_name == "u_lc_o" and col_1 > 0:
-		buttons_html += f"""
-		<button class="btn btn-primary btn-sm usance-lc-btn"
-			data-lc_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
-			style="margin: 4px;">
-			U LC
-		</button>
-		<button class="btn btn-success btn-sm lc-payment-btn"
-			data-lc_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
-			style="margin: 4px;">
-			LC Payment
-		</button>
-		"""
-	elif dc_name == "imp_l" and col_1 > 0:
-		buttons_html += f"""
-		<button class="btn btn-primary btn-sm imp_l_p-btn"
-			data-inv_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
-			style="margin: 4px;">
-			Imp Loan Paymnet
-		</button>
-		"""
+    if dc_name == "s_lc_o" and col_1 > 0:
+        buttons_html += quick_btn("Import Loan", "Import Loan",
+                                  lc_no=lc_no, loan_date=today_str, loan_amount=col_1)
+        buttons_html += quick_btn("LC Payment", "LC Payment",
+                                  lc_no=lc_no, date=today_str, amount=col_1)
 
-	elif dc_name == "u_lc" and col_1 > 0:
-		buttons_html += f"""
-		<button class="btn btn-primary btn-sm u_lc_p-btn"
-			data-inv_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
-			style="margin: 4px;">
-			U LC Payment
-		</button>
-		"""
+    elif dc_name == "u_lc_o" and col_1 > 0:
+        buttons_html += quick_btn("U LC", "Usance LC",
+                                  lc_no=lc_no, usance_lc_date=today_str, usance_lc_amount=col_1)
+        buttons_html += quick_btn("LC Payment", "LC Payment",
+                                  lc_no=lc_no, date=today_str, amount=col_1)
 
-	elif dc_name == "c_loan" and col_1 > 0:
-		buttons_html += f"""
-		<button class="btn btn-primary btn-sm c_loan_p-btn"
-			data-cash_loan_no="{lc_no}" data-date="{today_str}" data-amount="{col_1}"
-			style="margin: 4px;">
-			Cash Loan Payment
-		</button>
-		"""
+    elif dc_name == "imp_l" and col_1 > 0:
+        buttons_html += quick_btn("Imp Loan Payment", "Import Loan Payment",
+                                  inv_no=lc_no, payment_date=today_str, amount=col_1)
 
-	return f'<div id="lc-buttons" style="margin-top: 12px;">{buttons_html}</div>'
+    elif dc_name == "u_lc" and col_1 > 0:
+        buttons_html += quick_btn("U LC Payment", "Usance LC Payment",
+                                  inv_no=lc_no, payment_date=today_str, amount=col_1)
+
+    elif dc_name == "c_loan" and col_1 > 0:
+        buttons_html += quick_btn("Cash Loan Payment", "Cash Loan Payment",
+                                  cash_loan_no=lc_no, payment_date=today_str, amount=col_1)
+
+    return f'<div id="lc-buttons" style="margin-top: 12px;">{buttons_html}</div>'
 
 
 
-
-def build_html(customer, bank, label_1, label_2, rows_html, buttons_html):
+def build_html(supplier_name, bank_name, term, label_1, label_2, rows_html, buttons_html):
 	return f"""
 	<div style="margin-bottom: 12px; background-color: #f9f9f9; padding: 8px 12px; border-radius: 6px;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
 		<table style="width:100%; font-size:13px;">
 			<tr>
-				<td><b>Supplier: ##########</b></td>
+				<td><b>Supplier: {supplier_name}</b></td>
 				
 			</tr>
 			<tr>
-				<td><b>Bank:</b> {bank}</td>
+				<td><b>Term:</b> {term}</td>
+				
+			</tr>
+			<tr>
+				<td><b>Bank:</b> {bank_name}</td>
 				
 			</tr>
 		</table>
