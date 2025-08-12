@@ -1,199 +1,10 @@
 # Copyright (c) 2025, SSDolui and contributors
 # For license information, please see license.txt
 
+
 import frappe
 from frappe import _
 from datetime import date, timedelta
-
-# def execute(filters=None):
-# 	columns = get_columns()
-# 	data = get_lc_combined_data(filters)
-# 	return columns, data
-
-# def get_columns():
-# 	return [
-# 		{"label": "LC No", "fieldname": "lc_no", "fieldtype": "Data", "width": 110},
-# 		{"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
-# 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
-# 		{"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 280},
-# 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},
-# 		{"label": "DocType", "fieldname": "dc_name", "fieldtype": "Data", "width": 70},#
-# 		{"label": "LC Open", "fieldname": "lc_o_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
-# 		{"label": "Import Loan", "fieldname": "imp_loan_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
-# 		{"label": "Usance LC", "fieldname": "u_lc_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
-# 		{"label": "Cash Loan", "fieldname": "cash_loan", "fieldtype": "Currency", "options": "currency", "width": 130},
-# 		{"label": "Due Date", "fieldname": "due_date", "fieldtype": "Date", "width": 110},
-# 	]
-
-# def get_lc_combined_data(filters):
-# 	as_on = filters.as_on
-# 	based_on = filters.based_on or ""
-# 	lc_o_condition = ""
-# 	imp_loan_condition = ""
-# 	u_lc_condition = ""
-# 	cash_loan_condition = ""
-# 	if based_on == "Current Position":
-# 		lc_o_condition = "AND (lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0) != 0)"
-# 		imp_loan_condition = "AND (IFNULL(imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 0) != 0)"
-# 		u_lc_condition = "AND (IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0) != 0)"
-# 		cash_loan_condition = "AND (IFNULL(c_loan.cash_loan_amount - IFNULL(c_loan_p.c_loan_p_amount, 0), 0) != 0)"
-	
-# 	if based_on == "LC Open":
-# 		lc_o_condition = "AND (lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0) != 0)"
-# 		imp_loan_condition = "AND 1=0"
-# 		u_lc_condition = "AND 1=0"
-# 		cash_loan_condition = "AND 1=0"
-
-# 	if based_on == "Usance LC":
-# 		lc_o_condition = "AND 1=0"
-# 		imp_loan_condition = "AND 1=0"
-# 		u_lc_condition = "AND (IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0) != 0)"
-# 		cash_loan_condition = "AND 1=0"
-
-# 	if based_on == "Import Loan":
-# 		lc_o_condition ="AND 1=0"
-# 		imp_loan_condition = "AND (IFNULL(imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 0) != 0)"
-# 		u_lc_condition = "AND 1=0"
-# 		cash_loan_condition = "AND 1=0"
-
-# 	if based_on == "Cash Loan":
-# 		lc_o_condition ="AND 1=0"
-# 		imp_loan_condition = "AND 1=0"
-# 		u_lc_condition = "AND 1=0"
-# 		cash_loan_condition = "AND (IFNULL(c_loan.cash_loan_amount - IFNULL(c_loan_p.c_loan_p_amount, 0), 0) != 0)"
-# 	query = f"""
-# 		SELECT 
-# 			lc_o.name, 
-# 			lc_o.lc_no,
-# 			'' AS inv_no,
-# 			lc_o.lc_open_date AS date, 
-# 			sup.supplier AS supplier, 
-# 			bank.bank AS bank,
-# 			CASE 
-# 				WHEN lc_o.lc_type = 'LC at Sight' THEN 's_lc_o' 
-# 				ELSE 'u_lc_o' 
-# 			END AS dc_name,
-# 			lc_o.currency, 
-# 			IF(
-# 				lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0) < lc_o.amount * lc_o.tolerance / 100,
-# 				0,
-# 				lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0)
-# 			) AS lc_o_amount,
-# 			0 AS amount_usd, 
-# 			0 AS imp_loan_amount,
-# 			0 AS u_lc_amount,
-# 			0 AS cash_loan,
-# 			NULL AS due_date
-# 		FROM `tabLC Open` lc_o
-# 		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-# 		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
-# 		LEFT JOIN (
-# 			SELECT lc_no, SUM(amount) AS lc_p_amount 
-# 			FROM `tabLC Payment` 
-# 			GROUP BY lc_no
-# 		) lc_p ON lc_p.lc_no = lc_o.name
-# 		LEFT JOIN (
-# 			SELECT lc_no, SUM(loan_amount) AS imp_loan_amount 
-# 			FROM `tabImport Loan` 
-# 			GROUP BY lc_no
-# 		) imp_loan ON imp_loan.lc_no = lc_o.name
-# 		LEFT JOIN (
-# 			SELECT lc_no, SUM(usance_lc_amount) AS u_lc_amount 
-# 			FROM `tabUsance LC`
-# 			GROUP BY lc_no
-# 		) u_lc ON u_lc.lc_no = lc_o.name
-# 		WHERE lc_o.lc_open_date <= '{as_on}' {lc_o_condition}
-
-# 		UNION ALL
-
-# 		SELECT 
-# 			imp_l.name, 
-# 			lc_o.lc_no,
-# 			imp_l.inv_no,
-# 			imp_l.loan_date AS date, 
-# 			sup.supplier AS supplier, 
-# 			bank.bank AS bank,
-# 			'imp_l' AS dc_name,
-# 			lc_o.currency, 
-# 			0 AS lc_o_amount,
-# 			0 AS amount_usd, 
-# 			IFNULL(imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 0) AS imp_loan_amount,
-# 			0 AS u_lc_amount,
-# 			0 AS cash_loan,
-# 			imp_l.due_date
-# 		FROM `tabImport Loan` imp_l
-# 		LEFT JOIN `tabLC Open` lc_o ON imp_l.lc_no = lc_o.name
-# 		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-# 		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
-# 		LEFT JOIN (
-# 			SELECT inv_no, SUM(amount) AS imp_l_p_amount
-# 			FROM `tabImport Loan Payment` 
-# 			GROUP BY inv_no
-# 		) imp_l_p ON imp_l_p.inv_no = imp_l.name
-# 		WHERE imp_l.loan_date <= '{as_on}' {imp_loan_condition}
-
-# 		UNION ALL
-
-# 		SELECT 
-# 			u_lc.name, 
-# 			lc_o.lc_no,
-# 			u_lc.inv_no,
-# 			u_lc.usance_lc_date AS date, 
-# 			sup.supplier AS supplier, 
-# 			bank.bank AS bank,
-# 			'u_lc' AS dc_name,
-# 			lc_o.currency, 
-# 			0 AS lc_o_amount,
-# 			0 AS amount_usd, 
-# 			0 AS imp_loan_amount,
-# 			IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0) AS u_lc_amount,
-# 			0 AS cash_loan,
-# 			u_lc.due_date
-# 		FROM `tabUsance LC` u_lc
-# 		LEFT JOIN `tabLC Open` lc_o ON u_lc.lc_no = lc_o.name
-# 		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-# 		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
-# 		LEFT JOIN (
-# 			SELECT inv_no, SUM(amount) AS u_lc_p_amount
-# 			FROM `tabUsance LC Payment` 
-# 			GROUP BY inv_no
-# 		) u_lc_p ON u_lc_p.inv_no = u_lc.name
-# 		WHERE u_lc.usance_lc_date <= '{as_on}' {u_lc_condition}
-
-# 		UNION ALL
-
-# 		SELECT 
-# 			c_loan.name, 
-# 			c_loan.cash_loan_no AS lc_no,
-# 			"" AS inv_no,
-# 			c_loan.cash_loan_date AS date, 
-# 			"" AS supplier, 
-# 			bank.bank AS bank,
-# 			'c_loan' AS dc_name,
-# 			c_loan.currency, 
-# 			0 AS lc_o_amount,
-# 			0 AS amount_usd, 
-# 			0 AS imp_loan_amount,
-# 			0 AS u_lc_amount,
-# 			IFNULL(c_loan.cash_loan_amount-IFNULL(c_loan_p.c_loan_p_amount,0), 0) AS cash_loan,
-# 			c_loan.due_date
-# 		FROM `tabCash Loan` c_loan
-# 		LEFT JOIN `tabBank` bank ON bank.name = c_loan.bank
-# 		LEFT JOIN (
-# 			SELECT cash_loan_no, SUM(amount) AS c_loan_p_amount
-# 			FROM `tabCash Loan Payment` 
-# 			GROUP BY cash_loan_no
-# 		) c_loan_p ON c_loan_p.cash_loan_no = c_loan.name
-# 		WHERE c_loan.cash_loan_date <= '{as_on}' {cash_loan_condition}
-# 		;
-# 	"""
-# 	return frappe.db.sql(query, as_dict=True)
-# Copyright (c) 2025, SSDolui and contributors
-# For license information, please see license.txt
-
-import frappe
-from frappe import _
-from datetime import date
 from frappe.utils import formatdate, fmt_money
 
 
@@ -210,7 +21,7 @@ def get_columns():
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
 		{"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 280},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},
-		{"label": "DocType", "fieldname": "dc_name", "fieldtype": "Data", "width": 70},
+		# {"label": "DocType", "fieldname": "dc_name", "fieldtype": "Data", "width": 70},
 		{"label": "LC Open", "fieldname": "lc_o_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Import Loan", "fieldname": "imp_loan_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Usance LC", "fieldname": "u_lc_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
@@ -292,19 +103,22 @@ def get_lc_combined_data(filters):
 		LEFT JOIN (
 			SELECT lc_no, SUM(amount) AS lc_p_amount 
 			FROM `tabLC Payment` 
+			WHERE date <= %(as_on)s
 			GROUP BY lc_no
 		) lc_p ON lc_p.lc_no = lc_o.name
 		LEFT JOIN (
 			SELECT lc_no, SUM(loan_amount) AS imp_loan_amount 
-			FROM `tabImport Loan` 
+			FROM `tabImport Loan`
+			WHERE loan_date <= %(as_on)s
 			GROUP BY lc_no
 		) imp_loan ON imp_loan.lc_no = lc_o.name
 		LEFT JOIN (
 			SELECT lc_no, SUM(usance_lc_amount) AS u_lc_amount 
 			FROM `tabUsance LC`
+			WHERE usance_lc_date <= %(as_on)s
 			GROUP BY lc_no
 		) u_lc ON u_lc.lc_no = lc_o.name
-		WHERE lc_o.lc_open_date <= %s {conds['lc_o']}
+		WHERE lc_o.lc_open_date <= %(as_on)s {conds['lc_o']}
 
 		UNION ALL
 		-- Import Loan
@@ -330,9 +144,10 @@ def get_lc_combined_data(filters):
 		LEFT JOIN (
 			SELECT inv_no, SUM(amount) AS imp_l_p_amount
 			FROM `tabImport Loan Payment` 
+			WHERE payment_date <= %(as_on)s
 			GROUP BY inv_no
 		) imp_l_p ON imp_l_p.inv_no = imp_l.name
-		WHERE imp_l.loan_date <= %s {conds['imp_loan']}
+		WHERE imp_l.loan_date <= %(as_on)s {conds['imp_loan']}
 
 		UNION ALL
 		-- Usance LC
@@ -358,9 +173,10 @@ def get_lc_combined_data(filters):
 		LEFT JOIN (
 			SELECT inv_no, SUM(amount) AS u_lc_p_amount
 			FROM `tabUsance LC Payment` 
+			WHERE payment_date <= %(as_on)s
 			GROUP BY inv_no
 		) u_lc_p ON u_lc_p.inv_no = u_lc.name
-		WHERE u_lc.usance_lc_date <= %s {conds['u_lc']}
+		WHERE u_lc.usance_lc_date <= %(as_on)s {conds['u_lc']}
 
 		UNION ALL
 		-- Cash Loan
@@ -384,57 +200,16 @@ def get_lc_combined_data(filters):
 		LEFT JOIN (
 			SELECT cash_loan_no, SUM(amount) AS c_loan_p_amount
 			FROM `tabCash Loan Payment` 
+			WHERE payment_date <= %(as_on)s
 			GROUP BY cash_loan_no
 		) c_loan_p ON c_loan_p.cash_loan_no = c_loan.name
-		WHERE c_loan.cash_loan_date <= %s {conds['cash_loan']}
+		WHERE c_loan.cash_loan_date <= %(as_on)s {conds['cash_loan']}
 	"""
 
 	# Execute with parameter binding
-	return frappe.db.sql(query, (as_on, as_on, as_on, as_on), as_dict=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return frappe.db.sql(query, {
+		"as_on": as_on
+	}, as_dict=True)
 
 
 
@@ -632,7 +407,8 @@ def build_buttons(dc_name, lc_no, col_1, col_2):
         buttons_html += quick_btn("Cash Loan Payment", "Cash Loan Payment",
                                   cash_loan_no=lc_no, payment_date=today_str, amount=col_1)
 
-    return f'<div id="lc-buttons" style="margin-top: 12px;">{buttons_html}</div>'
+    # return f'<div id="lc-buttons" style="margin-top: 12px; right: 10px; float:right;">{buttons_html}</div>'
+    return f'<div id="lc-buttons" style="margin-top:30px; float:right;">{buttons_html}</div>'
 
 
 

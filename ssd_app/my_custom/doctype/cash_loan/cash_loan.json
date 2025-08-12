@@ -10,8 +10,9 @@
   "cash_loan_date",
   "due_date",
   "bank",
-  "cash_loan_amount",
+  "company",
   "column_break_zlit",
+  "cash_loan_amount",
   "currency",
   "ex_rate",
   "cash_loan_amount_usd",
@@ -87,12 +88,19 @@
    "label": "Bank",
    "options": "Bank",
    "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-01 01:41:49.703350",
+ "modified": "2025-08-12 22:26:46.209533",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cash Loan",

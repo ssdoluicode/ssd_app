@@ -14,5 +14,9 @@ frappe.ui.form.on("LC Open", {
     },
     amount: function(frm) {
         calculate_usd(frm);
+    },
+    after_save(frm) {
+        // Redirect to your report page "Import Banking"
+        frappe.set_route('query-report', 'Import Banking');
     }
 });

@@ -9,13 +9,14 @@
   "lc_no",
   "lc_open_date",
   "lc_type",
-  "column_break_vpri",
   "term_days",
+  "column_break_vpri",
+  "company",
   "bank",
   "amount",
   "currency",
-  "column_break_humr",
   "ex_rate",
+  "column_break_humr",
   "amount_usd",
   "tolerance",
   "note"
@@ -119,12 +120,19 @@
    "fieldtype": "Date",
    "label": "LC Open Date",
    "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-05 00:26:09.310788",
+ "modified": "2025-08-12 22:37:34.599751",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Open",

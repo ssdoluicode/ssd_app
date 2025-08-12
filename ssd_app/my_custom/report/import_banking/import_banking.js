@@ -19,6 +19,10 @@ frappe.query_reports["Import Banking"] = {
 		// report.page.add_inner_button("New LC Open", function () {
         //     frappe.new_doc("LC Open");
         // });
+         report.page.add_inner_button("Import Banking Line", function () {
+            let filters = report.get_values();
+            bankingLine(filters.as_on);
+        });
 		report.page.add_inner_button("New LC Open", function () {
 			frappe.new_doc("LC Open", true);
 		}, "New");
@@ -98,7 +102,7 @@ function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
                     e.preventDefault();
                     frappe.call({
                         method: "ssd_app.my_custom.report.import_banking.import_banking.get_import_banking_flow",
-                        args: { lc_no, inv_no, dc_name },
+                        args: { lc_no,  dc_name, supplier_name, bank_name },
                         callback: function (res) {
                             if (res.message) {
                                 d.set_value('details_html', `
@@ -116,3 +120,39 @@ function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
         }
     });
 }
+
+
+function bankingLine(as_on) {
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.lc_open.lc_open.import_banking_line",
+        args: {as_on },
+        callback: function (r) {
+            if (!r.message) return;
+            const htmlContent = `
+                <div id="cif-details-a4" style="
+                    width: 30cm;
+                    max-width: 100%;
+                    min-height: 5cm;
+                    padding: 0.3cm;
+                    background: white;
+                    font-size: 13px;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+                >${r.message}</div>
+            `;
+
+            const dialog = new frappe.ui.Dialog({
+                title: `Import Banking Line`,
+                size: 'large',
+                fields: [
+                    {
+                        fieldtype: 'HTML',
+                        fieldname: 'details_html',
+                        options: htmlContent
+                    }
+                ]
+            });
+
+            dialog.show();
+        }
+    });
+} 

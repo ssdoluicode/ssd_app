@@ -168,8 +168,10 @@ def get_doc_flow(inv_name):
 	due_date_str = (date.today() + timedelta(days=doc.term_days)).strftime("%Y-%m-%d")
 	buttons_html = ""
 	if coll > 0:
+		# buttons_html += f"""
+		# <a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', nego_date:'{today_str}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
 		buttons_html += f"""
-		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', nego_date:'{today_str}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
+		<a href="#" onclick="frappe.new_doc('LC Open'); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
 
 	if nego_amt > 0:
 		buttons_html += f"""
