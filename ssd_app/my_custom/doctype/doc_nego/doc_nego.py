@@ -8,6 +8,7 @@ from frappe import _
 from frappe.utils import getdate, add_days
 import json
 import pandas as pd
+import numpy as np
 
 
 def calculate_term_days(doc):
@@ -205,17 +206,15 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
 
 
 @frappe.whitelist()
-def banking_line(as_on):
+def banking_line(as_on, columns_order=[]):
+    
     query = """
     SELECT
         cif.name,
         cif.inv_no,
         com.company_code AS com,
         bank.bank,
-        CASE 
-            WHEN cif.payment_term IN ('DA', 'DP') THEN 'DA+DP'
-            ELSE cif.payment_term
-        END AS p_term,
+        cif.payment_term AS p_term,
         ROUND(cif.document, 0) * 1.0 AS document,
         GREATEST(
             IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0),
@@ -296,73 +295,106 @@ def banking_line(as_on):
         .total-row td { font-weight: bold; }
     </style>
     """
+    
+    rows = frappe.db.sql(query, {"as_on": as_on}, as_dict=True)
+    if not rows:
+        return "<p>No data found</p>"
 
-    col_width = 15  # percent for Payment Term column
-    num_numeric_cols = len(all_banks) + 1  # +1 for Total column
-    numeric_col_width = (100 - col_width) / num_numeric_cols
+    data = [dict(r) for r in rows]
+    df = pd.DataFrame(data)
+    if columns_order:
+        if isinstance(columns_order, str):
+            columns_order = json.loads(columns_order)
+    else:
+        columns_order = None  # No order specified
+        columns_order = sorted(df["p_term"].dropna().unique().tolist())
 
-    # Process per company
-    com_list = df['com'].dropna().unique()
-    for com in com_list:
-        df_com = df[df['com'] == com]
-        pivot = pd.pivot_table(
-            df_com, values='nego', index='p_term', columns='bank',
-            aggfunc='sum', fill_value=0
+    pivot = (
+        df.pivot_table(
+            index=["bank", "com"],
+            columns="p_term",
+            values="nego",
+            aggfunc="sum",
+            fill_value=0.0
         )
-        pivot = pivot.reindex(columns=all_banks, fill_value=0)
-        pivot['Total'] = pivot.sum(axis=1)
-        total_row = pd.DataFrame(pivot.sum(axis=0)).T
-        total_row.index = ['Total']
-        pivot = pd.concat([pivot, total_row])
-        pivot = pivot.round(2)
-
-        html += f"<h3>{com}</h3>"
-        html += "<div class='babking_line-table-container'>"
-        html += "<table class='babking_line-table'>"
-        html += "<thead><tr>"
-        html += f"<th id='left' style='width:{col_width:.2f}%;'>Payment Term</th>"
-        for bank in all_banks:
-            html += f"<th style='width:{numeric_col_width:.2f}%;'>{bank}</th>"
-        html += f"<th style='width:{numeric_col_width:.2f}%;'>Total</th></tr></thead>"
-        html += "<tbody>"
-
-        for idx, row in pivot.iterrows():
-            total_row_class = "total-row" if idx == 'Total' else ""
-            html += f"<tr class='{total_row_class}'><td id='left'>{idx}</td>"
-            for bank in all_banks:
-                html += f"<td>{'{:,.2f}'.format(row[bank])}</td>"
-            html += f"<td class='total-column'>{'{:,.2f}'.format(row['Total'])}</td></tr>"
-        html += "</tbody></table></div>"
-
-    # Grand total
-    grand_pivot = pd.pivot_table(
-        df, values='nego', index='p_term', columns='bank',
-        aggfunc='sum', fill_value=0
+        .reindex(columns=columns_order, fill_value=0.0)
+        .sort_index(level=[0, 1])
     )
-    grand_pivot = grand_pivot.reindex(columns=all_banks, fill_value=0)
-    grand_pivot['Total'] = grand_pivot.sum(axis=1)
-    total_row = pd.DataFrame(grand_pivot.sum(axis=0)).T
-    total_row.index = ['Total']
-    grand_pivot = pd.concat([grand_pivot, total_row])
-    grand_pivot = grand_pivot.round(2)
 
-    html += "<h3>All Companies</h3>"
-    html += "<div class='babking_line-table-container'>"
-    html += "<table class='babking_line-table'>"
-    html += "<thead><tr>"
-    html += f"<th id='left' style='width:{col_width:.2f}%;'>Payment Term</th>"
-    for bank in all_banks:
-        html += f"<th style='width:{numeric_col_width:.2f}%;'>{bank}</th>"
-    html += f"<th style='width:{numeric_col_width:.2f}%;'>Total</th></tr></thead>"
-    html += "<tbody>"
+    display_vals = pivot.replace(0.0, np.nan)
 
-    for idx, row in grand_pivot.iterrows():
-        total_row_class = "total-row" if idx == 'Total' else ""
-        html += f"<tr class='{total_row_class}'><td id='left'>{idx}</td>"
-        for bank in all_banks:
-            html += f"<td>{'{:,.2f}'.format(row[bank])}</td>"
-        html += f"<td class='total-column'>{'{:,.2f}'.format(row['Total'])}</td></tr>"
+    css = """
+        <style>
+        table.bank-summary { 
+            border-collapse: collapse; 
+            width: 100%; 
+            font-family: Arial, sans-serif; 
+            font-size: 13px; 
+        }
+        .bank-summary th, .bank-summary td { 
+            border: 1px solid #000; 
+            padding: 6px 10px; 
+        }
+        .bank-summary th { 
+            text-align: center; 
+            font-weight: bold; 
+            background-color: #f5f5f5; 
+        }
+        .bank-summary td.num { text-align: right; white-space: nowrap; }
+        .bank-summary td.txt { text-align: left; }
+        .bank-summary td.blank { text-align: center; color: #555; }
+        
+        .bank-row-even { background-color: #eaf2ff; }  /* light blue */
+        .bank-row-odd  { background-color: #fff4e5; }  /* light orange */
+        .total { font-weight: bold; background-color: #c6efce; } /* light green */
 
-    html += "</tbody></table></div>"
+        </style>
+    """
 
-    return html
+    html = [css, '<table class="bank-summary">']
+    html.append("<thead><tr><th>Bank</th><th>Company</th>")
+    for col in columns_order:
+        html.append(f"<th>{col}</th>")
+    html.append("</tr></thead><tbody>")
+
+    # Grand totals
+    grand_totals = display_vals.copy().fillna(0.0).sum(axis=0)
+
+    # Bank colors
+    bank_colors = ["bank-row-even", "bank-row-odd"]
+    color_idx = 0
+
+    # Loop through banks
+    for bank, bank_frame in display_vals.groupby(level=0):
+        bank_rows = bank_frame.reset_index(level=0, drop=True)
+        rowspan = len(bank_rows)
+        first_row = True
+        row_class = bank_colors[color_idx % 2]
+        color_idx += 1
+
+        for company, row in bank_rows.iterrows():
+            html.append(f'<tr class="{row_class}">')
+            if first_row:
+                html.append(f'<td class="txt" rowspan="{rowspan}">{bank}</td>')
+                first_row = False
+            html.append(f'<td class="txt">{company}</td>')
+            for col in columns_order:
+                val = row.get(col, np.nan)
+                if pd.isna(val):
+                    html.append('<td class="blank">-</td>')
+                else:
+                    html.append(f'<td class="num">{val:,.2f}</td>')
+            html.append("</tr>")
+
+    # Grand total row
+    html.append('<tr class="total"><td class="txt" colspan="2">TOTAL</td>')
+    for col in columns_order:
+        tot = grand_totals.get(col, 0.0)
+        if tot == 0.0 or pd.isna(tot):
+            html.append('<td class="blank">-</td>')
+        else:
+            html.append(f'<td class="num">{tot:,.2f}</td>')
+    html.append("</tr>")
+
+    html.append("</tbody></table>")
+    return "".join(html)

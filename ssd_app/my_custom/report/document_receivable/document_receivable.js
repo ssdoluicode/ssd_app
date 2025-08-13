@@ -42,7 +42,7 @@ frappe.query_reports["Document Receivable"] = {
         `;
         document.head.appendChild(style);
 
-        report.page.add_inner_button("Banking Line", function () {
+        report.page.add_inner_button("Export Banking Used", function () {
             let filters = report.get_values();
             bankingLine(filters.as_on);
         });
@@ -71,9 +71,10 @@ frappe.query_reports["Document Receivable"] = {
 
 
 function bankingLine(as_on) {
+    columns_order=["LC", "LC at Sight","DA", "DP"]
     frappe.call({
         method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.banking_line",
-        args: {as_on },
+        args: {as_on, columns_order},
         callback: function (r) {
             if (!r.message) return;
             const htmlContent = `

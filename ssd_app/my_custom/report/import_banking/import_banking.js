@@ -19,7 +19,7 @@ frappe.query_reports["Import Banking"] = {
 		// report.page.add_inner_button("New LC Open", function () {
         //     frappe.new_doc("LC Open");
         // });
-         report.page.add_inner_button("Import Banking Line", function () {
+         report.page.add_inner_button("Import Banking Used", function () {
             let filters = report.get_values();
             bankingLine(filters.as_on);
         });
@@ -123,9 +123,10 @@ function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
 
 
 function bankingLine(as_on) {
+    columns_order = ["Cash Loan", "Imp Loan", "LC Open", "Usance LC"] 
     frappe.call({
         method: "ssd_app.my_custom.doctype.lc_open.lc_open.import_banking_line",
-        args: {as_on },
+        args: {as_on, columns_order},
         callback: function (r) {
             if (!r.message) return;
             const htmlContent = `
