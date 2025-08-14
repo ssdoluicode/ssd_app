@@ -11,6 +11,9 @@ import pandas as pd
 import numpy as np
 
 
+from ssd_app.utils.banking import export_banking_data
+
+
 def calculate_term_days(doc):
     if doc.bank_due_date and doc.nego_date:
         due_date = getdate(doc.bank_due_date)
@@ -206,101 +209,13 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
 
 
 @frappe.whitelist()
-def banking_line(as_on, columns_order=[]):
-    
-    query = """
-    SELECT
-        cif.name,
-        cif.inv_no,
-        com.company_code AS com,
-        bank.bank,
-        cif.payment_term AS p_term,
-        ROUND(cif.document, 0) * 1.0 AS document,
-        GREATEST(
-            IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0),
-            0
-        ) * 1.0 AS nego
-    FROM `tabCIF Sheet` cif
-    LEFT JOIN (
-        SELECT inv_no, SUM(nego_amount) * 1.0 AS total_nego
-        FROM `tabDoc Nego`
-        WHERE nego_date <= %(as_on)s
-        GROUP BY inv_no
-    ) nego ON cif.name = nego.inv_no
-    LEFT JOIN (
-        SELECT inv_no, SUM(refund_amount) * 1.0 AS total_ref
-        FROM `tabDoc Refund`
-        WHERE refund_date <= %(as_on)s
-        GROUP BY inv_no
-    ) ref ON cif.name = ref.inv_no
-    LEFT JOIN (
-        SELECT inv_no, SUM(received) * 1.0 AS total_rec
-        FROM `tabDoc Received`
-        WHERE received_date <= %(as_on)s
-        GROUP BY inv_no
-    ) rec ON cif.name = rec.inv_no
-    LEFT JOIN `tabBank` bank ON cif.bank = bank.name
-    LEFT JOIN `tabCompany` com ON cif.shipping_company= com.name
-    WHERE cif.payment_term != 'TT'
-      AND GREATEST(
-          IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0),
-          0
-      ) != 0
-      AND cif.inv_date <= %(as_on)s
-    ORDER BY cif.name ASC
-    """
+def export_banking_line(as_on, columns_order=[]):
 
-    rows = frappe.db.sql(query, {"as_on": as_on}, as_dict=True)
-    # Force to list of pure dicts
-    data = [dict(row) for row in rows]
+    data = export_banking_data(as_on)
 
     if not data:
         return "<p>No data found</p>"
 
-    df = pd.DataFrame(data)
-
-    # Get full list of banks across all data
-    all_banks = sorted(df['bank'].dropna().unique())
-
-    total_columns = 1 + len(all_banks) + 1
-    col_width = 100 / total_columns
-
-    html = """
-    <style>
-        .babking_line-table-container {
-            max-height: 80vh;
-            overflow: auto;
-            width: 100%;
-        }
-        table.babking_line-table {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 13px;
-        }
-        table.babking_line-table th, table.babking_line-table td {
-            border: 1px solid #ddd;
-            padding: 6px;
-            text-align: right;
-            white-space: nowrap;
-        }
-        table.babking_line-table th {
-            background-color: #f5f5f5;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            text-align: center;
-        }
-        td#left { text-align: left; }
-        .total-column { font-weight: bold; }
-        .total-row td { font-weight: bold; }
-    </style>
-    """
-    
-    rows = frappe.db.sql(query, {"as_on": as_on}, as_dict=True)
-    if not rows:
-        return "<p>No data found</p>"
-
-    data = [dict(r) for r in rows]
     df = pd.DataFrame(data)
     if columns_order:
         if isinstance(columns_order, str):
@@ -308,6 +223,7 @@ def banking_line(as_on, columns_order=[]):
     else:
         columns_order = None  # No order specified
         columns_order = sorted(df["p_term"].dropna().unique().tolist())
+
 
     pivot = (
         df.pivot_table(
@@ -421,49 +337,3 @@ def banking_line(as_on, columns_order=[]):
     return "".join(html)
 
 
-banking_line= {
-    "CTBC": {
-        "GDI": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": 0,"DA": 0,"DP": 0
-            },
-        "UXL- Taiwan": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": 0,"DA": 0,"DP": 0
-            },
-        "Tunwa Inds.": {
-            "Cash Loan": 0, "Import Loan": 0,"LC Open": 0,"DA": 0,"DP": 0
-            }
-        },
-    "CUB": {
-        "GDI": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": 0,"DA": 0,"DP": 0
-        },
-        "UXL- Taiwan": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": 0,"DA": 0,"DP": 0
-        },
-        "Tunwa Inds.": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": 0,"DA": 0,"DP": 0
-        }
-    },
-    "SCSB": {
-        "GDI": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": 0, "DA": 0, "DP": 0
-        },
-        "UXL- Taiwan": {
-            "Cash Loan": 0, "Import Loan": 0, "LC Open": 0, "DA": 0, "DP": 0
-        },
-        "Tunwa Inds.": {
-            "Cash Loan": 0, "Import Loan": 500000.0, "LC Open": 0, "DA": 0, "DP": 0
-        }
-    },
-    "SINO": {
-        "GDI": {
-            "Cash Loan": 1050000.0, "Import Loan": 0, "LC Open": 0, "DA": 0, "DP": 0
-        },
-        "UXL- Taiwan": {
-            "Cash Loan": 0, "Import Loan": 400000.0, "LC Open": 0, "DA": 0, "DP": 0
-        },
-        "Tunwa Inds.": {
-            "Cash Loan": 0, "Import Loan": 0, "LC Open": 0, "DA": 400000.0, "DP": 0
-        }
-    }
-}

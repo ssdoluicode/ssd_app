@@ -6,6 +6,7 @@ from frappe.model.document import Document
 import pandas as pd
 import numpy as np
 import json
+from ssd_app.utils.banking import import_banking_data
 
 
 
@@ -24,135 +25,11 @@ class LCOpen(Document):
 
 @frappe.whitelist()
 def import_banking_line(as_on, columns_order=[]):
-    query = """
-    SELECT *
-    FROM (
-        -- LC Open
-        SELECT 
-            lc_o.name, 
-            lc_o.lc_no AS ref_no,
-            com.company_code AS com,
-            bank.bank AS bank,
-            'LC Open' AS p_term,
-            0 AS document,
-            ROUND(IF(
-                lc_o.amount 
-                - IFNULL(lc_p.lc_p_amount, 0) 
-                - IFNULL(imp_loan.imp_loan_amount, 0) 
-                - IFNULL(u_lc.u_lc_amount, 0) 
-                < lc_o.amount * lc_o.tolerance / 100,
-                0,
-                lc_o.amount 
-                - IFNULL(lc_p.lc_p_amount, 0) 
-                - IFNULL(imp_loan.imp_loan_amount, 0) 
-                - IFNULL(u_lc.u_lc_amount, 0)
-            ) / lc_o.ex_rate,2
-        ) AS amount_usd
-        FROM `tabLC Open` lc_o
-        LEFT JOIN `tabSupplier` sup 
-            ON sup.name = lc_o.supplier
-        LEFT JOIN `tabBank` bank 
-            ON bank.name = lc_o.bank
-        LEFT JOIN (
-            SELECT lc_no, SUM(amount) AS lc_p_amount 
-            FROM `tabLC Payment`
-            GROUP BY lc_no
-        ) lc_p 
-            ON lc_p.lc_no = lc_o.name
-        LEFT JOIN (
-            SELECT lc_no, SUM(loan_amount) AS imp_loan_amount 
-            FROM `tabImport Loan`
-            GROUP BY lc_no
-        ) imp_loan 
-            ON imp_loan.lc_no = lc_o.name
-        LEFT JOIN (
-            SELECT lc_no, SUM(usance_lc_amount) AS u_lc_amount 
-            FROM `tabUsance LC`
-            GROUP BY lc_no
-        ) u_lc 
-            ON u_lc.lc_no = lc_o.name
-        LEFT JOIN `tabCompany` com ON lc_o.company= com.name
 
-        UNION ALL
-
-        -- Import Loan
-        SELECT 
-            imp_l.name, 
-            imp_l.inv_no AS ref_no,
-            com.company_code AS com,
-            bank.bank AS bank,
-            'Imp Loan' AS p_term,
-            0 AS document,
-            ROUND(IFNULL(
-                imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 
-                0
-            ) / lc_o.ex_rate,2
-        ) AS amount_usd
-        FROM `tabImport Loan` imp_l
-        LEFT JOIN `tabLC Open` lc_o 
-            ON imp_l.lc_no = lc_o.name
-        LEFT JOIN `tabSupplier` sup 
-            ON sup.name = lc_o.supplier
-        LEFT JOIN `tabBank` bank 
-            ON bank.name = lc_o.bank
-        LEFT JOIN (
-            SELECT inv_no, SUM(amount) AS imp_l_p_amount
-            FROM `tabImport Loan Payment` 
-            GROUP BY inv_no
-        ) imp_l_p 
-            ON imp_l_p.inv_no = imp_l.name
-        LEFT JOIN `tabCompany` com ON lc_o.company= com.name
-            
-        UNION ALL   
-            
-        SELECT 
-                u_lc.name, 
-                u_lc.inv_no AS ref_no,
-                com.company_code AS com,
-                bank.bank AS bank,
-                'Usance LC' AS p_term,
-                0 AS document,
-                ROUND(IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0)/ lc_o.ex_rate,2) AS amount_usd
-            FROM `tabUsance LC` u_lc
-            LEFT JOIN `tabLC Open` lc_o ON u_lc.lc_no = lc_o.name
-            LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-            LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
-            LEFT JOIN (
-                SELECT inv_no, SUM(amount) AS u_lc_p_amount
-                FROM `tabUsance LC Payment` 
-                GROUP BY inv_no
-            ) u_lc_p ON u_lc_p.inv_no = u_lc.name
-            LEFT JOIN `tabCompany` com ON lc_o.company= com.name
-        
-    UNION ALL
-    
-    SELECT 
-                c_loan.name, 
-                c_loan.cash_loan_no AS ref_no,
-                com.company_code AS com,
-                bank.bank AS bank,
-                'Cash Loan' AS p_term,
-                0 AS document,
-                ROUND(IFNULL(c_loan.cash_loan_amount - IFNULL(c_loan_p.c_loan_p_amount, 0), 0) / c_loan.ex_rate,2
-        ) AS amount_usd
-            FROM `tabCash Loan` c_loan
-            LEFT JOIN `tabBank` bank ON bank.name = c_loan.bank
-            LEFT JOIN (
-                SELECT cash_loan_no, SUM(amount) AS c_loan_p_amount
-                FROM `tabCash Loan Payment` 
-                GROUP BY cash_loan_no
-            ) c_loan_p ON c_loan_p.cash_loan_no = c_loan.name
-            LEFT JOIN `tabCompany` com ON c_loan.company= com.name
-            
-    ) AS combined
-    WHERE amount_usd > 0;
-    """
-    
-    rows = frappe.db.sql(query, {"as_on": as_on}, as_dict=True)
-    if not rows:
+    data = import_banking_data(as_on)
+    if not data:
         return "<p>No data found</p>"
 
-    data = [dict(r) for r in rows]
     df = pd.DataFrame(data)
     if columns_order:
         if isinstance(columns_order, str):
@@ -221,9 +98,6 @@ def import_banking_line(as_on, columns_order=[]):
         .total { font-weight: bold; background-color: #d4f8d4; }
         </style>
         """
-
-
-
 
     html = [css, '<table class="bank-summary">']
     html.append("<thead><tr><th>Bank</th><th>Company</th>")
