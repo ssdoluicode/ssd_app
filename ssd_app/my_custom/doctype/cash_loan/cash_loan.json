@@ -28,6 +28,7 @@
    "unique": 1
   },
   {
+   "default": "Today",
    "fieldname": "cash_loan_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -100,7 +101,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-12 22:26:46.209533",
+ "modified": "2025-08-14 09:29:46.243201",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cash Loan",

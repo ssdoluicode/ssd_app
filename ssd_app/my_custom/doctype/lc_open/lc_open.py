@@ -178,30 +178,52 @@ def import_banking_line(as_on, columns_order=[]):
     css = """
         <style>
         table.bank-summary { 
-            border-collapse: collapse; 
+            border-collapse: separate !important;
+            border-spacing: 0;
             width: 100%; 
+            color:black;
             font-family: Arial, sans-serif; 
             font-size: 13px; 
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
         }
+
         .bank-summary th, .bank-summary td { 
-            border: 1px solid #000; 
+            border: 1px solid #ddd;
             padding: 6px 10px; 
         }
+
         .bank-summary th { 
             text-align: center; 
-            font-weight: bold; 
-            background-color: #f5f5f5; 
+            font-weight: bold;
+            color: white; 
+            white-space: nowrap;
+            background: linear-gradient(#4a6fa5, #3d5e8b); /* modern blue */
+            border-top: none;
         }
+
+        .bank-summary th:first-child { border-top-left-radius: 8px; }
+        .bank-summary th:last-child { border-top-right-radius: 8px; }
+
+        /* Row hover effect */
+        .bank-summary tbody tr:hover {
+            background-color: #eef5ff;
+        }
+
         .bank-summary td.num { text-align: right; white-space: nowrap; }
         .bank-summary td.txt { text-align: left; }
         .bank-summary td.blank { text-align: center; color: #555; }
-        
-        .bank-row-even { background-color: #eaf2ff; }  /* light blue */
-        .bank-row-odd  { background-color: #fff4e5; }  /* light orange */
-        .total { font-weight: bold; background-color: #c6efce; } /* light green */
 
+        /* New softer colors */
+        .bank-row-even { background-color: #f8fbff; }
+        .bank-row-odd  { background-color: #fdfcfb; }
+        .total { font-weight: bold; background-color: #d4f8d4; }
         </style>
-    """
+        """
+
+
+
 
     html = [css, '<table class="bank-summary">']
     html.append("<thead><tr><th>Bank</th><th>Company</th>")
@@ -239,7 +261,7 @@ def import_banking_line(as_on, columns_order=[]):
             html.append("</tr>")
 
     # Grand total row
-    html.append('<tr class="total"><td class="txt" colspan="2">TOTAL</td>')
+    html.append('<tr class="total"><td class="txt" colspan="2" style = "text-align: center; ">TOTAL</td>')
     for col in columns_order:
         tot = grand_totals.get(col, 0.0)
         if tot == 0.0 or pd.isna(tot):
