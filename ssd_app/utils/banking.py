@@ -1,64 +1,68 @@
 import frappe
 
+@frappe.whitelist()
+def banking_line_data():
 
-ctbc_imp_lc_8=200000
-ctbc_imp_lc_3=100000
-cub_lc_da_dp=8000000
-scsb_imp_lc_da_dp_8=3000000
-scsb_imp_lc_da_dp_3=500000
-sino_cln= 1050000
-sino_imp_lc_8=1100000
-sino_da_dp_8=2600000
-sino_imp_lc_3=400000
-sino_da_dp_3=400000
+    ctbc_imp_lc_8=2000000
+    ctbc_imp_lc_3=1000000
+    cub_lc_da_dp=8000000
+    scsb_imp_lc_da_dp_8=3000000
+    scsb_imp_lc_da_dp_3=500000
+    sino_cln= 1050000
+    sino_imp_lc_8=1100000
+    sino_da_dp_8=2600000
+    sino_imp_lc_3=400000
+    sino_da_dp_3=400000
+    line_0=0
 
-banking_line= {
-    "CTBC": {
-        "GDI": {
-            "Cash Loan": 0,"Import Loan": ctbc_imp_lc_8,"LC Open": ctbc_imp_lc_8,"DA": 0,"DP": 0
+
+    banking_line= {
+        "CTBC": {
+            "GDI": {
+                "Cash Loan": line_0,"Import Loan": ctbc_imp_lc_8,"LC Open": ctbc_imp_lc_8,"DA": line_0,"DP": line_0
+                },
+            "Tunwa Inds.": {
+                "Cash Loan": line_0, "Import Loan": ctbc_imp_lc_3,"LC Open": ctbc_imp_lc_3,"DA": line_0,"DP": line_0
+                },
+            "UXL- Taiwan": {
+                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": line_0,"DA": line_0,"DP": line_0
+                }
             },
-        "UXL- Taiwan": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": 0,"DA": 0,"DP": 0
+        "CUB": {
+            "GDI": {
+                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
             },
-        "Tunwa Inds.": {
-            "Cash Loan": 0, "Import Loan": ctbc_imp_lc_3,"LC Open": ctbc_imp_lc_3,"DA": 0,"DP": 0
+            "Tunwa Inds.": {
+                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
+            },
+            "UXL- Taiwan": {
+                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
             }
         },
-    "CUB": {
-        "GDI": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
+        "SCSB": {
+            "GDI": {
+                "Cash Loan": line_0,"Import Loan": scsb_imp_lc_da_dp_8,"LC Open": scsb_imp_lc_da_dp_8, "DA": scsb_imp_lc_da_dp_8, "DP": scsb_imp_lc_da_dp_8
+            },
+            "Tunwa Inds.": {
+                "Cash Loan": line_0,"Import Loan": scsb_imp_lc_da_dp_3,"LC Open": scsb_imp_lc_da_dp_3, "DA": scsb_imp_lc_da_dp_3, "DP": scsb_imp_lc_da_dp_3
+            },
+            "UXL- Taiwan": {
+                "Cash Loan": line_0, "Import Loan": line_0, "LC Open": line_0, "DA": line_0, "DP": line_0
+            }
         },
-        "UXL- Taiwan": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
-        },
-        "Tunwa Inds.": {
-            "Cash Loan": 0,"Import Loan": 0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
-        }
-    },
-    "SCSB": {
-        "GDI": {
-            "Cash Loan": 0,"Import Loan": scsb_imp_lc_da_dp_8,"LC Open": scsb_imp_lc_da_dp_8, "DA": scsb_imp_lc_da_dp_8, "DP": scsb_imp_lc_da_dp_8
-        },
-        "UXL- Taiwan": {
-            "Cash Loan": 0, "Import Loan": 0, "LC Open": 0, "DA": 0, "DP": 0
-        },
-        "Tunwa Inds.": {
-            "Cash Loan": 0,"Import Loan": scsb_imp_lc_da_dp_3,"LC Open": scsb_imp_lc_da_dp_3, "DA": scsb_imp_lc_da_dp_3, "DP": scsb_imp_lc_da_dp_3
-        }
-    },
-    "SINO": {
-        "GDI": {
-            "Cash Loan": sino_cln, "Import Loan": sino_imp_lc_8, "LC Open": sino_imp_lc_8, "DA": sino_da_dp_8, "DP": sino_da_dp_8
-        },
-        "UXL- Taiwan": {
-            "Cash Loan": sino_cln, "Import Loan": 0, "LC Open": 0, "DA": 0, "DP": 0
-        },
-        "Tunwa Inds.": {
-            "Cash Loan": sino_cln, "Import Loan": sino_imp_lc_3, "LC Open": sino_imp_lc_3, "DA": sino_da_dp_3, "DP": sino_da_dp_3
+        "SINO": {
+            "GDI": {
+                "Cash Loan": sino_cln, "Import Loan": sino_imp_lc_8, "LC Open": sino_imp_lc_8, "DA": sino_da_dp_8, "DP": sino_da_dp_8
+            },
+            "Tunwa Inds.": {
+                "Cash Loan": sino_cln, "Import Loan": sino_imp_lc_3, "LC Open": sino_imp_lc_3, "DA": sino_da_dp_3, "DP": sino_da_dp_3
+            },
+            "UXL- Taiwan": {
+                "Cash Loan": sino_cln, "Import Loan": line_0, "LC Open": line_0, "DA": line_0, "DP": line_0
+            }
         }
     }
-}
-
+    return banking_line
 
 
 @frappe.whitelist()

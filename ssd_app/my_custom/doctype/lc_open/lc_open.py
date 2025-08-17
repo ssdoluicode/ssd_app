@@ -6,7 +6,7 @@ from frappe.model.document import Document
 import pandas as pd
 import numpy as np
 import json
-from ssd_app.utils.banking import import_banking_data
+from ssd_app.utils.banking import import_banking_data, banking_line_data
 
 
 
@@ -24,7 +24,7 @@ class LCOpen(Document):
 
 
 @frappe.whitelist()
-def import_banking_line(as_on, columns_order=[]):
+def import_banking(as_on, columns_order=[]):
 
     data = import_banking_data(as_on)
     if not data:
@@ -83,18 +83,15 @@ def import_banking_line(as_on, columns_order=[]):
         .bank-summary th:first-child { border-top-left-radius: 8px; }
         .bank-summary th:last-child { border-top-right-radius: 8px; }
 
-        /* Row hover effect */
-        .bank-summary tbody tr:hover {
-            background-color: #eef5ff;
-        }
+        
 
         .bank-summary td.num { text-align: right; white-space: nowrap; }
         .bank-summary td.txt { text-align: left; }
         .bank-summary td.blank { text-align: center; color: #555; }
 
         /* New softer colors */
-        .bank-row-even { background-color: #f8fbff; }
-        .bank-row-odd  { background-color: #fdfcfb; }
+        .bank-row-even { background-color: #f8fbff;}
+        .bank-row-odd  { background-color: #fdfcfb;}
         .total { font-weight: bold; background-color: #d4f8d4; }
         </style>
         """
@@ -146,3 +143,140 @@ def import_banking_line(as_on, columns_order=[]):
 
     html.append("</tbody></table>")
     return "".join(html)
+
+
+@frappe.whitelist()
+def banking_line():
+    data= banking_line_data()
+    bank_row = list(data.items())
+    bank_1, bank_1_data = bank_row[0]
+    bank_1_data=  list(bank_1_data.items())
+    bank_2, bank_2_data = bank_row[1]
+    bank_2_data=  list(bank_2_data.items())
+    bank_3, bank_3_data = bank_row[2]
+    bank_3_data=  list(bank_3_data.items())
+    bank_4, bank_4_data = bank_row[3]
+    bank_4_data=  list(bank_4_data.items())
+    css= """
+    <style>
+        table.bank-summary { 
+            border-collapse: separate !important;
+            border-spacing: 0;
+            width: 100%; 
+            color:black;
+            font-family: Arial, sans-serif; 
+            font-size: 13px; 
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .bank-summary th, .bank-summary td { 
+            border: 1px solid #ddd;
+            padding: 6px 10px; 
+        }
+
+        .bank-summary th { 
+            text-align: center; 
+            font-weight: bold;
+            color: white; 
+            white-space: nowrap;
+            background: linear-gradient(#4a6fa5, #3d5e8b); /* modern blue */
+            border-top: none;
+        }
+
+        .bank-summary th:first-child { border-top-left-radius: 8px; }
+        .bank-summary th:last-child { border-top-right-radius: 8px; }
+
+      
+
+        .bank-summary td.num { text-align: center; white-space: nowrap; }
+        .bank-summary td.txt { text-align: left; }
+        .bank-summary td.blank { text-align: center; color: #555; }
+
+        /* New softer colors */
+        .bank-row-even { background-color: #e6f0ff; }  /* soft, readable blue */
+        .bank-row-odd  { background-color: #fff8e6; }  /* soft, readable cream */
+
+
+        .total { font-weight: bold; background-color: #d4f8d4; }
+        </style>
+    """
+    html=f"""
+       <table class="bank-summary">
+    <thead>
+        <tr>
+            <th>Bank</th>
+            <th>Company</th>
+            <th>Cash Loan</th>
+            <th>Imp Loan</th>
+            <th>LC Open</th>
+            <th> DA</th>
+            <th> DA</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="bank-row-even">
+            <td class="txt" rowspan="2">{bank_1}</td>
+            <td class="txt">{bank_1_data[0][0]}</td>
+            <td class="num" rowspan="2">{bank_1_data[0][1]['Cash Loan']:,.0f}</td>
+            <td class="num" colspan="2">{bank_1_data[0][1]['Import Loan']:,.0f}</td>
+            <td class="num" rowspan="2" colspan="2">{bank_1_data[0][1]['DA']:,.0f}</td>   
+        </tr>
+        <tr class="bank-row-even">
+            <td class="txt">{bank_1_data[1][0]}</td>
+            <td class="num" colspan="2">{bank_1_data[1][1]['Import Loan']:,.0f}</td>
+        </tr>
+      
+        <tr class="bank-row-odd">
+            <td class="txt" rowspan="3">{bank_2}</td>
+            <td class="txt">{bank_2_data[0][0]}</td>
+            <td class="num" colspan="2" rowspan="3">{bank_2_data[0][1]['Cash Loan']:,.0f}</td>
+            <td class="num" colspan="3" rowspan="3">{bank_2_data[1][1]['LC Open']:,.0f}</td>
+        </tr>
+        <tr class="bank-row-odd">
+            <td class="txt">{bank_2_data[1][0]}</td>
+        </tr>
+        <tr class="bank-row-odd">
+            <td class="txt">{bank_2_data[2][0]}</td>
+        </tr>
+        <tr class="bank-row-even">
+            <td class="txt" rowspan="2">{bank_3}</td>
+            <td class="txt">{bank_3_data[0][0]}</td>
+            <td class="num" rowspan="2">{bank_3_data[0][1]['Cash Loan']:,.0f}</td>
+            <td class="num" colspan="4">{bank_3_data[0][1]['Import Loan']:,.0f}</td>       
+        </tr>
+        <tr class="bank-row-even">
+            <td class="txt">{bank_3_data[1][0]}</td>
+
+            <td class="num" colspan="4">{bank_3_data[1][1]['Import Loan']:,.0f}</td>
+        </tr>
+        <tr class="bank-row-odd">
+            <td class="txt" rowspan="3">{bank_4}</td>
+            <td class="txt">{bank_4_data[0][0]}</td>
+            <td class="num" rowspan="3">{bank_4_data[0][1]['Cash Loan']:,.0f}</td>
+            <td class="num" colspan="2">{bank_4_data[0][1]['Import Loan']:,.0f}</td>
+            <td class="num" colspan="2">{bank_4_data[0][1]['DA']:,.0f}</td>         
+        </tr>
+        <tr class="bank-row-odd">
+            <td class="txt">{bank_4_data[1][0]}</td>
+            <td class="num" colspan="2">{bank_4_data[1][1]['Import Loan']:,.0f}</td>
+            <td class="num" colspan="2">{bank_4_data[1][1]['DA']:,.0f}</td>
+        </tr>
+        <tr class="bank-row-odd">
+            <td class="txt">{bank_4_data[2][0]}</td> 
+            <td class="num" colspan="4">{bank_4_data[2][1]['Import Loan']:,.0f}</td>
+        </tr>
+        <tr class="total">
+            <td class="txt" colspan="2" style="text-align: center;">TOTAL</td>
+            <td class="num" colspan="5">900,000.00</td>
+            
+        </tr>
+    </tbody>
+</table>
+
+"""
+    html = [css, html]
+    return "".join(html)
+
+

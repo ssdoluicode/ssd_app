@@ -19,9 +19,12 @@ frappe.query_reports["Import Banking"] = {
 		// report.page.add_inner_button("New LC Open", function () {
         //     frappe.new_doc("LC Open");
         // });
-         report.page.add_inner_button("Import Banking Used", function () {
+        report.page.add_inner_button("Import Banking Used", function () {
             let filters = report.get_values();
-            bankingLine(filters.as_on);
+            importBanking(filters.as_on);
+        });
+        report.page.add_inner_button("Banking Line", function () {
+            bankingLine();
         });
 		report.page.add_inner_button("New LC Open", function () {
 			frappe.new_doc("LC Open", true);
@@ -122,10 +125,10 @@ function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
 }
 
 
-function bankingLine(as_on) {
+function importBanking(as_on) {
     columns_order = ["Cash Loan", "Imp Loan", "LC Open", "Usance LC"] 
     frappe.call({
-        method: "ssd_app.my_custom.doctype.lc_open.lc_open.import_banking_line",
+        method: "ssd_app.my_custom.doctype.lc_open.lc_open.import_banking",
         args: {as_on, columns_order},
         callback: function (r) {
             if (!r.message) return;
@@ -143,6 +146,41 @@ function bankingLine(as_on) {
 
             const dialog = new frappe.ui.Dialog({
                 title: `Import Banking Line`,
+                size: 'large',
+                fields: [
+                    {
+                        fieldtype: 'HTML',
+                        fieldname: 'details_html',
+                        options: htmlContent
+                    }
+                ]
+            });
+
+            dialog.show();
+        }
+    });
+} 
+
+function bankingLine() {
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.lc_open.lc_open.banking_line",
+        args: {},
+        callback: function (r) {
+            if (!r.message) return;
+            const htmlContent = `
+                <div id="cif-details-a4" style="
+                    width: 30cm;
+                    max-width: 100%;
+                    min-height: 5cm;
+                    padding: 0.3cm;
+                    background: white;
+                    font-size: 13px;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+                >${r.message}</div>
+            `;
+
+            const dialog = new frappe.ui.Dialog({
+                title: `Banking Line`,
                 size: 'large',
                 fields: [
                     {
