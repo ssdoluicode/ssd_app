@@ -148,6 +148,7 @@ def import_banking(as_on, columns_order=[]):
 @frappe.whitelist()
 def banking_line():
     data= banking_line_data()
+    # print(data["ctbc_imp_lc_8"])
     bank_row = list(data.items())
     bank_1, bank_1_data = bank_row[0]
     bank_1_data=  list(bank_1_data.items())
