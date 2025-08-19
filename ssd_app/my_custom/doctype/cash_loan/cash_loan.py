@@ -6,4 +6,6 @@ from frappe.model.document import Document
 
 
 class CashLoan(Document):
-	pass
+	def before_save(self):
+		if self.cash_loan_amount and self.ex_rate:
+			self.cash_loan_amount_usd = round(self.cash_loan_amount / self.ex_rate, 2)
