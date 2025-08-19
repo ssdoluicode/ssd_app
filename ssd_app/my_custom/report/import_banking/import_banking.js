@@ -26,6 +26,11 @@ frappe.query_reports["Import Banking"] = {
         report.page.add_inner_button("Banking Line", function () {
             bankingLine();
         });
+
+        report.page.add_inner_button("Banking Line Balance", function () {
+            bankingLineBalance();
+        });
+
 		report.page.add_inner_button("New LC Open", function () {
 			frappe.new_doc("LC Open", true);
 		}, "New");
@@ -164,6 +169,42 @@ function importBanking(as_on) {
 function bankingLine() {
     frappe.call({
         method: "ssd_app.my_custom.doctype.lc_open.lc_open.banking_line",
+        args: {},
+        callback: function (r) {
+            if (!r.message) return;
+            const htmlContent = `
+                <div id="cif-details-a4" style="
+                    width: 30cm;
+                    max-width: 100%;
+                    min-height: 5cm;
+                    padding: 0.3cm;
+                    background: white;
+                    font-size: 13px;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+                >${r.message}</div>
+            `;
+
+            const dialog = new frappe.ui.Dialog({
+                title: `Banking Line`,
+                size: 'large',
+                fields: [
+                    {
+                        fieldtype: 'HTML',
+                        fieldname: 'details_html',
+                        options: htmlContent
+                    }
+                ]
+            });
+
+            dialog.show();
+        }
+    });
+} 
+
+
+function bankingLineBalance() {
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.lc_open.lc_open.banking_line_balance",
         args: {},
         callback: function (r) {
             if (!r.message) return;

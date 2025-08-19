@@ -16,17 +16,17 @@ def banking_line_data():
     line_0=0
 
     banking_line_summary= {
-        "ctbc_imp_lc_8":ctbc_imp_lc_8,
-        "ctbc_imp_lc_3":ctbc_imp_lc_3,
-        "cub_lc_da_dp" : cub_lc_da_dp,
-        "scsb_imp_lc_da_dp_8" : cub_lc_da_dp,
-        "scsb_imp_lc_da_dp_3" : cub_lc_da_dp,
-        "sino_cln" : sino_cln,
-        "sino_imp_lc_8" :sino_imp_lc_8,
-        "sino_da_dp_8" : sino_da_dp_8,
-        "sino_imp_lc_3": sino_imp_lc_3,
-        "sino_da_dp_3" : sino_da_dp_3
-
+        "ctbc_imp_lc_8":2000000,
+        "ctbc_imp_lc_3":1000000,
+        "cub_lc_da_dp" : 8000000,
+        "scsb_imp_lc_da_dp_8" : 3000000,
+        "scsb_imp_lc_da_dp_3" : 500000,
+        "sino_cln" : 1050000,
+        "sino_imp_lc_8" :1100000,
+        "sino_da_dp_8" : 2600000,
+        "sino_imp_lc_3": 400000,
+        "sino_da_dp_3" : 400000,
+        "line_0" :0
         }
 
     banking_line= {
@@ -77,8 +77,8 @@ def banking_line_data():
     }
 
     
-    return banking_line
-    # return banking_line_summary
+    # return banking_line
+    return banking_line_summary
 
 
 @frappe.whitelist()
