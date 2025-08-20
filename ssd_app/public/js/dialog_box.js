@@ -1,3 +1,111 @@
+function bankingLineBalance() {
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.lc_open.lc_open.banking_line_balance",
+        args: {},
+        callback: function (r) {
+            if (!r.message) return;
+            const htmlContent = `
+                <div id="cif-details-a4" style="
+                    width: 30cm;
+                    max-width: 100%;
+                    min-height: 5cm;
+                    padding: 0.3cm;
+                    background: white;
+                    font-size: 13px;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+                >${r.message}</div>
+            `;
+
+            const dialog = new frappe.ui.Dialog({
+                title: `Banking Line Balance`,
+                size: 'large',
+                fields: [
+                    {
+                        fieldtype: 'HTML',
+                        fieldname: 'details_html',
+                        options: htmlContent
+                    }
+                ]
+            });
+
+            dialog.show();
+        }
+    });
+} 
+
+function importBanking(as_on) {
+    columns_order = ["Cash Loan", "Imp Loan", "LC Open", "Usance LC"] 
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.lc_open.lc_open.import_banking",
+        args: {as_on, columns_order},
+        callback: function (r) {
+            if (!r.message) return;
+            const htmlContent = `
+                <div id="cif-details-a4" style="
+                    width: 30cm;
+                    max-width: 100%;
+                    min-height: 5cm;
+                    padding: 0.3cm;
+                    background: white;
+                    font-size: 13px;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+                >${r.message}</div>
+            `;
+
+            const dialog = new frappe.ui.Dialog({
+                title: `Import Banking Line`,
+                size: 'large',
+                fields: [
+                    {
+                        fieldtype: 'HTML',
+                        fieldname: 'details_html',
+                        options: htmlContent
+                    }
+                ]
+            });
+
+            dialog.show();
+        }
+    });
+} 
+
+function bankingLine() {
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.lc_open.lc_open.banking_line",
+        args: {},
+        callback: function (r) {
+            if (!r.message) return;
+            const htmlContent = `
+                <div id="cif-details-a4" style="
+                    width: 30cm;
+                    max-width: 100%;
+                    min-height: 5cm;
+                    padding: 0.3cm;
+                    background: white;
+                    font-size: 13px;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+                >${r.message}</div>
+            `;
+
+            const dialog = new frappe.ui.Dialog({
+                title: `Banking Line`,
+                size: 'large',
+                fields: [
+                    {
+                        fieldtype: 'HTML',
+                        fieldname: 'details_html',
+                        options: htmlContent
+                    }
+                ]
+            });
+
+            dialog.show();
+        }
+    });
+} 
+
+
+
 // 🧾 Modal Dialog to Show Document Flow
 function showDocFlow(inv_name, inv_no) {
     frappe.call({
@@ -220,3 +328,4 @@ function showImportBankingFlow(lc_no, inv_no, dc_name) {
         }
     });
 }
+

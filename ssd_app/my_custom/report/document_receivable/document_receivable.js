@@ -46,6 +46,13 @@ frappe.query_reports["Document Receivable"] = {
             let filters = report.get_values();
             exportBankingLine(filters.as_on);
         });
+        report.page.add_inner_button("Banking Line", function () {
+            bankingLine();
+        });
+        report.page.add_inner_button("Banking Line Balance", function () {
+            bankingLineBalance();
+        });
+
        
     },
 
