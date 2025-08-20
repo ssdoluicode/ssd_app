@@ -337,12 +337,12 @@ def banking_line_balance():
     i_scsb_lc_8 = import_banking_result.get("SCSB_GDI_LC_Open", 0) + import_banking_result.get("SCSB_GDI_Usance_LC", 0)
     i_sino_lc_8 = import_banking_result.get("SINO_GDI_LC_Open", 0) + import_banking_result.get("SINO_GDI_Usance_LC", 0)
     i_ctbc_imp_8 = import_banking_result.get("CTBC_GDI_Imp_Loan", 0)
-    i_cub_imp_8  = import_banking_result.get("CUB_GDI_Imp_Loan", 0)
+    # i_cub_imp_8  = import_banking_result.get("CUB_GDI_Imp_Loan", 0)
     i_scsb_imp_8 = import_banking_result.get("SCSB_GDI_Imp_Loan", 0)
     i_sino_imp_8 = import_banking_result.get("SINO_GDI_Imp_Loan", 0)
-    i_ctbc_cash_8 = import_banking_result.get("CTBC_GDI_Cash_Loan", 0)
-    i_cub_cash_8  = import_banking_result.get("CUB_GDI_Cash_Loan", 0)
-    i_scsb_cash_8 = import_banking_result.get("SCSB_GDI_Cash_Loan", 0)
+    # i_ctbc_cash_8 = import_banking_result.get("CTBC_GDI_Cash_Loan", 0)
+    # i_cub_cash_8  = import_banking_result.get("CUB_GDI_Cash_Loan", 0)
+    # i_scsb_cash_8 = import_banking_result.get("SCSB_GDI_Cash_Loan", 0)
     i_sino_cash_8 = import_banking_result.get("SINO_GDI_Cash_Loan", 0)
 
     i_ctbc_lc_3 = import_banking_result.get("CTBC_Tunwa_Inds_LC_Open", 0) + import_banking_result.get("CTBC_Tunwa_Inds_Usance_LC", 0)
@@ -350,25 +350,25 @@ def banking_line_balance():
     i_scsb_lc_3 = import_banking_result.get("SCSB_Tunwa_Inds_LC_Open", 0) + import_banking_result.get("SCSB_Tunwa_Inds_Usance_LC", 0)
     i_sino_lc_3 = import_banking_result.get("SINO_Tunwa_Inds_LC_Open", 0) + import_banking_result.get("SINO_Tunwa_Inds_Usance_LC", 0)
     i_ctbc_imp_3 = import_banking_result.get("CTBC_Tunwa_Inds_Imp_Loan", 0)
-    i_cub_imp_3 = import_banking_result.get("CUB_Tunwa_Inds_Imp_Loan", 0)
+    # i_cub_imp_3 = import_banking_result.get("CUB_Tunwa_Inds_Imp_Loan", 0)
     i_scsb_imp_3 = import_banking_result.get("SCSB_Tunwa_Inds_Imp_Loan", 0)
     i_sino_imp_3 = import_banking_result.get("SINO_Tunwa_Inds_Imp_Loan", 0)
-    i_ctbc_cash_3 = import_banking_result.get("CTBC_Tunwa_Inds_Cash_Loan", 0)
-    i_cub_cash_3 = import_banking_result.get("CUB_Tunwa_Inds_Cash_Loan", 0)
-    i_scsb_cash_3 = import_banking_result.get("SCSB_Tunwa_Inds_Cash_Loan", 0)
+    # i_ctbc_cash_3 = import_banking_result.get("CTBC_Tunwa_Inds_Cash_Loan", 0)
+    # i_cub_cash_3 = import_banking_result.get("CUB_Tunwa_Inds_Cash_Loan", 0)
+    # i_scsb_cash_3 = import_banking_result.get("SCSB_Tunwa_Inds_Cash_Loan", 0)
     i_sino_cash_3 = import_banking_result.get("SINO_Tunwa_Inds_Cash_Loan", 0)
 
-    i_ctbc_lc_2 = import_banking_result.get("CTBC_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("CTBC_UXL_Taiwan_Usance_LC", 0)
+    # i_ctbc_lc_2 = import_banking_result.get("CTBC_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("CTBC_UXL_Taiwan_Usance_LC", 0)
     i_cub_lc_2 = import_banking_result.get("CUB_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("CUB_UXL_Taiwan_Usance_LC", 0)
-    i_scsb_lc_2 = import_banking_result.get("SCSB_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("SCSB_UXL_Taiwan_Usance_LC", 0)
-    i_sino_lc_2 = import_banking_result.get("SINO_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("SINO_UXL_Taiwan_Usance_LC", 0)
-    i_ctbc_imp_2 = import_banking_result.get("CTBC_UXL_Taiwan_Imp_Loan", 0)
-    i_cub_imp_2 = import_banking_result.get("CUB_UXL_Taiwan_Imp_Loan", 0)
-    i_scsb_imp_2 = import_banking_result.get("SCSB_UXL_Taiwan_Imp_Loan", 0)
-    i_sino_imp_2 = import_banking_result.get("SINO_UXL_Taiwan_Imp_Loan", 0)
-    i_ctbc_cash_2 = import_banking_result.get("CTBC_UXL_Taiwan_Cash_Loan", 0)
-    i_cub_cash_2 = import_banking_result.get("CUB_UXL_Taiwan_Cash_Loan", 0)
-    i_scsb_cash_2 = import_banking_result.get("SCSB_UXL_Taiwan_Cash_Loan", 0)
+    # i_scsb_lc_2 = import_banking_result.get("SCSB_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("SCSB_UXL_Taiwan_Usance_LC", 0)
+    # i_sino_lc_2 = import_banking_result.get("SINO_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("SINO_UXL_Taiwan_Usance_LC", 0)
+    # i_ctbc_imp_2 = import_banking_result.get("CTBC_UXL_Taiwan_Imp_Loan", 0)
+    # i_cub_imp_2 = import_banking_result.get("CUB_UXL_Taiwan_Imp_Loan", 0)
+    # i_scsb_imp_2 = import_banking_result.get("SCSB_UXL_Taiwan_Imp_Loan", 0)
+    # i_sino_imp_2 = import_banking_result.get("SINO_UXL_Taiwan_Imp_Loan", 0)
+    # i_ctbc_cash_2 = import_banking_result.get("CTBC_UXL_Taiwan_Cash_Loan", 0)
+    # i_cub_cash_2 = import_banking_result.get("CUB_UXL_Taiwan_Cash_Loan", 0)
+    # i_scsb_cash_2 = import_banking_result.get("SCSB_UXL_Taiwan_Cash_Loan", 0)
     i_sino_cash_2 = import_banking_result.get("SINO_UXL_Taiwan_Cash_Loan", 0)
 
 
@@ -395,12 +395,10 @@ def banking_line_balance():
     b_sino_imp_lc_3 = sino_imp_lc_3 - u_sino_imp_lc_3
     b_sino_da_dp_3 = sino_da_dp_3 - u_sino_da_dp_3
 
-
-    print(import_banking)
-    print(export_banking_result)
-    
-    data= banking_line_data() #need to delele
-    total_line = sum(data.values())
+    total_balance = (
+        b_ctbc_imp_lc_8 + b_ctbc_imp_lc_3 + b_cub_lc_da_dp + b_scsb_imp_lc_da_dp_8 + b_scsb_imp_lc_da_dp_3 +
+        b_sino_cln + b_sino_imp_lc_8 + b_sino_da_dp_8 + b_sino_imp_lc_3 + b_sino_da_dp_3
+    )
     css= """
     <style>
         table.bank-summary { 
@@ -463,9 +461,9 @@ def banking_line_balance():
         <tr class="bank-row-even">
             <td class="txt" rowspan="2">CTBC</td>
             <td class="txt">GDI</td>
-            <td class="num" rowspan="2">{data["line_0"]:,.0f}</td>
+            <td class="num" rowspan="2">{0:,.0f}</td>
             <td class="num" colspan="2">{b_ctbc_imp_lc_8:,.0f}</td>
-            <td class="num" rowspan="2" colspan="2">{data["line_0"] :,.0f}</td>   
+            <td class="num" rowspan="2" colspan="2">{0 :,.0f}</td>   
         </tr>
         <tr class="bank-row-even">
             <td class="txt">Tunwa Inds.</td>
@@ -475,7 +473,7 @@ def banking_line_balance():
         <tr class="bank-row-odd">
             <td class="txt" rowspan="3">CUB</td>
             <td class="txt">GDI</td>
-            <td class="num" colspan="2" rowspan="3">{data["line_0"]:,.0f}</td>
+            <td class="num" colspan="2" rowspan="3">{0:,.0f}</td>
             <td class="num" colspan="3" rowspan="3">{b_cub_lc_da_dp:,.0f}</td>
         </tr>
         <tr class="bank-row-odd">
@@ -487,7 +485,7 @@ def banking_line_balance():
         <tr class="bank-row-even">
             <td class="txt" rowspan="2">SCSB</td>
             <td class="txt">GDI</td>
-            <td class="num" rowspan="2">{data["line_0"]:,.0f}</td>
+            <td class="num" rowspan="2">{0:,.0f}</td>
             <td class="num" colspan="4">{b_scsb_imp_lc_da_dp_8:,.0f}</td>       
         </tr>
         <tr class="bank-row-even">
@@ -508,11 +506,11 @@ def banking_line_balance():
         </tr>
         <tr class="bank-row-odd">
             <td class="txt">UXL- Taiwan</td> 
-            <td class="num" colspan="4">{data["line_0"]:,.0f}</td>
+            <td class="num" colspan="4">{0:,.0f}</td>
         </tr>
         <tr class="total">
             <td class="txt" colspan="2" style="text-align: center;">TOTAL</td>
-            <td class="num" colspan="5">{total_line:,.0f}</td>
+            <td class="num" colspan="5">{total_balance:,.0f}</td>
             
         </tr>
     </tbody>
@@ -521,4 +519,5 @@ def banking_line_balance():
 """
     html = [css, html]
     return "".join(html)
+
 

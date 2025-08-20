@@ -221,7 +221,7 @@ function bankingLineBalance() {
             `;
 
             const dialog = new frappe.ui.Dialog({
-                title: `Banking Line`,
+                title: `Banking Line Balance`,
                 size: 'large',
                 fields: [
                     {
@@ -236,3 +236,5 @@ function bankingLineBalance() {
         }
     });
 } 
+
+
