@@ -3,18 +3,6 @@ import frappe
 @frappe.whitelist()
 def banking_line_data():
 
-    ctbc_imp_lc_8=2000000
-    ctbc_imp_lc_3=1000000
-    cub_lc_da_dp=8000000
-    scsb_imp_lc_da_dp_8=3000000
-    scsb_imp_lc_da_dp_3=500000
-    sino_cln= 1050000
-    sino_imp_lc_8=1100000
-    sino_da_dp_8=2600000
-    sino_imp_lc_3=400000
-    sino_da_dp_3=400000
-    line_0=0
-
     banking_line_summary= {
         "ctbc_imp_lc_8":2000000,
         "ctbc_imp_lc_3":1000000,
@@ -29,55 +17,6 @@ def banking_line_data():
         "line_0" :0
         }
 
-    banking_line= {
-        "CTBC": {
-            "GDI": {
-                "Cash Loan": line_0,"Import Loan": ctbc_imp_lc_8,"LC Open": ctbc_imp_lc_8,"DA": line_0,"DP": line_0
-                },
-            "Tunwa Inds.": {
-                "Cash Loan": line_0, "Import Loan": ctbc_imp_lc_3,"LC Open": ctbc_imp_lc_3,"DA": line_0,"DP": line_0
-                },
-            "UXL- Taiwan": {
-                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": line_0,"DA": line_0,"DP": line_0
-                }
-            },
-        "CUB": {
-            "GDI": {
-                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
-            },
-            "Tunwa Inds.": {
-                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
-            },
-            "UXL- Taiwan": {
-                "Cash Loan": line_0,"Import Loan": line_0,"LC Open": cub_lc_da_dp,"DA": cub_lc_da_dp,"DP": cub_lc_da_dp
-            }
-        },
-        "SCSB": {
-            "GDI": {
-                "Cash Loan": line_0,"Import Loan": scsb_imp_lc_da_dp_8,"LC Open": scsb_imp_lc_da_dp_8, "DA": scsb_imp_lc_da_dp_8, "DP": scsb_imp_lc_da_dp_8
-            },
-            "Tunwa Inds.": {
-                "Cash Loan": line_0,"Import Loan": scsb_imp_lc_da_dp_3,"LC Open": scsb_imp_lc_da_dp_3, "DA": scsb_imp_lc_da_dp_3, "DP": scsb_imp_lc_da_dp_3
-            },
-            "UXL- Taiwan": {
-                "Cash Loan": line_0, "Import Loan": line_0, "LC Open": line_0, "DA": line_0, "DP": line_0
-            }
-        },
-        "SINO": {
-            "GDI": {
-                "Cash Loan": sino_cln, "Import Loan": sino_imp_lc_8, "LC Open": sino_imp_lc_8, "DA": sino_da_dp_8, "DP": sino_da_dp_8
-            },
-            "Tunwa Inds.": {
-                "Cash Loan": sino_cln, "Import Loan": sino_imp_lc_3, "LC Open": sino_imp_lc_3, "DA": sino_da_dp_3, "DP": sino_da_dp_3
-            },
-            "UXL- Taiwan": {
-                "Cash Loan": sino_cln, "Import Loan": line_0, "LC Open": line_0, "DA": line_0, "DP": line_0
-            }
-        }
-    }
-
-    
-    # return banking_line
     return banking_line_summary
 
 
@@ -261,3 +200,130 @@ def import_banking_data(as_on):
     
     rows = frappe.db.sql(query, {"as_on": as_on}, as_dict=True)
     return [dict(row) for row in rows]
+
+
+@frappe.whitelist()
+def balance_banking_line_data(as_on):
+    banking_line= banking_line_data()
+    ctbc_imp_lc_8= banking_line["ctbc_imp_lc_8"]
+    ctbc_imp_lc_3= banking_line["ctbc_imp_lc_3"]
+    cub_lc_da_dp=banking_line["cub_lc_da_dp"]
+    scsb_imp_lc_da_dp_8=banking_line["scsb_imp_lc_da_dp_8"]
+    scsb_imp_lc_da_dp_3=banking_line["scsb_imp_lc_da_dp_3"]
+    sino_cln=banking_line["sino_cln"]
+    sino_imp_lc_8=banking_line["sino_imp_lc_8"]
+    sino_da_dp_8=banking_line["sino_da_dp_8"]
+    sino_imp_lc_3=banking_line["sino_imp_lc_3"]
+    sino_da_dp_3=banking_line["sino_da_dp_3"]
+
+
+    export_banking=export_banking_data(as_on)
+    export_banking_result = {}
+    for row in export_banking:
+        bank=row['bank'].replace('.', '').replace('-', '').replace(' ', '_')
+        com= row['com'].replace('.', '').replace('-', '').replace(' ', '_')
+        p_term=row['p_term'].replace('.', '').replace('-', '').replace(' ', '_')
+        key = f"{bank}_{com}_{p_term}"
+        export_banking_result[key] = export_banking_result.get(key, 0) + row['document']
+    
+    e_ctbc_da_8 = export_banking_result.get("CTBC_GDI_DA", 0)
+    e_cub_da_8  = export_banking_result.get("CUB_GDI_DA", 0)
+    e_scsb_da_8 = export_banking_result.get("SCSB_GDI_DA", 0)
+    e_sino_da_8 = export_banking_result.get("SINO_GDI_DA", 0)
+    e_ctbc_dp_8 = export_banking_result.get("CTBC_GDI_DP", 0)
+    e_cub_dp_8  = export_banking_result.get("CUB_GDI_DP", 0)
+    e_scsb_dp_8 = export_banking_result.get("SCSB_GDI_DP", 0)
+    e_sino_dp_8 = export_banking_result.get("SINO_GDI_DP", 0)
+
+    e_ctbc_da_3 = export_banking_result.get("CTBC_Tunwa_Inds_DA", 0)
+    e_cub_da_3 = export_banking_result.get("CUB_Tunwa_Inds_DA", 0)
+    e_scsb_da_3 = export_banking_result.get("SCSB_Tunwa_Inds_DA", 0)
+    e_sino_da_3 = export_banking_result.get("SINO_Tunwa_Inds_DA", 0)
+    e_ctbc_dp_3 = export_banking_result.get("CTBC_Tunwa_Inds_DP", 0)
+    e_cub_dp_3 = export_banking_result.get("CUB_Tunwa_Inds_DP", 0)
+    e_scsb_dp_3 = export_banking_result.get("SCSB_Tunwa_Inds_DP", 0)
+    e_sino_dp_3 = export_banking_result.get("SINO_Tunwa_Inds_DP", 0)
+
+    e_ctbc_da_2 = export_banking_result.get("CTBC_UXL_Taiwan_DA", 0)
+    e_cub_da_2 = export_banking_result.get("CUB_UXL_Taiwan_DA", 0)
+    e_scsb_da_2 = export_banking_result.get("SCSB_UXL_Taiwan_DA", 0)
+    e_sino_da_2 = export_banking_result.get("SINO_UXL_Taiwan_DA", 0)
+    e_ctbc_dp_2 = export_banking_result.get("CTBC_UXL_Taiwan_DP", 0)
+    e_cub_dp_2 = export_banking_result.get("CUB_UXL_Taiwan_DP", 0)
+    e_scsb_dp_2 = export_banking_result.get("SCSB_UXL_Taiwan_DP", 0)
+    e_sino_dp_2 = export_banking_result.get("SINO_UXL_Taiwan_DP", 0)
+
+    import_banking=import_banking_data(as_on)
+    import_banking_result = {}
+    for row in import_banking:
+        bank=row['bank'].replace('.', '').replace('-', '').replace(' ', '_')
+        com= row['com'].replace('.', '').replace('-', '').replace(' ', '_')
+        p_term=row['p_term'].replace('.', '').replace('-', '').replace(' ', '_')
+        key = f"{bank}_{com}_{p_term}"
+        import_banking_result[key] = import_banking_result.get(key, 0) + row['amount_usd']
+
+
+    i_ctbc_lc_8 = import_banking_result.get("CTBC_GDI_LC_Open", 0) + import_banking_result.get("CTBC_GDI_Usance_LC", 0)
+    i_cub_lc_8  = import_banking_result.get("CUB_GDI_LC_Open", 0) + import_banking_result.get("CUB_GDI_Usance_LC", 0)
+    i_scsb_lc_8 = import_banking_result.get("SCSB_GDI_LC_Open", 0) + import_banking_result.get("SCSB_GDI_Usance_LC", 0)
+    i_sino_lc_8 = import_banking_result.get("SINO_GDI_LC_Open", 0) + import_banking_result.get("SINO_GDI_Usance_LC", 0)
+    i_ctbc_imp_8 = import_banking_result.get("CTBC_GDI_Imp_Loan", 0)
+    # i_cub_imp_8  = import_banking_result.get("CUB_GDI_Imp_Loan", 0)
+    i_scsb_imp_8 = import_banking_result.get("SCSB_GDI_Imp_Loan", 0)
+    i_sino_imp_8 = import_banking_result.get("SINO_GDI_Imp_Loan", 0)
+    # i_ctbc_cash_8 = import_banking_result.get("CTBC_GDI_Cash_Loan", 0)
+    # i_cub_cash_8  = import_banking_result.get("CUB_GDI_Cash_Loan", 0)
+    # i_scsb_cash_8 = import_banking_result.get("SCSB_GDI_Cash_Loan", 0)
+    i_sino_cash_8 = import_banking_result.get("SINO_GDI_Cash_Loan", 0)
+
+    i_ctbc_lc_3 = import_banking_result.get("CTBC_Tunwa_Inds_LC_Open", 0) + import_banking_result.get("CTBC_Tunwa_Inds_Usance_LC", 0)
+    i_cub_lc_3 = import_banking_result.get("CUB_Tunwa_Inds_LC_Open", 0) + import_banking_result.get("CUB_Tunwa_Inds_Usance_LC", 0)
+    i_scsb_lc_3 = import_banking_result.get("SCSB_Tunwa_Inds_LC_Open", 0) + import_banking_result.get("SCSB_Tunwa_Inds_Usance_LC", 0)
+    i_sino_lc_3 = import_banking_result.get("SINO_Tunwa_Inds_LC_Open", 0) + import_banking_result.get("SINO_Tunwa_Inds_Usance_LC", 0)
+    i_ctbc_imp_3 = import_banking_result.get("CTBC_Tunwa_Inds_Imp_Loan", 0)
+    # i_cub_imp_3 = import_banking_result.get("CUB_Tunwa_Inds_Imp_Loan", 0)
+    i_scsb_imp_3 = import_banking_result.get("SCSB_Tunwa_Inds_Imp_Loan", 0)
+    i_sino_imp_3 = import_banking_result.get("SINO_Tunwa_Inds_Imp_Loan", 0)
+    # i_ctbc_cash_3 = import_banking_result.get("CTBC_Tunwa_Inds_Cash_Loan", 0)
+    # i_cub_cash_3 = import_banking_result.get("CUB_Tunwa_Inds_Cash_Loan", 0)
+    # i_scsb_cash_3 = import_banking_result.get("SCSB_Tunwa_Inds_Cash_Loan", 0)
+    i_sino_cash_3 = import_banking_result.get("SINO_Tunwa_Inds_Cash_Loan", 0)
+
+    # i_ctbc_lc_2 = import_banking_result.get("CTBC_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("CTBC_UXL_Taiwan_Usance_LC", 0)
+    i_cub_lc_2 = import_banking_result.get("CUB_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("CUB_UXL_Taiwan_Usance_LC", 0)
+    # i_scsb_lc_2 = import_banking_result.get("SCSB_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("SCSB_UXL_Taiwan_Usance_LC", 0)
+    # i_sino_lc_2 = import_banking_result.get("SINO_UXL_Taiwan_LC_Open", 0) + import_banking_result.get("SINO_UXL_Taiwan_Usance_LC", 0)
+    # i_ctbc_imp_2 = import_banking_result.get("CTBC_UXL_Taiwan_Imp_Loan", 0)
+    # i_cub_imp_2 = import_banking_result.get("CUB_UXL_Taiwan_Imp_Loan", 0)
+    # i_scsb_imp_2 = import_banking_result.get("SCSB_UXL_Taiwan_Imp_Loan", 0)
+    # i_sino_imp_2 = import_banking_result.get("SINO_UXL_Taiwan_Imp_Loan", 0)
+    # i_ctbc_cash_2 = import_banking_result.get("CTBC_UXL_Taiwan_Cash_Loan", 0)
+    # i_cub_cash_2 = import_banking_result.get("CUB_UXL_Taiwan_Cash_Loan", 0)
+    # i_scsb_cash_2 = import_banking_result.get("SCSB_UXL_Taiwan_Cash_Loan", 0)
+    i_sino_cash_2 = import_banking_result.get("SINO_UXL_Taiwan_Cash_Loan", 0)
+
+
+    u_ctbc_imp_lc_8= i_ctbc_imp_8 + i_ctbc_lc_8
+    u_ctbc_imp_lc_3= i_ctbc_imp_3 + i_ctbc_lc_3
+    u_cub_lc_da_dp= i_cub_lc_8 + i_cub_lc_3 + i_cub_lc_2 + e_cub_dp_8 +e_cub_dp_3+e_cub_dp_2 + e_cub_da_8 +e_cub_da_3+e_cub_da_2
+    u_scsb_imp_lc_da_dp_8= i_scsb_lc_8 + i_scsb_imp_8 + e_scsb_dp_8 + e_scsb_da_8
+    u_scsb_imp_lc_da_dp_3=i_scsb_lc_3 + i_scsb_imp_3 + e_scsb_dp_3 + e_scsb_da_3
+    u_sino_cln=i_sino_cash_8 + i_sino_cash_3 +i_sino_cash_2
+    u_sino_imp_lc_8=i_sino_lc_8 + i_sino_imp_8
+    u_sino_da_dp_8= e_sino_dp_8 + e_sino_da_8
+    u_sino_imp_lc_3=i_sino_lc_3 + i_sino_imp_3
+    u_sino_da_dp_3=e_sino_dp_3 + e_sino_da_3
+
+    balance_line={
+        "b_ctbc_imp_lc_8" : ctbc_imp_lc_8 - u_ctbc_imp_lc_8,
+        "b_ctbc_imp_lc_3" : ctbc_imp_lc_3 - u_ctbc_imp_lc_3,
+        "b_cub_lc_da_dp" : cub_lc_da_dp - u_cub_lc_da_dp,
+        "b_scsb_imp_lc_da_dp_8" : scsb_imp_lc_da_dp_8 - u_scsb_imp_lc_da_dp_8,
+        "b_scsb_imp_lc_da_dp_3" : scsb_imp_lc_da_dp_3 - u_scsb_imp_lc_da_dp_3,
+        "b_sino_cln" : sino_cln - u_sino_cln,
+        "b_sino_imp_lc_8" : sino_imp_lc_8 - u_sino_imp_lc_8,
+        "b_sino_da_dp_8" : sino_da_dp_8 - u_sino_da_dp_8,
+        "b_sino_imp_lc_3" : sino_imp_lc_3 - u_sino_imp_lc_3,
+        "b_sino_da_dp_3" : sino_da_dp_3 - u_sino_da_dp_3
+    }
+    return balance_line
