@@ -82,7 +82,6 @@ function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
                         }
                     ]
                 });
-
                 d.show();
 
                 // Add refresh button with better styling

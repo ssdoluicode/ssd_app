@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 
-from ssd_app.utils.banking import export_banking_data
+from ssd_app.utils.banking import export_banking_data, balance_banking_line_data, check_banking_line
 
 
 def calculate_term_days(doc):
@@ -44,7 +44,7 @@ def final_validation(doc):
         return
 
     # Fetch CIF document value
-    cif_data = frappe.db.get_value("CIF Sheet", doc.inv_no, ["document", "inv_date"], as_dict=True)
+    cif_data = frappe.db.get_value("CIF Sheet", doc.inv_no, ["document", "inv_date", "bank"], as_dict=True)
     cif_document = cif_data.document or 0
     inv_date = cif_data.inv_date or ""
 
@@ -137,8 +137,23 @@ def put_value_from_cif(doc):
                     setattr(doc, field, data.get(field))
 
 
+def bank_line_validte(doc):
+    result = frappe.db.get_value("CIF Sheet", doc.inv_no, ["shipping_company", "bank", "payment_term"] , as_dict=True)
+   
+    shipping_company = result["shipping_company"]
+    bank = result["bank"]
+    payment_term = result["payment_term"]
+    company_code = frappe.db.get_value("Company", shipping_company, "company_code")
+    bank_details = frappe.db.get_value("Bank", bank, "bank")
+    bl = check_banking_line(company_code, bank_details, payment_term)
+
+    print(company_code, bank_details, payment_term, bl, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+
+
 class DocNego(Document): 
     def validate(self):
+        bank_line_validte(self)
         final_validation(self)
         update_cif_bank_if_missing(self)
         calculate_term_days(self)
@@ -150,6 +165,10 @@ class DocNego(Document):
     
     def on_trash(self):
         protect_delete(self)
+
+
+
+
 
 @frappe.whitelist()
 def get_cif_data(inv_no):

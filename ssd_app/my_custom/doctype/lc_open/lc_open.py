@@ -205,7 +205,7 @@ def banking_line():
             <th>Imp Loan</th>
             <th>LC Open</th>
             <th> DA</th>
-            <th> DA</th>
+            <th> DP</th>
         </tr>
     </thead>
     <tbody>
@@ -330,7 +330,7 @@ def banking_line_balance():
             <th>Imp Loan</th>
             <th>LC Open</th>
             <th> DA</th>
-            <th> DA</th>
+            <th> DP</th>
         </tr>
     </thead>
     <tbody>
