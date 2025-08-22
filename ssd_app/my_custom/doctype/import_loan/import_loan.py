@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from ssd_app.utils.banking import check_banking_line
 
 def set_custom_title(doc):
 	if doc.lc_no and doc.inv_no:
@@ -60,6 +61,29 @@ def final_validation(doc):
 		"""
 		frappe.throw(msg)
 
+
+def bank_line_validtation(doc):
+    if not doc.loan_amount:
+        frappe.throw("❌ Loan Amount cannot be empty. Please enter the amount.")
+
+    com = frappe.db.get_value('LC Open', doc.lc_no, 'company')
+    company_code = frappe.db.get_value("Company", com, "company_code")
+    company_code=company_code.replace('.', '').replace('-', '').replace(' ', '_')
+    bank = frappe.db.get_value('LC Open', doc.lc_no, 'bank')
+    bank_details = frappe.db.get_value("Bank", bank, "bank")
+    bank_details=bank_details.replace('.', '').replace('-', '').replace(' ', '_')
+    bl = check_banking_line(company_code, bank_details, "imp_l")
+    # ex_rate = frappe.db.get_value('LC Open', doc.lc_no, 'ex_rate')
+    if bl == None:
+        frappe.throw("❌ No banking Line")
+
+    # elif (doc.loan_amount / ex_rate) > bl:
+    #     frappe.throw((f"""
+    #     ❌ <b>Loan amount exceeds Bank Line Limit.</b><br>
+    #     <b>Banking Line Balance:</b> {bl:,.2f}<br>
+    #     <b>Try to Entry:</b> {(doc.loan_amount / ex_rate):,.2f}<br>
+    # """))
+
 class ImportLoan(Document):
 	def before_save(self):
 		set_currency(self)
@@ -67,3 +91,4 @@ class ImportLoan(Document):
 
 	def validate(self):
 		final_validation(self)
+		bank_line_validtation(self)

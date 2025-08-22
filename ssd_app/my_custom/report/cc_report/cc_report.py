@@ -86,6 +86,7 @@ def execute(filters=None):
             customer_col = {"label": "Customer","fieldname": "customer","fieldtype": "Data","width": 150}
             # insert at position 1 (second column)
             columns.insert(2, customer_col)
+        
     else:
         columns, result= [],[]
     return columns, result

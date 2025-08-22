@@ -6,22 +6,36 @@ from frappe.model.document import Document
 import pandas as pd
 import numpy as np
 import json
-from ssd_app.utils.banking import export_banking_data, import_banking_data, banking_line_data, balance_banking_line_data
+from ssd_app.utils.banking import export_banking_data, import_banking_data, banking_line_data, balance_banking_line_data, check_banking_line
 from datetime import date
 today = date.today() 
 
 
-def final_validation(doc):
+def bank_line_validtation(doc):
     if not doc.amount:
         frappe.throw("❌ LC Amount cannot be empty. Please enter the amount.")
+
+    company_code = frappe.db.get_value("Company", doc.company, "company_code")
+    company_code=company_code.replace('.', '').replace('-', '').replace(' ', '_')
+    bank_details = frappe.db.get_value("Bank", doc.bank, "bank")
+    bank_details=bank_details.replace('.', '').replace('-', '').replace(' ', '_')
+    bl = check_banking_line(company_code, bank_details, "lc")
+    if bl == None:
+        frappe.throw("❌ No banking Line")
+
+    elif (doc.amount / doc.ex_rate) > bl:
+        frappe.throw((f"""
+        ❌ <b>LC amount exceeds Bank Line Limit.</b><br>
+        <b>Banking Line Balance:</b> {bl:,.2f}<br>
+        <b>Try to Entry:</b> {(doc.amount / doc.ex_rate):,.2f}<br>
+    """))
 
 class LCOpen(Document):
     def before_save(self):
         if self.amount and self.ex_rate:
             self.amount_usd = round(self.amount / self.ex_rate, 2)
     def validate(self):
-	    final_validation(self)
-
+        bank_line_validtation(self)
 
 
 @frappe.whitelist()

@@ -3,6 +3,10 @@
 
 frappe.query_reports["CC Report"] = {
     onload: function (report) {
+        report.after_datatable_render = () => {
+            // hide sort dropdowns/icons completely
+            $("div.dt-dropdown").hide();
+        };
         report.page.add_inner_button("Balance Break", function () {
             // Fetch current filter values
             let filters = report.get_values();

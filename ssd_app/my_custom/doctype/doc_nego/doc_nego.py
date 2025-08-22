@@ -137,25 +137,33 @@ def put_value_from_cif(doc):
                     setattr(doc, field, data.get(field))
 
 
-def bank_line_validte(doc):
+def bank_line_validtation(doc):
     result = frappe.db.get_value("CIF Sheet", doc.inv_no, ["shipping_company", "bank", "payment_term"] , as_dict=True)
    
     shipping_company = result["shipping_company"]
     bank = result["bank"]
     payment_term = result["payment_term"]
     company_code = frappe.db.get_value("Company", shipping_company, "company_code")
+    company_code=company_code.replace('.', '').replace('-', '').replace(' ', '_')
     bank_details = frappe.db.get_value("Bank", bank, "bank")
+    bank_details=bank_details.replace('.', '').replace('-', '').replace(' ', '_')
     bl = check_banking_line(company_code, bank_details, payment_term)
 
-    print(company_code, bank_details, payment_term, bl, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-
-
+    if payment_term == "DA" or payment_term == "DP":
+        if bl== None:
+             frappe.throw("❌ No banking Line")
+        elif doc.nego_amount > bl:
+            frappe.throw(_(f"""
+            ❌ <b>Nego amount exceeds Bank Line Limit.</b><br>
+            <b>Banking Line Balance:</b> {bl:,.2f}<br>
+            <b>Try to Entry:</b> {doc.nego_amount:,.2f}<br>
+        """))
 
 class DocNego(Document): 
     def validate(self):
-        bank_line_validte(self)
         final_validation(self)
         update_cif_bank_if_missing(self)
+        bank_line_validtation(self)
         calculate_term_days(self)
         calculate_due_date
 

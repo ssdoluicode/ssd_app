@@ -3,6 +3,8 @@
 
 import frappe
 from frappe.model.document import Document
+from ssd_app.utils.banking import check_banking_line
+
 def set_custom_title(doc):
 	lc_no = frappe.db.get_value('LC Open', doc.lc_no, 'lc_no')
 
@@ -67,7 +69,6 @@ def final_validation(doc):
 		frappe.throw(msg)
 	if doc.usance_lc_amount == 0:
 		frappe.throw("⚠️ <b>Validation Error:</b> Please enter a valid Usance LC Amount. It cannot be zero.")
-
 
 class UsanceLC(Document):
 	def before_save(self):

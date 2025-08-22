@@ -335,82 +335,81 @@ def check_banking_line(com, bank, term):
     bbl = balance_banking_line_data(today) #balance_banking_line
     
 
-    gdi_ctbc_cln= 0
-    gdi_ctbc_imp= bbl["b_ctbc_imp_lc_8"]
+    gdi_ctbc_c_loan= None
+    gdi_ctbc_imp_l= bbl["b_ctbc_imp_lc_8"]
     gdi_ctbc_lc= bbl["b_ctbc_imp_lc_8"]
-    gdi_ctbc_da= 0
-    gdi_ctbc_dp=0
+    gdi_ctbc_da= None
+    gdi_ctbc_dp= None
 
-    gdi_cub_cln= 0
-    gdi_cub_imp= 0
+    gdi_cub_c_loan= None
+    gdi_cub_imp_l= None
     gdi_cub_lc= bbl["b_cub_lc_da_dp"]
     gdi_cub_da= bbl["b_cub_lc_da_dp"]
     gdi_cub_dp=bbl["b_cub_lc_da_dp"]
 
-    gdi_scsb_cln = 0
-    gdi_scsb_imp = bbl["b_scsb_imp_lc_da_dp_8"]
+    gdi_scsb_c_loan = None
+    gdi_scsb_imp_l = bbl["b_scsb_imp_lc_da_dp_8"]
     gdi_scsb_lc  = bbl["b_scsb_imp_lc_da_dp_8"]
     gdi_scsb_da  = bbl["b_scsb_imp_lc_da_dp_8"]
     gdi_scsb_dp  = bbl["b_scsb_imp_lc_da_dp_8"]
 
-    gdi_sino_cln = bbl["b_sino_cln"]
-    gdi_sino_imp = bbl["b_sino_imp_lc_8"]
+    gdi_sino_c_loan = bbl["b_sino_cln"]
+    gdi_sino_imp_l = bbl["b_sino_imp_lc_8"]
     gdi_sino_lc  = bbl["b_sino_imp_lc_8"]
     gdi_sino_da  = bbl["b_sino_da_dp_8"]
     gdi_sino_dp  = bbl["b_sino_da_dp_8"]
 
 
-    tunwa_inds_ctbc_cln = 0
-    tunwa_inds_ctbc_imp = bbl["b_ctbc_imp_lc_3"]
+    tunwa_inds_ctbc_c_loan = None
+    tunwa_inds_ctbc_imp_l = bbl["b_ctbc_imp_lc_3"]
     tunwa_inds_ctbc_lc  = bbl["b_ctbc_imp_lc_3"]
-    tunwa_inds_ctbc_da  = 0
-    tunwa_inds_ctbc_dp  = 0
+    tunwa_inds_ctbc_da  = None
+    tunwa_inds_ctbc_dp  = None
 
-    tunwa_inds_cub_cln  = 0
-    tunwa_inds_cub_imp  = 0
+    tunwa_inds_cub_c_loan  = None
+    tunwa_inds_cub_imp_l  = None
     tunwa_inds_cub_lc   = bbl["b_cub_lc_da_dp"]
     tunwa_inds_cub_da   = bbl["b_cub_lc_da_dp"]
     tunwa_inds_cub_dp   = bbl["b_cub_lc_da_dp"]
 
-    tunwa_inds_scsb_cln = 0
-    tunwa_inds_scsb_imp = bbl["b_scsb_imp_lc_da_dp_3"]
+    tunwa_inds_scsb_c_loan = None
+    tunwa_inds_scsb_imp_l = bbl["b_scsb_imp_lc_da_dp_3"]
     tunwa_inds_scsb_lc  = bbl["b_scsb_imp_lc_da_dp_3"]
     tunwa_inds_scsb_da  = bbl["b_scsb_imp_lc_da_dp_3"]
     tunwa_inds_scsb_dp  = bbl["b_scsb_imp_lc_da_dp_3"]
 
-    tunwa_inds_sino_cln = bbl["b_sino_cln"]
-    tunwa_inds_sino_imp = bbl["b_sino_imp_lc_3"]
+    tunwa_inds_sino_c_loan = bbl["b_sino_cln"]
+    tunwa_inds_sino_imp_l = bbl["b_sino_imp_lc_3"]
     tunwa_inds_sino_lc  = bbl["b_sino_imp_lc_3"]
     tunwa_inds_sino_da  = bbl["b_sino_da_dp_3"]
     tunwa_inds_sino_dp  = bbl["b_sino_da_dp_3"]
 
 
-    uxl_taiwan_ctbc_cln = 0
-    uxl_taiwan_ctbc_imp = 0
-    uxl_taiwan_ctbc_lc  = 0
-    uxl_taiwan_ctbc_da  = 0
-    uxl_taiwan_ctbc_dp  = 0
+    uxl_taiwan_ctbc_c_loan = None
+    uxl_taiwan_ctbc_imp_l = None
+    uxl_taiwan_ctbc_lc  = None
+    uxl_taiwan_ctbc_da  = None
+    uxl_taiwan_ctbc_dp  = None
 
-    uxl_taiwan_cub_cln  = 0
-    uxl_taiwan_cub_imp  = 0
+    uxl_taiwan_cub_c_loan  = None
+    uxl_taiwan_cub_imp_l  = None
     uxl_taiwan_cub_lc   = bbl["b_cub_lc_da_dp"]
     uxl_taiwan_cub_da   = bbl["b_cub_lc_da_dp"]
     uxl_taiwan_cub_dp   = bbl["b_cub_lc_da_dp"]
 
-    uxl_taiwan_scsb_cln = 0
-    uxl_taiwan_scsb_imp = 0
-    uxl_taiwan_scsb_lc  = 0
-    uxl_taiwan_scsb_da  = 0
-    uxl_taiwan_scsb_dp  = 0
+    uxl_taiwan_scsb_c_loan = None
+    uxl_taiwan_scsb_imp_l = None
+    uxl_taiwan_scsb_lc  = None
+    uxl_taiwan_scsb_da  = None
+    uxl_taiwan_scsb_dp  = None
 
-    uxl_taiwan_sino_cln = bbl["b_sino_cln"]
-    uxl_taiwan_sino_imp = 0
-    uxl_taiwan_sino_lc  = 0
-    uxl_taiwan_sino_da  = 0
-    uxl_taiwan_sino_dp  = 0
+    uxl_taiwan_sino_c_loan = bbl["b_sino_cln"]
+    uxl_taiwan_sino_imp_l = None
+    uxl_taiwan_sino_lc  = None
+    uxl_taiwan_sino_da  = None
+    uxl_taiwan_sino_dp  = None
 
     var_name = f"{com}_{bank}_{term}".lower()
-    print ("yyyyyyyyyyyyyyyyyyyyyyyy",var_name )
     value = locals().get(var_name,0)
 
     return value
