@@ -1,0 +1,194 @@
+ <div style="font-family: Arial; font-size: 12px; padding: 10px; ">
+    <h2 style="text-align: center; margin-bottom: 10px;">Master Sheet</h2>
+    <hr>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td><b>Inv No.:</b> {{doc.inv_no}}</td>
+            <td><b>Inv Date:</b> {{doc.inv_date}}</td>
+            <td><b>Company:</b>{{doc.acc_com_name}}</td>
+        </tr>
+        <tr>
+            <td><b>Category:</b> {{doc.category_name}}</td>
+            <td><b>Notify:</b> {{doc.notify_name}}</td>
+            <td><b>Customer:</b> {{doc.customer_name}}</td>
+        </tr>
+    </table>
+    <br>
+
+    <h3>Product Details</h3>
+    <div style="overflow-x: auto; width: 100%;">
+        <table style="width: 100%; border-collapse: collapse;" border="1" cellpadding="5">
+            <thead style="background-color: #d9d9d9;">
+                <tr>
+                    <th>Product</th>
+                    <th>SC No</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th style="text-align: right;">S Rate</th>
+                    <th style="text-align: right;">Ex. Rate</th>
+                    <th style="text-align: right;">G Sales (USD)</th>
+                    <th style="text-align: right;">B Rate</th>
+                    <th style="text-align: right;">Ex. Rate</th>
+                    <th style="text-align: right;">Pur (USD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set ns = namespace(
+                    row_count=0,
+                    prev_group=None,
+                    total_qty=0,
+                    total_g_sales_usd=0,
+                    total_pur_usd=0
+                ) %}
+                {% for p in product %}
+                    {% set ns.row_count = ns.row_count + 1 %}
+                    {% set ns.total_qty = ns.total_qty + p.qty %}
+                    {% set ns.total_g_sales_usd = ns.total_g_sales_usd + p.g_sales_usd %}
+                    {% set ns.total_pur_usd = ns.total_pur_usd + p.pur_usd %}
+                    {% if ns.prev_group != p.product_group %}
+                <tr>
+                    <td colspan="10" style="font-weight: bold; background-color: #f0f0f0;">
+                    {{ p.product_group }}
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                <td>{{ p.product }}</td>
+                <td>{{ p.sc_no }}</td>
+                <td style="text-align: right;">{{ "{:,.2f}".format(p.qty) }}</td>
+                <td>{{ p.unit }}</td>
+                <td style="text-align: right;">{{ p.s_curr_s }} {{"{:,.2f}".format(p.s_rate)}}</td>
+                <td style="text-align: right;">{{ "{:,.2f}".format(p.s_ex_rate) }}</td>
+                <td style="text-align: right;">{{ "{:,.2f}".format(p.g_sales_usd) }}</td>
+                <td style="text-align: right;">{{ p.b_curr_s }} {{"{:,.2f}".format(p.b_rate)}}</td>
+                <td style="text-align: right;">{{ "{:,.2f}".format(p.b_ex_rate) }}</td>
+                <td style="text-align: right;">{{ "{:,.2f}".format(p.pur_usd) }}</td>
+                </tr>
+
+                {% set ns.prev_group = p.product_group %}
+                {% endfor %}
+            {% if  ns.row_count != 1 %}
+                <tr style="font-weight: bold;">
+                    <td colspan="2" style="text-align: center;">Total</td>
+                    <td style="text-align: right;">{{ "{:,.2f}".format(ns.total_qty) }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: right;">{{ "{:,.2f}".format(ns.total_g_sales_usd) }}</td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: right;">{{ "{:,.2f}".format(ns.total_pur_usd) }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <table style="width: 80%; border-collapse: collapse;">
+        <tr>
+            <td style="width: 50%;"><b> Gross Sales / Purchase </b></td>
+            <td style="text-align: right; width: 25%;"><b>{{"{:,.2f}".format(doc.gross_sales)}}</b></td>
+            <td style="text-align: right; width: 25%;"><b>{{"{:,.2f}".format(doc.purchase)}}</b></td>
+        </tr>
+
+        {% set cost_exp_list = cost_expenses.items() | list %}
+
+        {% for label, details in expenses.items() %}
+            {% set cost_details = cost_exp_list[loop.index0][1] %}
+            <tr>
+                <td>{{ label }}</td>
+                <td style="text-align: right;">
+                    {{ "{:,.2f}".format(details.total_amount or 0) }}
+                </td>
+                <td style="text-align: right;">
+                    {{ "{:,.2f}".format(cost_details.total_amount or 0) }}
+                </td>
+            </tr>
+        {% endfor %}
+
+        {% if doc.comm %}
+        <tr>
+            <td>Commission ({{ doc.comm_agent }} @ {{ doc.comm_rate }})</td>
+            <td style="text-align: right;">{{ "{:,.2f}".format(0) }}</td>
+            <td style="text-align: right;">{{ "{:,.2f}".format(doc.comm) }}</td>
+        </tr>
+        {% endif %}
+
+        {% if doc.insurance or  cost_insurance %}
+        <tr>
+            <td> Insurance</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(doc.insurance or 0)}}</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(cost_insurance or 0)}}</td>
+        </tr>
+        {% endif %}
+
+        {% if doc.handling_charges %}
+        <tr>
+            <td> Handling {% if doc.handling_charges %}
+                    ({{ doc.handling_pct}}%)
+                {% endif %}</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(doc.handling_charges)}}</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(0)}}</td>
+        </tr>
+        {% endif %}
+    </table>
+
+    <hr>
+
+    <table style="width: 80%; border-collapse: collapse;">
+        <tr>
+            <td style="width: 50%;"> Sales </td>
+            <td style="text-align: right; width: 25%;">{{"{:,.2f}".format(doc.sales)}}</td>
+            <td style="text-align: right; width: 25%;">{{"{:,.2f}".format(doc.sales)}}</td>
+        </tr>
+        <tr>
+            <td> Document / Cost</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(doc.document)}}</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(doc.cost)}}</td>
+        </tr>
+        <tr>
+            <td> CC / Profit ({{doc.profit_pct}}%)</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(doc.cc)}}</td>
+            <td style="text-align: right;">{{"{:,.2f}".format(doc.profit)}}</td>
+        </tr>
+    </table>
+        <hr>
+    
+    <table style="width: 100%;">
+        <tr>
+            <td>
+                <b>Payment Term:</b> {{ doc.payment_term }}
+                {% if doc.payment_term in ['LC', 'DA'] %}
+                    - {{ doc.term_days }}
+                {% endif %}
+                </td>
+            <td><b>From Date:</b> {{doc.from_date}}</td>
+            <td><b>Due Date:</b> {{doc.due_date}}</td>
+        </tr>
+        <tr>
+            <td><b>Bank:</b> {{doc.bank_name}}</td>
+            <td><b>Bank Ref No.:</b> {{doc.bank_ref_no}}</td>    
+        </tr>
+    </table>
+    <hr>
+    <table style="width: 100%;">
+        <tr>
+            <td><b>From Country:</b>{{doc.f_country_name}}</td>
+            <td><b>To Country:</b>{{doc.t_country_name}}</td>
+        </tr>
+        <tr>
+            <td><b>Port of Loading:</b> {{doc.load_port_name}}</td>
+            <td><b>Port of Discharge:</b>{{doc.destination_port_name}}</td>
+        </tr>
+    </table>
+
+    <br><br>
+    <p style="font-size: 11px; color: #888; text-align: right; margin: 0;">
+        Generated on: {{ generated_date }}
+    </p>
+    </div>
+   
+
+
+

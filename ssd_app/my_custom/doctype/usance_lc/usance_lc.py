@@ -5,6 +5,8 @@ import frappe
 from frappe.model.document import Document
 from ssd_app.utils.banking import check_banking_line
 
+from frappe.utils import getdate, add_days
+
 def set_custom_title(doc):
 	lc_no = frappe.db.get_value('LC Open', doc.lc_no, 'lc_no')
 
@@ -15,6 +17,21 @@ def set_custom_title(doc):
 def set_currency(doc):
 	curr = frappe.db.get_value('LC Open', doc.lc_no, 'currency')
 	doc.currency = curr
+
+def calculate_due_date(doc):
+    if not doc.due_date and doc.term_days:
+        bl_date = frappe.db.get_value("CIF Sheet",{"inv_no": doc.inv_no},"inv_date")
+
+        if bl_date:
+            bl_date = getdate(bl_date)
+            doc.inv_date= bl_date
+            doc.due_date = add_days(bl_date, int(doc.term_days))
+        else:
+            if (doc.inv_date):
+                bl_date= doc.inv_date
+                doc.due_date = add_days(bl_date, int(doc.term_days))
+            else:
+                frappe.throw("Please Fill Inv Date")
 
 def final_validation(doc):
 	# Get LC Open amount and tolerance
@@ -71,10 +88,11 @@ def final_validation(doc):
 		frappe.throw("⚠️ <b>Validation Error:</b> Please enter a valid Usance LC Amount. It cannot be zero.")
 
 class UsanceLC(Document):
+	def validate(self):
+		calculate_due_date(self)
+		final_validation(self)
+	
 	def before_save(self):
 		set_currency(self)
 		if self.lc_no and self.inv_no:
 			set_custom_title(self)
-
-	def validate(self):
-		final_validation(self)

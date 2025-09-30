@@ -4,6 +4,8 @@
 import frappe
 from frappe.model.document import Document
 from ssd_app.utils.banking import check_banking_line
+from datetime import datetime, timedelta
+
 
 def set_custom_title(doc):
 	if doc.lc_no and doc.inv_no:
@@ -13,6 +15,15 @@ def set_custom_title(doc):
 def set_currency(doc):
 	if doc.lc_no:
 		doc.currency = frappe.db.get_value('LC Open', doc.lc_no, 'currency') or ''
+
+
+def calculate_due_date(doc):
+    if not doc.due_date and doc.term_days:
+        if isinstance(doc.loan_date, str):
+            loan_date = datetime.strptime(doc.loan_date, "%Y-%m-%d").date()
+        else:
+            loan_date = doc.loan_date
+        doc.due_date = loan_date + timedelta(days=int(doc.term_days))
 
 def final_validation(doc):
 	# Fetch LC Open amount and tolerance
@@ -88,6 +99,7 @@ class ImportLoan(Document):
 	def before_save(self):
 		set_currency(self)
 		set_custom_title(self)
+		calculate_due_date(self)
 
 	def validate(self):
 		final_validation(self)

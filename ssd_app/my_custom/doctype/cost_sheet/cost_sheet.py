@@ -20,6 +20,7 @@ def get_cif_data(inv_no):
         "accounting_company": cif.accounting_company,
         "shipping_company": cif.shipping_company,
         "handling_charges":cif.handling_charges,
+        "insurance":cif.insurance,
         "sales":cif.sales,
         "multiple_sc":cif.multiple_sc if cif.multiple_sc else 0,
         "sc_no":cif.sc_no,
@@ -135,7 +136,7 @@ def render_cost_sheet_pdf(cost_id, pdf=0):
         }
         for i in exp
     }
-    expenses = {e: exp_dict.get(e, 0) for e in ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Others"]}
+    expenses = {e: exp_dict.get(e, 0) for e in ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Insurance", "Others"]}
 
     context = {
         "doc": doc,

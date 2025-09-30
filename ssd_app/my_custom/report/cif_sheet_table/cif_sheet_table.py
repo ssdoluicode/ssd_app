@@ -4,11 +4,21 @@ from frappe.utils.pdf import get_pdf
 from frappe.utils.jinja import render_template
 from frappe import _
 
-def get_cif_data(inv_name=None):
-    if(inv_name):
-        conditional_format= f"""WHERE cif.name= '{inv_name}'"""
+def get_cif_data(filters):
+    year = filters.year
+
+    if not year:
+        max_year = frappe.db.sql("""
+            SELECT MAX(YEAR(inv_date))
+            FROM `tabCIF Sheet`
+            WHERE inv_date IS NOT NULL
+        """, as_list=True)[0][0]
+        conditional_filter= f"""WHERE YEAR(cif.inv_date)= {int(max_year)}"""
+    elif year == "All":
+        conditional_filter= ""
     else:
-        conditional_format=""
+        conditional_filter= f"""WHERE YEAR(cif.inv_date)= {int(year)}"""
+   
 
     data= frappe.db.sql(f"""
         SELECT
@@ -72,15 +82,13 @@ def get_cif_data(inv_name=None):
         FROM `tabDoc Received`
         GROUP BY inv_no
     ) t_rec ON cif.name = t_rec.inv_no
-    {conditional_format}
+    {conditional_filter}
     ORDER BY cif.creation DESC ;
     """, as_dict=1)
     return data
 
 
 def execute(filters=None):
-    filters = filters or {}
-
     columns = [
         # {"label": "Inv ID", "fieldname": "name", "fieldtype": "Data", "width": 80},
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90},
@@ -97,8 +105,19 @@ def execute(filters=None):
         {"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 80},
         {"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 180},
     ]
-    data = get_cif_data()
+    data = get_cif_data(filters)
     return columns, data
 
 
 
+@frappe.whitelist()
+def get_years():
+    years = frappe.db.sql("""
+        SELECT DISTINCT YEAR(inv_date) AS year
+        FROM `tabCIF Sheet`
+        WHERE inv_date IS NOT NULL
+        ORDER BY year ASC
+    """, as_dict=True)
+
+    # Return a simple list of years as strings
+    return [str(d.year) for d in years]

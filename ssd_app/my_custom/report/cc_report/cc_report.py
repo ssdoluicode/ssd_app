@@ -11,12 +11,9 @@ def execute(filters=None):
     if filters.get("customer"):
         conditions += " AND cif.customer = %(customer)s"
 
-        
-        
-        
-
         query = f"""
             SELECT 
+                cif.name AS name,
                 cif.inv_date AS date, 
                 cif.inv_no, 
                 cus.customer,
@@ -34,7 +31,7 @@ def execute(filters=None):
         if data:
             df = pd.DataFrame(data)
             df["note"] = ""
-            cif_df = df[["date", "inv_no", "customer", "notify", "sales", "document", "cc", "note"]].copy()
+            cif_df = df[["name","date", "inv_no", "customer", "notify", "sales", "document", "cc", "note"]].copy()
         else:
             cif_df = pd.DataFrame(columns=["date", "inv_no", "customer", "notify", "sales", "document", "cc", "note"])
 
@@ -54,12 +51,13 @@ def execute(filters=None):
         data = json.loads(frappe.as_json(raw_data))
         if data:
             df = pd.DataFrame(data)
+            df["name"] = ""
             df["inv_no"] = ""
             df["notify"] = ""
             df["sales"] = 0
             df["cc"] = df["cc"]*-1
             df["document"] = 0
-            rec_df = df[["date", "inv_no", "customer", "notify", "sales", "document", "cc", "note"]]
+            rec_df = df[["name","date", "inv_no", "customer", "notify", "sales", "document", "cc", "note"]]
         else:
             rec_df = pd.DataFrame(columns=["date", "inv_no", "customer", "notify", "sales", "document", "cc", "note"])
 
@@ -72,15 +70,15 @@ def execute(filters=None):
         result = final_df.to_dict(orient='records')
 
         columns = [
-            {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90},
-            {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 120},
-            # {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 150},
-            {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 150},
-            {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 120},
-            {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 120},
-            {"label": "CC", "fieldname": "cc", "fieldtype": "Float", "width": 120},
-            {"label": "Balance", "fieldname": "balance", "fieldtype": "Float", "width": 120},
-            {"label": "Narration", "fieldname": "note", "fieldtype": "Data", "width": 250},
+            {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90, "sortable": 0},
+            {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 120, "sortable": 0},
+            # {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 150, "sortable": 0},
+            {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 150, "sortable": 0},
+            {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 120, "sortable": 0},
+            {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 120, "sortable": 0},
+            {"label": "CC", "fieldname": "cc", "fieldtype": "Float", "width": 120, "sortable": 0},
+            {"label": "Balance", "fieldname": "balance", "fieldtype": "Float", "width": 120, "sortable": 0},
+            {"label": "Narration", "fieldname": "note", "fieldtype": "Data", "width": 250, "sortable": 0},
         ]
         if not filters.get("customer"):
             customer_col = {"label": "Customer","fieldname": "customer","fieldtype": "Data","width": 150}

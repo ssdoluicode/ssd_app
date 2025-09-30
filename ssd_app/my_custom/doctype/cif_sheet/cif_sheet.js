@@ -397,7 +397,8 @@ function checkDuplicateExpensesOnValidation(frm) {
 
 //If Doc Nego or Receive then lock Bank Name & document Amount 
 function check_and_lock_fields(frm) {
-    if (frm.is_new() || !frm.doc.inv_no) return;
+    // if (frm.is_new() || !frm.doc.inv_no) return;
+    if (frm.is_new() || !frm.doc.name || !frm.doc.inv_no) return;
 
     frappe.call({
         method: "ssd_app.my_custom.doctype.cif_sheet.cif_sheet.check_related_docs",

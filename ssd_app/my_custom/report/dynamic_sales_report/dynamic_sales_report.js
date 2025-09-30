@@ -3,6 +3,18 @@
 
 
 frappe.query_reports["Dynamic Sales Report"] = {
+    onload: function(report) {
+        frappe.call({
+            method: "ssd_app.my_custom.report.dynamic_sales_report.dynamic_sales_report.get_first_jan_of_max_year",
+            callback: function(r) {
+                if (r.message) {
+                    const f = report.get_filter("from_date");
+                    f.df.default = r.message;
+                    f.set_input(r.message);
+                }
+            }
+        });
+    },
     
     formatter: function (value, row, column, data, default_formatter) {
         // Use default_formatter first for non-numeric columns
@@ -24,15 +36,15 @@ frappe.query_reports["Dynamic Sales Report"] = {
          
         return value;
     },
+    
 
 
     "filters": [
         {
-            "fieldname": "from_date",
-            "label": __("From Date"),
-            "fieldtype": "Date",
-            "default": "2025-01-01",
-            "reqd": 1
+            fieldname: "from_date",
+            label: __("From Date"),
+            fieldtype: "Date",
+            reqd: 1
         },
         {
             "fieldname": "to_date",

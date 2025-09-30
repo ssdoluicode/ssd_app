@@ -153,7 +153,7 @@ function get_cif_data(frm) {
                     });
                 }
             });
-
+            
             if (data.insurance) {
                 frm.add_child("expenses", {
                     expenses: "Insurance",

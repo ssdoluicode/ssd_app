@@ -8,6 +8,7 @@
   "lc_no",
   "inv_no",
   "usance_lc_date",
+  "inv_date",
   "usance_lc_amount",
   "column_break_dpjv",
   "currency",
@@ -54,13 +55,14 @@
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Term Days",
-   "non_negative": 1
+   "non_negative": 1,
+   "reqd": 1
   },
   {
    "fieldname": "due_date",
    "fieldtype": "Date",
-   "label": "Due Date",
-   "reqd": 1
+   "hidden": 1,
+   "label": "Due Date"
   },
   {
    "fieldname": "note",
@@ -85,12 +87,17 @@
    "hidden": 1,
    "label": "Currency",
    "options": "Currency"
+  },
+  {
+   "fieldname": "inv_date",
+   "fieldtype": "Date",
+   "label": "Inv Date"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-05 18:11:15.913390",
+ "modified": "2025-09-10 16:00:12.119523",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC",

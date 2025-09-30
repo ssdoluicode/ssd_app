@@ -43,8 +43,8 @@
   {
    "fieldname": "due_date",
    "fieldtype": "Date",
-   "label": "Due Date",
-   "reqd": 1
+   "hidden": 1,
+   "label": "Due Date"
   },
   {
    "fieldname": "note",
@@ -67,7 +67,8 @@
    "fieldname": "term_days",
    "fieldtype": "Int",
    "label": "Term Days",
-   "non_negative": 1
+   "non_negative": 1,
+   "reqd": 1
   },
   {
    "fieldname": "custom_title",
@@ -77,9 +78,9 @@
    "unique": 1
   },
   {
-   "allow_in_quick_entry": 1,
    "fieldname": "currency",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Currency",
    "options": "Currency",
    "read_only": 1
@@ -88,7 +89,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-07 21:18:03.205663",
+ "modified": "2025-09-01 16:38:06.248256",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",

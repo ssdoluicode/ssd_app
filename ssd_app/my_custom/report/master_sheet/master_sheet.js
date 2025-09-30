@@ -6,7 +6,7 @@ frappe.query_reports["Master Sheet"] = {
         value = default_formatter(value, row, column, data);
         // 🔗 Clickable inv_no with modal
         if (column.fieldname === "inv_no" && data && data.name) {
-            return `<a href="#" onclick="showCIFDetails('${data.name}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
+            return `<a href="#" onclick="showMasterDetails('${data.name}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
         }
 
         return value;

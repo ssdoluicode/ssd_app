@@ -241,3 +241,20 @@ def show_inv_wise(group_by, head, month_year):
     </table>"""
 
     return html
+
+
+
+@frappe.whitelist()
+def get_first_jan_of_max_year():
+    # Find highest year of inv_date
+    max_year = frappe.db.sql("""
+        SELECT MAX(YEAR(inv_date))
+        FROM `tabCIF Sheet`
+        WHERE inv_date IS NOT NULL
+    """)[0][0]
+
+    if not max_year:
+        return None
+
+    # Always return 1st Jan of that year
+    return f"{max_year}-01-01"
