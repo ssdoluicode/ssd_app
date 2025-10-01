@@ -14,6 +14,16 @@ frappe.query_reports["CC Report"] = {
                 frappe.msgprint(__("Please select a Customer & Date first."));
             }
         });
+        frappe.call({
+            method: "ssd_app.my_custom.report.dynamic_sales_report.dynamic_sales_report.get_first_jan_of_max_year",
+            callback: function(r) {
+                if (r.message) {
+                    const f = report.get_filter("from_date");
+                    f.df.default = r.message;
+                    f.set_input(r.message);
+                }
+            }
+        });
         report.page.add_inner_button("Go to CC Balance", function () {
             frappe.set_route('query-report', 'CC Balance');
         });
@@ -43,6 +53,12 @@ frappe.query_reports["CC Report"] = {
 
 
     "filters": [
+        {
+            fieldname: "from_date",
+            label: __("From Date"),
+            fieldtype: "Date",
+            reqd: 1
+        },
         {
             "fieldname": "as_on",
             "label": __("As On"),

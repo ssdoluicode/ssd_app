@@ -45,53 +45,32 @@ def execute(filters=None):
             '' AS notify,
             "opening" AS note
     
-FROM (
-    -- Total CC before as_on_date
-    SELECT 
-        customer, 
-        SUM(cc) AS amount
-    FROM `tabCIF Sheet`
-    WHERE cc != 0
-      AND customer = %(customer)s
-      AND inv_date < %(from_date)s
-    GROUP BY customer
+        FROM (
+            -- Total CC before as_on_date
+            SELECT 
+                customer, 
+                SUM(cc) AS amount
+            FROM `tabCIF Sheet`
+            WHERE cc != 0
+            AND customer = %(customer)s
+            AND inv_date < %(from_date)s
+            GROUP BY customer
 
-    UNION ALL
+            UNION ALL
 
-    -- Total CC Received before as_on_date
-    SELECT 
-        customer, 
-        SUM(amount_usd) *-1 AS amount
-    FROM `tabCC Received`
-    WHERE customer = %(customer)s
-    AND date < %(from_date)s
-    GROUP BY customer
-) AS t
-GROUP BY customer
+            -- Total CC Received before as_on_date
+            SELECT 
+                customer, 
+                SUM(amount_usd) *-1 AS amount
+            FROM `tabCC Received`
+            WHERE customer = %(customer)s
+            AND date < %(from_date)s
+            GROUP BY customer
+        ) AS t
+        GROUP BY customer
 
-					  
-
-
-UNION ALL
-
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
-					  
+        UNION ALL
+	  
         -- CIF Sheet Summary
         SELECT 
             CAST(SUBSTRING_INDEX(cif.name, '-', -1) AS DECIMAL(20,2)) + 1000000 AS idex,
