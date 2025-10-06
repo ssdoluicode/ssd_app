@@ -47,6 +47,9 @@ frappe.query_reports["CC Report"] = {
         if (column.fieldname === "inv_no" && data && data.name) {
             return `<a href="#" onclick="showCIFDetails('${data.name}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
         }
+        if (data && data.dev_note && data.dev_note.toLowerCase() === "opening") {
+            value = `<b>${value}</b>`;  // ✅ Bold entire row
+        }
 
         return value;
     },
