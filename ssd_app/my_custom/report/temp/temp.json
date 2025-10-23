@@ -1,0 +1,29 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2025-10-17 11:04:10.226272",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letterhead": null,
+ "modified": "2025-10-17 11:04:10.226272",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "temp",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "SELECT\r\n            cif.name,\r\n            cif.inv_no,\r\n            com.company_code AS com,\r\n            bank.bank,\r\n            cif.payment_term AS p_term,\r\n            ROUND(cif.document, 0) * 1.0 AS document,\r\n            GREATEST(\r\n                IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0),\r\n                0\r\n            ) * 1.0 AS nego\r\n        FROM `tabCIF Sheet` cif\r\n        LEFT JOIN (\r\n            SELECT inv_no, SUM(nego_amount) * 1.0 AS total_nego\r\n            FROM `tabDoc Nego`\r\n            \r\n            GROUP BY inv_no\r\n        ) nego ON cif.name = nego.inv_no\r\n        LEFT JOIN (\r\n            SELECT inv_no, SUM(refund_amount) * 1.0 AS total_ref\r\n            FROM `tabDoc Refund`\r\n           \r\n            GROUP BY inv_no\r\n        ) ref ON cif.name = ref.inv_no\r\n        LEFT JOIN (\r\n            SELECT inv_no, SUM(received) * 1.0 AS total_rec\r\n            FROM `tabDoc Received`\r\n            \r\n            GROUP BY inv_no\r\n        ) rec ON cif.name = rec.inv_no\r\n        LEFT JOIN `tabBank` bank ON cif.bank = bank.name\r\n        LEFT JOIN `tabCompany` com ON cif.shipping_company= com.name\r\n        WHERE cif.payment_term != 'TT'\r\n          AND GREATEST(\r\n              IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0),\r\n              0\r\n          ) != 0\r\n          \r\n        ORDER BY cif.name ASC",
+ "ref_doctype": "CIF Sheet",
+ "report_name": "temp",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "timeout": 0
+}

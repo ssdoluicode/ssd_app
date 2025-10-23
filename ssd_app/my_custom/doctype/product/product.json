@@ -1,6 +1,7 @@
 {
  "actions": [],
- "autoname": "Prod-.####",
+ "allow_import": 1,
+ "autoname": "prod-.#####",
  "creation": "2025-06-03 15:54:43.586332",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -80,7 +81,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-24 14:32:41.980625",
+ "modified": "2025-10-21 09:22:40.482943",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Product",

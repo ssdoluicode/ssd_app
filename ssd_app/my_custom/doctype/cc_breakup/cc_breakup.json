@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "cc_b-.####",
+ "autoname": "cc_b-.#####",
  "creation": "2025-06-29 17:55:21.178429",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -58,7 +58,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-06-29 22:48:36.835210",
+ "modified": "2025-10-15 12:10:56.430653",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CC Breakup",

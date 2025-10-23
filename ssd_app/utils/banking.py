@@ -26,8 +26,8 @@ def banking_line_data():
 def export_banking_data(as_on):
     """
     Fetch CIF Sheet + related banking data.
-    :param as_on: Date (string or datetime) - filter date
-    :return: list of dicts
+    param as_on: Date (string or datetime) - filter date
+    return: list of dicts
     """
     query = """
         SELECT
@@ -217,6 +217,8 @@ def balance_banking_line_data(as_on):
     sino_da_dp_8=banking_line["sino_da_dp_8"]
     sino_imp_lc_3=banking_line["sino_imp_lc_3"]
     sino_da_dp_3=banking_line["sino_da_dp_3"]
+    
+    
 
 
     export_banking=export_banking_data(as_on)
@@ -226,8 +228,7 @@ def balance_banking_line_data(as_on):
         com= row['com'].replace('.', '').replace('-', '').replace(' ', '_')
         p_term=row['p_term'].replace('.', '').replace('-', '').replace(' ', '_')
         key = f"{bank}_{com}_{p_term}"
-        export_banking_result[key] = export_banking_result.get(key, 0) + row['document']
-    
+        export_banking_result[key] = export_banking_result.get(key, 0) + row['nego']
     e_ctbc_da_8 = export_banking_result.get("CTBC_GDI_DA", 0)
     e_cub_da_8  = export_banking_result.get("CUB_GDI_DA", 0)
     e_scsb_da_8 = export_banking_result.get("SCSB_GDI_DA", 0)
@@ -315,19 +316,23 @@ def balance_banking_line_data(as_on):
     u_sino_da_dp_8= e_sino_dp_8 + e_sino_da_8
     u_sino_imp_lc_3=i_sino_lc_3 + i_sino_imp_3
     u_sino_da_dp_3=e_sino_dp_3 + e_sino_da_3
+    
+
 
     balance_line={
-        "b_ctbc_imp_lc_8" : ctbc_imp_lc_8 - u_ctbc_imp_lc_8,
-        "b_ctbc_imp_lc_3" : ctbc_imp_lc_3 - u_ctbc_imp_lc_3,
-        "b_cub_lc_da_dp" : cub_lc_da_dp - u_cub_lc_da_dp,
-        "b_scsb_imp_lc_da_dp_8" : scsb_imp_lc_da_dp_8 - u_scsb_imp_lc_da_dp_8,
-        "b_scsb_imp_lc_da_dp_3" : scsb_imp_lc_da_dp_3 - u_scsb_imp_lc_da_dp_3,
-        "b_sino_cln" : sino_cln - u_sino_cln,
-        "b_sino_imp_lc_8" : sino_imp_lc_8 - u_sino_imp_lc_8,
-        "b_sino_da_dp_8" : sino_da_dp_8 - u_sino_da_dp_8,
-        "b_sino_imp_lc_3" : sino_imp_lc_3 - u_sino_imp_lc_3,
-        "b_sino_da_dp_3" : sino_da_dp_3 - u_sino_da_dp_3
+        "b_ctbc_imp_lc_8" : round(ctbc_imp_lc_8 - u_ctbc_imp_lc_8,2),
+        "b_ctbc_imp_lc_3" : round(ctbc_imp_lc_3 - u_ctbc_imp_lc_3,2),
+        "b_cub_lc_da_dp" : round(cub_lc_da_dp - u_cub_lc_da_dp,2),
+        "b_scsb_imp_lc_da_dp_8" : round(scsb_imp_lc_da_dp_8 - u_scsb_imp_lc_da_dp_8,2),
+        "b_scsb_imp_lc_da_dp_3" : round(scsb_imp_lc_da_dp_3 - u_scsb_imp_lc_da_dp_3,2),
+        "b_sino_cln" : round(sino_cln - u_sino_cln,2),
+        "b_sino_imp_lc_8" : round(sino_imp_lc_8 - u_sino_imp_lc_8,2),
+        "b_sino_da_dp_8" : round(sino_da_dp_8 - u_sino_da_dp_8,2),
+        "b_sino_imp_lc_3" : round(sino_imp_lc_3 - u_sino_imp_lc_3,2),
+        "b_sino_da_dp_3" : round(sino_da_dp_3 - u_sino_da_dp_3,2)
+     
     }
+    
     return balance_line
 
 @frappe.whitelist()

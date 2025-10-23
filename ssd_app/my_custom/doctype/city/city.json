@@ -1,6 +1,7 @@
 {
  "actions": [],
- "autoname": "city-.####",
+ "allow_import": 1,
+ "autoname": "city-.#####",
  "creation": "2025-06-03 16:31:31.319755",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -42,7 +43,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-20 15:46:48.412577",
+ "modified": "2025-10-16 10:15:48.134208",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "City",

@@ -18,12 +18,14 @@ def set_currency(doc):
 
 
 def calculate_due_date(doc):
-    if not doc.due_date and doc.term_days:
+    if doc.term_days:
         if isinstance(doc.loan_date, str):
             loan_date = datetime.strptime(doc.loan_date, "%Y-%m-%d").date()
         else:
             loan_date = doc.loan_date
         doc.due_date = loan_date + timedelta(days=int(doc.term_days))
+
+
 
 def final_validation(doc):
 	# Fetch LC Open amount and tolerance

@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "bank-.###",
  "creation": "2025-06-03 17:17:30.422926",
  "doctype": "DocType",
@@ -56,7 +57,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-27 14:43:56.303990",
+ "modified": "2025-10-13 14:50:49.729267",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Bank",

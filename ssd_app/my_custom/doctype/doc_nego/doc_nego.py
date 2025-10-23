@@ -152,6 +152,14 @@ def bank_line_validtation(doc):
     if payment_term == "DA" or payment_term == "DP":
         if bl== None:
              frappe.throw("❌ No banking Line")
+        if not doc.is_new():# need to add logic here
+            actual_nego = frappe.db.get_value("Doc Nego", doc.name, "nego_amount")
+            if doc.nego_amount > bl+actual_nego:
+                frappe.throw(_(f"""
+                ❌ <b>Nego amount exceeds Bank Line Limit.</b><br>
+                <b>Banking Line Balance:</b> {bl+actual_nego:,.2f}<br>
+                <b>Try to Entry:</b> {doc.nego_amount:,.2f}<br>
+            """))
         elif doc.nego_amount > bl:
             frappe.throw(_(f"""
             ❌ <b>Nego amount exceeds Bank Line Limit.</b><br>

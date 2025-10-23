@@ -9,7 +9,7 @@ import json
 
 def validate_amount_sum(doc):
     total_child_amount = sum(flt(row.amount) for row in doc.cc_breakup)
-    if flt(doc.amount_usd) != total_child_amount:
+    if flt(doc.amount_usd) != round(total_child_amount,2):
         frappe.throw(
             f"⚠️ Amount (USD) {doc.amount_usd} must equal the total of child amounts {total_child_amount}."
         )
@@ -113,13 +113,14 @@ def cc_balance_breakup(cus_id, as_on):
     """
     total=0
     for _, row in final_df.iterrows():
-        total+=row['amount']
-        html += f"""
-            <tr>
-                <td>{row['ref_no']}</td>
-                <td style="text-align: right;">{row['amount']:,.2f}</td>
-            </tr>
-        """
+        if round(row['amount'],2) !=0:
+            total+=row['amount']
+            html += f"""
+                <tr>
+                    <td>{row['ref_no']}</td>
+                    <td style="text-align: right;">{row['amount']:,.2f}</td>
+                </tr>
+            """
     html += f"""
         </tbody>
         <tfoot>

@@ -1,6 +1,7 @@
 {
  "actions": [],
- "autoname": "unit-.####",
+ "allow_import": 1,
+ "autoname": "unit-.#####",
  "creation": "2025-06-03 15:55:22.988961",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -35,7 +36,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-18 11:44:38.069153",
+ "modified": "2025-10-21 12:16:25.118913",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Unit",
