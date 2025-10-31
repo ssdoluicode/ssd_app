@@ -4,21 +4,25 @@ frappe.query_reports["Document Receivable"] = {
 
         if (column.fieldname === "bank_due_date" && data?.bank_due_date) {
             let style = "font-weight: bold;";
+            let clickable = "";//
 
             if (!data.due_date_confirm) {
                 style += " text-decoration-line: underline;";
                 style += " text-decoration-style: double;";
-                style += " text-decoration-color: red;";
+                style += " text-decoration-color: red; cursor:pointer;";
+                clickable = `onclick="changeDueDate('${data.nego_name}', '${data.inv_no}', '${data.bank_due_date}'); return false;"`;
                 if (data.days_to_due < 5) {
                     style += " color: red;";
                 }
             } else {
+        
                 if (data.days_to_due < 5) {
                     style += " color: red;";
                 }
             }
 
-            return `<span style="${style}">${value}</span>`;
+            // return `<span style="${style}">${value}</span>`;
+            return `<span style="${style}" ${clickable}>${value}</span>`;
         }
 
         if (column.fieldname === "document" && data?.name) {
@@ -112,3 +116,127 @@ function exportBankingLine(as_on) {
         }
     });
 } 
+
+// // 🔹 Temporary click handler
+// window.changeDueDate = function(nego_name, inv_no, current_date) {
+    
+//     let d = new frappe.ui.Dialog({
+//         title: `Update Bank Due Date Inv No: ${inv_no}`,
+//         fields: [
+//             {
+//                 label: "Current Due Date",
+//                 fieldname: "current_date",
+//                 fieldtype: "Data",
+//                 read_only: 1,
+//                 default: current_date
+//             },
+//             {
+//                 label: "New Due Date",
+//                 fieldname: "new_due_date",
+//                 fieldtype: "Date",
+//                 reqd: 1
+//             },
+//             {
+//                 label: "Due Date Confirm",
+//                 fieldname: "due_date_confirm",
+//                 fieldtype: "Check",
+//                 default: 1
+//             }, {
+//                 label: "Note",
+//                 fieldname: "note",
+//                 fieldtype: "Data",
+//                 default: 0
+//             }
+//         ],
+//         primary_action_label: "Update",
+//         primary_action(values) {
+//             frappe.call({
+//                 method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.update_due_date",
+//                 args: {
+//                     docname: nego_name,
+//                     new_due_date: values.new_due_date,
+//                     due_date_confirm: values.due_date_confirm,
+//                     note: values.note
+//                 },
+//                 callback: function(r) {
+//                     if (!r.exc) {
+//                         frappe.msgprint("Due Date updated successfully!");
+//                         d.hide();
+//                         frappe.query_report.refresh();
+//                     }
+//                 }
+//             });
+//         }
+//     });
+
+//     d.show();
+// };
+
+window.changeDueDate = function(nego_name, inv_no, current_date) {
+
+    // First, fetch the current note from DB
+    frappe.call({
+        method: "frappe.client.get",
+        args: {
+            doctype: "Doc Nego",
+            name: nego_name
+        },
+        callback: function(r) {
+            const current_note = r.message?.note || "";
+
+            // Now open the dialog with note pre-filled
+            let d = new frappe.ui.Dialog({
+                title: `Update Bank Due Date Inv No: ${inv_no}`,
+                fields: [
+                    {
+                        label: "Current Due Date",
+                        fieldname: "current_date",
+                        fieldtype: "Data",
+                        read_only: 1,
+                        default: current_date
+                    },
+                    {
+                        label: "New Due Date",
+                        fieldname: "new_due_date",
+                        fieldtype: "Date",
+                        reqd: 1
+                    },
+                    {
+                        label: "Due Date Confirm",
+                        fieldname: "due_date_confirm",
+                        fieldtype: "Check",
+                        default: 1
+                    },
+                    {
+                        label: "Note",
+                        fieldname: "note",
+                        fieldtype: "Data",
+                        default: current_note
+                    }
+                ],
+                primary_action_label: "Update",
+                primary_action(values) {
+                    frappe.call({
+                        method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.update_due_date",
+                        args: {
+                            docname: nego_name,
+                            new_due_date: values.new_due_date,
+                            due_date_confirm: values.due_date_confirm,
+                            note: values.note
+                        },
+                        callback: function(r) {
+                            if (!r.exc) {
+                                frappe.msgprint("Due Date updated successfully!");
+                                d.hide();
+                                // @ts-ignore
+                                frappe.query_report.refresh();
+                            }
+                        }
+                    });
+                }
+            });
+
+            d.show();
+        }
+    });
+};

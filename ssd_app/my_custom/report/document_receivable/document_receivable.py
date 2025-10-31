@@ -18,11 +18,15 @@ def execute(filters=None):
 			(cif.document - IFNULL(nego.total_nego, 0))
 			+ LEAST(IFNULL(nego.total_nego, 0) - IFNULL(rec.total_rec, 0), 0), 2), 0) > 0"""
 	elif filters.based_on == "Nego":
-		conditional_filter = """AND IFNULL( ROUND(
-			GREATEST((IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0))
-			+ LEAST(IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0), 0), 0), 2), 0) > 0"""
+		# conditional_filter = """AND IFNULL( ROUND(
+		# 	GREATEST((IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0))
+		# 	+ LEAST(IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0), 0), 0), 2), 0) > 0"""
+		conditional_filter ="""AND ROUND(GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0),2) >0"""
 	elif filters.based_on == "Refund":
-		conditional_filter = "AND GREATEST(IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0), 0) > 0"
+		# conditional_filter = "AND GREATEST(IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0), 0) > 0"
+		conditional_filter="""AND IFNULL(ROUND(
+				GREATEST(IFNULL(ref.total_ref, 0)
+				+ LEAST((IFNULL(nego.total_nego, 0)-IFNULL(ref.total_ref, 0)) - IFNULL(rec.total_rec, 0), 0), 0), 2), 0) >0"""
 
 	columns = [
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
@@ -44,6 +48,7 @@ def execute(filters=None):
 	data = frappe.db.sql(f"""
 		SELECT
 			cif.name,
+			IFNULL(nego.nego_name, "") AS nego_name,
 			cif.inv_no,
 			cif.inv_date,
 			cus.code AS customer,
@@ -52,7 +57,7 @@ def execute(filters=None):
 			IF(cif.payment_term IN ('LC', 'DA'),
 				CONCAT(cif.payment_term, '- ', cif.term_days),
 				cif.payment_term) AS p_term,
-			ROUND(cif.document, 0) AS document,
+			ROUND(cif.document, 2) AS document,
 			cif.due_date,
 			IFNULL(nego.total_nego, 0) AS total_nego,
 			CASE
@@ -74,7 +79,7 @@ def execute(filters=None):
 			GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0) AS nego
 		FROM `tabCIF Sheet` cif
 		LEFT JOIN (
-			SELECT inv_no, SUM(nego_amount) AS total_nego, MIN(bank_due_date) AS bank_due_date, MIN(due_date_confirm) AS due_date_confirm
+			SELECT inv_no, SUM(nego_amount) AS total_nego, MIN(bank_due_date) AS bank_due_date, MIN(due_date_confirm) AS due_date_confirm, MIN(name) AS nego_name
 			FROM `tabDoc Nego` WHERE nego_date <= %(as_on)s GROUP BY inv_no
 		) nego ON cif.name = nego.inv_no
 		LEFT JOIN (
