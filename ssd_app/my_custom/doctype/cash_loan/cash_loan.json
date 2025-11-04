@@ -8,14 +8,15 @@
  "field_order": [
   "cash_loan_no",
   "cash_loan_date",
-  "due_date",
-  "bank",
   "company",
-  "column_break_zlit",
+  "bank",
   "cash_loan_amount",
+  "column_break_zlit",
   "currency",
   "ex_rate",
   "cash_loan_amount_usd",
+  "due_date",
+  "due_date_confirm",
   "note"
  ],
  "fields": [
@@ -96,12 +97,18 @@
    "label": "Company",
    "options": "Company",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "due_date_confirm",
+   "fieldtype": "Check",
+   "label": "Due Date Confirm"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-14 09:29:46.243201",
+ "modified": "2025-11-04 11:49:57.935393",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cash Loan",

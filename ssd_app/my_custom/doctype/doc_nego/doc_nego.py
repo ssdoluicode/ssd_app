@@ -375,13 +375,29 @@ def export_banking_line(as_on, columns_order=[]):
 
 
 @frappe.whitelist()
-def update_due_date(docname, new_due_date, due_date_confirm, note=None):
+def update_export_due_date(docname, new_due_date, due_date_confirm, note= None):
     """Update due date and confirmation flag"""
     # frappe.db.set_value("Doc Nego", docname, "bank_due_date", new_due_date)
     # frappe.db.set_value("Doc Nego", docname, "due_date_confirm", due_date_confirm)
     # frappe.db.set_value("Doc Nego", docname, "note", note)
     frappe.db.set_value("Doc Nego", docname, {
         "bank_due_date": new_due_date,
+        "due_date_confirm": int(due_date_confirm),
+        "note": note or ""
+    })
+    return "success"
+
+
+
+
+@frappe.whitelist()
+def update_import_due_date(doctype_name,docname, new_due_date, due_date_confirm, note=None):
+    """Update due date and confirmation flag"""
+    # frappe.db.set_value("Doc Nego", docname, "bank_due_date", new_due_date)
+    # frappe.db.set_value("Doc Nego", docname, "due_date_confirm", due_date_confirm)
+    # frappe.db.set_value("Doc Nego", docname, "note", note)
+    frappe.db.set_value(doctype_name, docname, {
+        "due_date": new_due_date,
         "due_date_confirm": int(due_date_confirm),
         "note": note or ""
     })

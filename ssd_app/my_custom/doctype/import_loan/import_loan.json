@@ -13,6 +13,7 @@
   "column_break_rhpt",
   "term_days",
   "due_date",
+  "due_date_confirm",
   "note",
   "custom_title"
  ],
@@ -84,12 +85,18 @@
    "label": "Currency",
    "options": "Currency",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "due_date_confirm",
+   "fieldtype": "Check",
+   "label": "Due Date Confirm"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-01 16:38:06.248256",
+ "modified": "2025-11-04 11:39:48.206174",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",

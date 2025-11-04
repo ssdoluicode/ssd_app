@@ -9,6 +9,30 @@ frappe.query_reports["Import Banking"] = {
         // if (column.fieldname === "lc_open" && data?.name && column.dc_name=="lc_open") {
         //     return `<a style="color:blue;"  href="#" onclick="showDocFlow('${data.name}', '${data.inv_no}'); return false;">${Number(data.document).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</a>`;
         // }
+        if (column.fieldname === "due_date" && data?.due_date) {
+            let style = "font-weight: bold;";
+            let clickable = "";//
+
+            if (!data.due_date_confirm) {
+                style += " text-decoration-line: underline;";
+                style += " text-decoration-style: double;";
+                style += " text-decoration-color: red; cursor:pointer;";
+                let doc_no = data.inv_no ? data.inv_no : data.lc_no; 
+                clickable = `onclick="changeDueDate('${data.name}', '${data.dc_name}', '${data.due_date}', '${doc_no}'); return false;"`;
+                if (data.days_to_due < 5) {
+                    style += " color: red;";
+                }
+            } else {
+        
+                if (data.days_to_due < 5) {
+                    style += " color: red;";
+                }
+            }
+
+            // return `<span style="${style}">${value}</span>`;
+            return `<span style="${style}" ${clickable}>${value}</span>`;
+        }
+
         if (column.fieldname === "bank" && data?.bank) {
             return `<a style="color:blue;"  href="#" onclick="showImportBankingFlow('${data.name}', '${data.dc_name}', '${data.supplier}', '${data.bank}'); return false;">${data.bank}</a>`;
         }
@@ -128,4 +152,74 @@ function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
     });
 }
 
+window.changeDueDate = function(name, dc_name, current_due_date, inv_no) {
+
+    // First, fetch the current note from DB
+    name_dict= {"imp_l":"Import Loan", "u_lc":"Usance LC", "c_loan":"Cash Loan"}
+    frappe.call({
+        method: "frappe.client.get",
+        args: {
+            doctype: name_dict[dc_name],
+            name: name
+        },
+        callback: function(r) {
+            const current_note = r.message?.note || "";
+
+            // Now open the dialog with note pre-filled
+            let d = new frappe.ui.Dialog({
+                title: `Update Bank Date ${name_dict[dc_name]} of: ${inv_no}`,
+                fields: [
+                    {
+                        label: "Current Due Date",
+                        fieldname: "current_date",
+                        fieldtype: "Data",
+                        read_only: 1,
+                        default: current_due_date
+                    },
+                    {
+                        label: "New Due Date",
+                        fieldname: "new_due_date",
+                        fieldtype: "Date",
+                        reqd: 1
+                    },
+                    {
+                        label: "Due Date Confirm",
+                        fieldname: "due_date_confirm",
+                        fieldtype: "Check",
+                        default: 1
+                    },
+                    {
+                        label: "Note",
+                        fieldname: "note",
+                        fieldtype: "Data",
+                        default: current_note
+                    }
+                ],
+                primary_action_label: "Update",
+                primary_action(values) {
+                    frappe.call({
+                        method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.update_import_due_date",
+                        args: {
+                            doctype_name: name_dict[dc_name],
+                            docname: name,
+                            new_due_date: values.new_due_date,
+                            due_date_confirm: values.due_date_confirm,
+                            note: values.note
+                        },
+                        callback: function(r) {
+                            if (!r.exc) {
+                                frappe.msgprint("Due Date updated successfully!");
+                                d.hide();
+                                // @ts-ignore
+                                frappe.query_report.refresh();
+                            }
+                        }
+                    });
+                }
+            });
+
+            d.show();
+        }
+    });
+};
 

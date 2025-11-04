@@ -27,6 +27,7 @@ def get_columns():
 		{"label": "Usance LC", "fieldname": "u_lc_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Cash Loan", "fieldname": "cash_loan", "fieldtype": "Currency", "options": "currency", "width": 130},
 		{"label": "Due Date", "fieldname": "due_date", "fieldtype": "Date", "width": 110},
+		{"label": "Note", "fieldname": "note", "fieldtype": "Data", "width": 110}
 	]
 
 
@@ -96,7 +97,10 @@ def get_lc_combined_data(filters):
 			0 AS imp_loan_amount,
 			0 AS u_lc_amount,
 			0 AS cash_loan,
-			NULL AS due_date
+			NULL AS due_date,
+			1 as due_date_confirm, 
+			100 AS days_to_due,
+			lc_o.note
 		FROM `tabLC Open` lc_o
 		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
 		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
@@ -136,7 +140,10 @@ def get_lc_combined_data(filters):
 			IFNULL(imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 0) AS imp_loan_amount,
 			0 AS u_lc_amount,
 			0 AS cash_loan,
-			imp_l.due_date
+			imp_l.due_date,
+			imp_l.due_date_confirm AS due_date_confirm,
+			CASE WHEN imp_l.due_date IS NOT NULL THEN DATEDIFF(imp_l.due_date, CURDATE()) END AS days_to_due,
+			imp_l.note
 		FROM `tabImport Loan` imp_l
 		LEFT JOIN `tabLC Open` lc_o ON imp_l.lc_no = lc_o.name
 		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
@@ -165,7 +172,10 @@ def get_lc_combined_data(filters):
 			0 AS imp_loan_amount,
 			IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0) AS u_lc_amount,
 			0 AS cash_loan,
-			u_lc.due_date
+			u_lc.due_date,
+			u_lc.due_date_confirm AS due_date_confirm,
+			CASE WHEN u_lc.due_date IS NOT NULL THEN DATEDIFF(u_lc.due_date, CURDATE()) END AS days_to_due,
+			u_lc.note
 		FROM `tabUsance LC` u_lc
 		LEFT JOIN `tabLC Open` lc_o ON u_lc.lc_no = lc_o.name
 		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
@@ -194,7 +204,10 @@ def get_lc_combined_data(filters):
 			0 AS imp_loan_amount,
 			0 AS u_lc_amount,
 			IFNULL(c_loan.cash_loan_amount - IFNULL(c_loan_p.c_loan_p_amount, 0), 0) AS cash_loan,
-			c_loan.due_date
+			c_loan.due_date,
+			c_loan.due_date_confirm AS due_date_confirm,
+			CASE WHEN c_loan.due_date IS NOT NULL THEN DATEDIFF(c_loan.due_date, CURDATE()) END AS days_to_due,
+			c_loan.note
 		FROM `tabCash Loan` c_loan
 		LEFT JOIN `tabBank` bank ON bank.name = c_loan.bank
 		LEFT JOIN (

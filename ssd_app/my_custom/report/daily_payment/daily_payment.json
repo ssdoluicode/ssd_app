@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letterhead": null,
- "modified": "2025-10-29 16:59:21.050556",
+ "modified": "2025-11-03 09:43:38.605391",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Daily Payment",
@@ -22,6 +22,9 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role": "Guest"
   }
  ],
  "timeout": 0

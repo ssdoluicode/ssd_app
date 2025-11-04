@@ -67,7 +67,29 @@ def final_validation(doc):
 	u_lc_amount = (usance_lc_data[0]["total_usance_lc"] or 0) if usance_lc_data else 0
 
 	# Check if LC balance is exceeded
-	if doc.usance_lc_amount > max_lc_amount - lc_paid_amount - imp_l_amount - u_lc_amount:
+	if not doc.is_new():  # need to add logic here
+		actual_u_lc = frappe.db.get_value("Usance LC", doc.name, "usance_lc_amount")
+		if doc.usance_lc_amount > max_lc_amount - lc_paid_amount - imp_l_amount - u_lc_amount + actual_u_lc:
+			msg = f"""<b>❌❌ LC Payment Exceeds LC Balance.</b><br>
+			<b>LC Open:</b> {lc_amount:,.2f}<br>"""
+			if lc_paid_amount:
+				msg += f"<b>LC Paid:</b> {lc_paid_amount:,.2f}<br>"
+			if imp_l_amount:
+				msg += f"<b>Convert to Import Loan:</b> {imp_l_amount:,.2f}<br>"
+			if u_lc_amount:
+				msg += f"<b>Convert to Usance LC:</b> {u_lc_amount:,.2f}<br>"
+			if tolerance:
+				msg += f"<b>Tolerance ({tolerance}%):</b> {(lc_amount * tolerance / 100):,.2f}<br>"
+
+			available = max_lc_amount - lc_paid_amount - imp_l_amount - u_lc_amount
+			msg += f"<b>LC Balance:</b> {available:,.2f}<br>"
+			msg += f"<b>Entered Amount:</b> {doc.usance_lc_amount:,.2f}<br>"
+
+			frappe.throw(msg)
+
+
+
+	elif doc.usance_lc_amount > max_lc_amount - lc_paid_amount - imp_l_amount - u_lc_amount:
 		msg = f"""<b>❌ LC Payment Exceeds LC Balance.</b><br>
 		<b>LC Open:</b> {lc_amount:,.2f}<br>"""
 		if lc_paid_amount:
