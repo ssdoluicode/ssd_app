@@ -1,8 +1,8 @@
 # Copyright (c) 2025, SSDolui and contributors
 # For license information, please see license.txt
 
-import frappe
 
+import frappe
 
 def execute(filters=None):
 	columns = [
@@ -20,3 +20,15 @@ def execute(filters=None):
 		WHERE received_date= '2025-10-28'
 		""", as_dict=1)
 	return columns, data
+
+def send_daily_sales_report():
+    try:
+        # Load the Auto Email Report document
+        report = frappe.get_doc("Auto Email Report", "Daily Payment")
+        
+        # Send it (uses the same logic as clicking "Send Now" in the UI)
+        report.send()
+        
+        # frappe.logger().info("Daily Payment email report sent successfully.")
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Failed to send Daily Payment Auto Email Report")

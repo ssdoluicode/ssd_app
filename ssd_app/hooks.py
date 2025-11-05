@@ -158,7 +158,7 @@ app_include_css = "/assets/ssd_app/css/custom.css"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 # 	"all": [
 # 		"ssd_app.tasks.all"
 # 	],
@@ -174,7 +174,13 @@ app_include_css = "/assets/ssd_app/css/custom.css"
 # 	"monthly": [
 # 		"ssd_app.tasks.monthly"
 # 	],
-# }
+
+    "cron": {
+        "00 16 * * *": [
+            "ssd_app.report.daily_payment.daily_payment.send_daily_sales_report"
+        ]
+    }
+}
 
 # Testing
 # -------
