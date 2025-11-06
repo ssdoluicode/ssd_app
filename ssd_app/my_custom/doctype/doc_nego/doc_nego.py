@@ -39,6 +39,11 @@ def calculate_due_date(doc):
             )
 
 
+def set_custom_title(doc):
+	invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
+	doc.custom_title = f"{doc.name} ({invoice})".strip()
+   
+
 def final_validation(doc):
     if not doc.inv_no:
         return
@@ -178,6 +183,7 @@ class DocNego(Document):
     
     def before_save(self):
         put_value_from_cif(self)
+        set_custom_title(self)
     
     def on_trash(self):
         protect_delete(self)

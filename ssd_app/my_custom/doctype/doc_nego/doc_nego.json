@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "nego-.####",
+ "autoname": "nego-.#####",
  "creation": "2025-06-15 20:35:48.907633",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -27,7 +27,8 @@
   "bank_due_date",
   "column_break_clxl",
   "due_date_confirm",
-  "note"
+  "note",
+  "custom_title"
  ],
  "fields": [
   {
@@ -165,13 +166,19 @@
    "fieldtype": "Date",
    "label": "Inv Date",
    "set_only_once": 1
+  },
+  {
+   "fieldname": "custom_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Custom Title"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-05 18:22:43.159114",
+ "modified": "2025-11-06 17:27:11.865498",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego",
