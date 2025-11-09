@@ -28,6 +28,7 @@
   "column_break_clxl",
   "due_date_confirm",
   "note",
+  "invoice_no",
   "custom_title"
  ],
  "fields": [
@@ -172,13 +173,18 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Custom Title"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "label": "Invoice No"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-06 17:27:11.865498",
+ "modified": "2025-11-09 22:39:13.143340",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego",
@@ -202,7 +208,9 @@
  "quick_entry": 1,
  "row_format": "Dynamic",
  "search_fields": "inv_no",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "custom_title"
 }

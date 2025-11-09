@@ -38,10 +38,11 @@ def calculate_due_date(doc):
                 msg="Term Days must be a positive integer."
             )
 
+def set_calculated_fields(doc):
+    invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
+    doc.custom_title = f"{doc.name} ({invoice})".strip()
+    doc.invoice_no = invoice
 
-def set_custom_title(doc):
-	invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
-	doc.custom_title = f"{doc.name} ({invoice})".strip()
    
 
 def final_validation(doc):
@@ -183,7 +184,7 @@ class DocNego(Document):
     
     def before_save(self):
         put_value_from_cif(self)
-        set_custom_title(self)
+        set_calculated_fields(self)
     
     def on_trash(self):
         protect_delete(self)
@@ -408,3 +409,12 @@ def update_import_due_date(doctype_name,docname, new_due_date, due_date_confirm,
         "note": note or ""
     })
     return "success"
+
+
+
+
+
+
+
+
+

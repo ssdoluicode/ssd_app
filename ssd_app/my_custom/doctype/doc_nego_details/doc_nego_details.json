@@ -7,15 +7,18 @@
  "engine": "InnoDB",
  "field_order": [
   "inv_no",
+  "nego_date",
   "nego_amount",
-  "interest_pct",
+  "bank",
+  "payment_term",
   "interest_days",
-  "interest",
   "column_break_gjov",
+  "interest_pct",
+  "interest",
   "commission_pct",
   "commission",
-  "other_charges",
   "postage_charges",
+  "other_charges",
   "column_break_qgsy",
   "rounf_off",
   "bank_amount",
@@ -33,11 +36,11 @@
    "unique": 1
   },
   {
+   "default": "0",
    "fieldname": "nego_amount",
    "fieldtype": "Float",
    "label": "Nego Amount",
-   "non_negative": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "interest_pct",
@@ -53,15 +56,19 @@
    "reqd": 1
   },
   {
+   "default": "Today",
    "fieldname": "interest_upto_date",
    "fieldtype": "Date",
    "label": "Interest Upto Date",
+   "read_only": 1,
    "reqd": 1
   },
   {
+   "default": "0",
    "fieldname": "interest",
    "fieldtype": "Float",
-   "label": "Interest"
+   "label": "Interest",
+   "read_only": 1
   },
   {
    "fieldname": "commission_pct",
@@ -70,11 +77,14 @@
    "non_negative": 1
   },
   {
+   "default": "0",
    "fieldname": "commission",
    "fieldtype": "Float",
-   "label": "Commission"
+   "label": "Commission",
+   "read_only": 1
   },
   {
+   "default": "0",
    "fieldname": "postage_charges",
    "fieldtype": "Float",
    "label": "Postage Charges",
@@ -85,12 +95,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "0",
    "fieldname": "other_charges",
    "fieldtype": "Float",
    "label": "Other Charges",
    "non_negative": 1
   },
   {
+   "default": "0",
    "fieldname": "rounf_off",
    "fieldtype": "Float",
    "label": "Rounf Off"
@@ -108,12 +120,33 @@
   {
    "fieldname": "column_break_gjov",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "nego_date",
+   "fieldtype": "Date",
+   "label": "Nego Date",
+   "read_only": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "bank",
+   "fieldtype": "Data",
+   "label": "Bank",
+   "read_only": 1
+  },
+  {
+   "default": " -",
+   "fieldname": "payment_term",
+   "fieldtype": "Data",
+   "label": "Payment Term",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-06 17:14:57.176795",
+ "modified": "2025-11-10 01:49:01.699313",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego Details",

@@ -17,7 +17,6 @@ function get_cif_data(frm) {
             args: { inv_no: frm.doc.inv_no },
             callback: function (r) {
                 const data = r.message;
-                console.log("Received data:", r.message);
                 if (!data) return;
                 const fields_to_lock = ['inv_date', 'category', 'bank', 'notify', 'due_date', 'customer', 'payment_term', "document"];
                 fields_to_lock.forEach(field => {
