@@ -36,7 +36,7 @@ function calculate_int(frm) {
     }
 
     // 📅 Calculate interest due date
-    if (frm.doc.nego_date && frm.doc.interest_days) {
+    if (frm.doc.nego_date) {
         let nego_date = frappe.datetime.str_to_obj(frm.doc.nego_date);
         let due_date = frappe.datetime.add_days(nego_date, frm.doc.interest_days);
         frm.set_value('interest_upto_date', frappe.datetime.obj_to_str(due_date));

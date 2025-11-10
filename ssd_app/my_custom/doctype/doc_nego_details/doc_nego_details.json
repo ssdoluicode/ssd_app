@@ -20,7 +20,7 @@
   "postage_charges",
   "other_charges",
   "column_break_qgsy",
-  "rounf_off",
+  "round_off",
   "bank_amount",
   "interest_upto_date",
   "note"
@@ -49,6 +49,7 @@
    "non_negative": 1
   },
   {
+   "default": "0",
    "fieldname": "interest_days",
    "fieldtype": "Int",
    "label": "Interest Days",
@@ -102,12 +103,6 @@
    "non_negative": 1
   },
   {
-   "default": "0",
-   "fieldname": "rounf_off",
-   "fieldtype": "Float",
-   "label": "Rounf Off"
-  },
-  {
    "fieldname": "bank_amount",
    "fieldtype": "Float",
    "label": "Bank Amount"
@@ -141,12 +136,18 @@
    "fieldtype": "Data",
    "label": "Payment Term",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "round_off",
+   "fieldtype": "Float",
+   "label": "Round Off"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-10 01:49:01.699313",
+ "modified": "2025-11-10 13:38:18.533763",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego Details",
