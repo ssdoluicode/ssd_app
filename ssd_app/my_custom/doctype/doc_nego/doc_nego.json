@@ -29,7 +29,8 @@
   "due_date_confirm",
   "note",
   "invoice_no",
-  "custom_title"
+  "custom_title",
+  "nego_details"
  ],
  "fields": [
   {
@@ -177,14 +178,22 @@
   {
    "fieldname": "invoice_no",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Invoice No"
+  },
+  {
+   "default": "0",
+   "fieldname": "nego_details",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Nego Details"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-09 22:39:13.143340",
+ "modified": "2025-11-10 23:33:32.939974",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego",

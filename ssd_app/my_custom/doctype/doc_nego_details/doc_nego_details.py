@@ -4,27 +4,24 @@
 import frappe
 from frappe.model.document import Document
 
+
 @frappe.whitelist()
 def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
-    used_inv = frappe.get_all("Doc Nego Details", pluck="inv_no")
 
-    if used_inv:
-        placeholders = ', '.join(['%s'] * len(used_inv))
-        condition = f"WHERE name NOT IN ({placeholders}) AND invoice_no LIKE %s"
-        values = used_inv + [f"%{txt}%"]
-    else:
-        condition = "WHERE invoice_no LIKE %s"
-        values = [f"%{txt}%"]
-
-    values += [page_len, start]
+    txt = f"%{txt}%"
+    values = (txt, page_len, start)
 
     return frappe.db.sql(f"""
-        SELECT name, invoice_no
+        SELECT
+            name, invoice_no
         FROM `tabDoc Nego`
-        {condition}
+        WHERE (nego_details != 1 OR nego_details IS NULL)
+        AND invoice_no LIKE %s
         ORDER BY invoice_no ASC
         LIMIT %s OFFSET %s
-    """, tuple(values))
+    """, values)
+
+
 
 @frappe.whitelist()
 def get_nego_data(name):
@@ -40,8 +37,19 @@ def get_nego_data(name):
         "payment_term": doc.payment_term
     }
 
-
-
+def set_calculated_fields(doc):
+    invoice = frappe.db.get_value("Doc Nego", doc.inv_no, "invoice_no")
+    doc.invoice_no = invoice
 
 class DocNegoDetails(Document):
-	pass
+
+    # when create/update
+    def before_save(self):
+        if self.inv_no:
+            set_calculated_fields(self)
+            frappe.db.set_value("Doc Nego", self.inv_no, "nego_details", 1)
+
+    # when delete
+    def on_trash(self):
+        if self.inv_no:
+            frappe.db.set_value("Doc Nego", self.inv_no, "nego_details", 0)

@@ -23,7 +23,8 @@
   "round_off",
   "bank_amount",
   "interest_upto_date",
-  "note"
+  "note",
+  "invoice_no"
  ],
  "fields": [
   {
@@ -142,12 +143,18 @@
    "fieldname": "round_off",
    "fieldtype": "Float",
    "label": "Round Off"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Invoice No"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-10 13:38:18.533763",
+ "modified": "2025-11-10 23:19:19.946148",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego Details",
