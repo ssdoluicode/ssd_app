@@ -13,11 +13,11 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
 
     return frappe.db.sql(f"""
         SELECT
-            name, invoice_no
+            name, custom_title
         FROM `tabDoc Nego`
         WHERE (nego_details != 1 OR nego_details IS NULL)
-        AND invoice_no LIKE %s
-        ORDER BY invoice_no ASC
+        AND custom_title LIKE %s
+        ORDER BY custom_title ASC
         LIMIT %s OFFSET %s
     """, values)
 
@@ -34,7 +34,7 @@ def get_nego_data(name):
         "nego_amount": doc.nego_amount,
         "nego_date": doc.nego_date,
         "bank_name": bank_name,
-        "payment_term": doc.payment_term
+        "payment_term": f"{doc.payment_term} - {doc.term_days or ''}" if doc.payment_term in ["DA", "LC"] else doc.payment_term
     }
 
 def set_calculated_fields(doc):
