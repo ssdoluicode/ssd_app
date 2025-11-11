@@ -176,7 +176,7 @@ scheduler_events = {
 # 	],
 
     "cron": {
-        "00 16 * * *": [
+        "20 18 * * *": [
             "ssd_app.my_custom.report.daily_payment.daily_payment.send_daily_sales_report"
         ]
     }

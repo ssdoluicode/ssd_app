@@ -3,6 +3,7 @@
 
 
 import frappe
+from frappe.utils import today
 
 def execute(filters=None):
 	columns = [
@@ -12,13 +13,18 @@ def execute(filters=None):
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 90}
 	]
 
-	data= frappe.db.sql(f"""
-		SELECT cif.inv_no AS inv_no, cus.customer AS customer, bank.bank AS bank, dr.received AS received FROM `tabDoc Received`  dr
-		LEFT JOIN `tabCIF Sheet` cif ON cif.name= dr.inv_no
-		LEFT JOIN `tabBank` bank ON bank.name= dr.bank
-		LEFT JOIN `tabCustomer` cus ON cus.name= dr.customer
-		WHERE received_date= '2025-10-28'
-		""", as_dict=1)
+	data = frappe.db.sql(f"""
+		SELECT 
+			cif.inv_no AS inv_no, 
+			cus.customer AS customer, 
+			bank.bank AS bank, 
+			dr.received AS received 
+		FROM `tabDoc Received` dr
+		LEFT JOIN `tabCIF Sheet` cif ON cif.name = dr.inv_no
+		LEFT JOIN `tabBank` bank ON bank.name = dr.bank
+		LEFT JOIN `tabCustomer` cus ON cus.name = dr.customer
+		WHERE dr.received_date = %s
+	""", (today(),), as_dict=1)
 	return columns, data
 
 def send_daily_sales_report():
