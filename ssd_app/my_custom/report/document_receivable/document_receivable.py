@@ -5,7 +5,9 @@ import frappe
 from frappe.utils import fmt_money
 from datetime import date, timedelta
 
-today_str = date.today().strftime("%Y-%m-%d")
+
+def get_today_str():
+    return date.today().strftime("%Y-%m-%d")
 
 def execute(filters=None):
 	as_on = filters.as_on
@@ -38,8 +40,8 @@ def execute(filters=None):
 		{"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 105},
 		{"label": "Received", "fieldname": "total_rec", "fieldtype": "Float", "width": 105},
 		{"label": "Receivable", "fieldname": "receivable", "fieldtype": "Float", "width": 105},
-		{"label": "Cus Date", "fieldname": "due_date", "fieldtype": "Date", "width": 110},
-		{"label": "Bank Date", "fieldname": "bank_due_date", "fieldtype": "Date", "width": 110},
+		{"label": "Due Date", "fieldname": "due_date", "fieldtype": "Date", "width": 110},
+		{"label": "Refund Date", "fieldname": "bank_due_date", "fieldtype": "Date", "width": 110},
 		{"label": "Coll", "fieldname": "coll", "fieldtype": "Float", "width": 100},
 		{"label": "Nego", "fieldname": "nego", "fieldtype": "Float", "width": 100},
 		{"label": "Refund", "fieldname": "ref", "fieldtype": "Float", "width": 100},
@@ -177,14 +179,14 @@ def get_doc_flow(inv_name):
 	
 	if coll > 0 :
 		buttons_html += f"""
-		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', nego_date:'{today_str}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
+		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', nego_date:'{get_today_str()}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
 		
 	if nego_amt > 0:
 		buttons_html += f"""
-		<a href="#" onclick="frappe.new_doc('Doc Refund', {{ inv_no: '{inv_name}', refund_date:'{today_str}', refund_amount:'{nego_amt}' }}); return false;" class="btn btn-danger btn-sm" style="margin-left:8px;background-color:red;">Refund</a>"""
+		<a href="#" onclick="frappe.new_doc('Doc Refund', {{ inv_no: '{inv_name}', refund_date:'{get_today_str()}', refund_amount:'{nego_amt}' }}); return false;" class="btn btn-danger btn-sm" style="margin-left:8px;background-color:red;">Refund</a>"""
 	if (doc_amount - received) > 0:
 		buttons_html += f"""
-		<a href="#" onclick="frappe.new_doc('Doc Received', {{ inv_no: '{inv_name}', received_date:'{today_str}', received:'{doc_amount - received}' }}); return false;" class="btn btn-success btn-sm" style="margin-left:8px;background-color:green;">Received</a>"""
+		<a href="#" onclick="frappe.new_doc('Doc Received', {{ inv_no: '{inv_name}', received_date:'{get_today_str()}', received:'{doc_amount - received}' }}); return false;" class="btn btn-success btn-sm" style="margin-left:8px;background-color:green;">Received</a>"""
 
 
 
