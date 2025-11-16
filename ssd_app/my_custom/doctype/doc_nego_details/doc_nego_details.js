@@ -45,10 +45,21 @@ function calculate_int(frm) {
 
 // 💼 Calculate commission
 function calculate_comm(frm) {
-    if (frm.doc.nego_amount && frm.doc.commission_pct) {
+    if (frm.doc.nego_amount && frm.doc.commission_pct && frm.doc.min_comm==0) {
         let commission = (frm.doc.nego_amount * frm.doc.commission_pct) / 100;
         commission = flt(commission, 2);
         frm.set_value('commission', commission);
+    }
+}
+
+function if_min_comm(frm){
+    if (frm.doc.min_comm==1){
+        frm.set_value("commission",0)
+        frm.set_df_property("commission_pct", "read_only", 1);
+        frm.set_df_property("commission", "read_only", 0);
+    }else{
+        frm.set_df_property("commission_pct", "read_only", 0);
+        frm.set_df_property("commission", "read_only", 1);
     }
 }
 
@@ -80,29 +91,24 @@ frappe.ui.form.on("Doc Nego Details", {
     onload(frm) {
         get_nego_data(frm);
     },
-
     inv_no(frm) {
         get_nego_data(frm);
         calculate_int(frm);
         calculate_comm(frm);
         calculate_bank_amount(frm);
     },
-
     interest_days(frm) {
         calculate_int(frm);
         calculate_bank_amount(frm);
     },
-
     interest_pct(frm) {
         calculate_int(frm);
         calculate_bank_amount(frm);
     },
-
     commission_pct(frm) {
         calculate_comm(frm);
         calculate_bank_amount(frm);
     },
-
     postage_charges(frm) {
         calculate_bank_amount(frm);
     },
@@ -110,11 +116,13 @@ frappe.ui.form.on("Doc Nego Details", {
     other_charges(frm) {
         calculate_bank_amount(frm);
     },
-
     round_off(frm) {
         calculate_bank_amount(frm);
     },
-
+    min_comm(frm){
+        calculate_comm(frm);
+        if_min_comm(frm);
+    },
     nego_amount(frm) {
         // ✅ Recalculate everything when main amount changes
         calculate_int(frm);

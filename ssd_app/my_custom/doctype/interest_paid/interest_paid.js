@@ -33,7 +33,7 @@ function calculate_interest_upto_date(frm){
 function calculate_int(frm) {
     if (frm.doc.balance_nego_amount && frm.doc.interest_rate && frm.doc.interest_days) {
         let interest = (frm.doc.balance_nego_amount * frm.doc.interest_rate * frm.doc.interest_days) / (360 * 100);
-        interest = flt(interest, 2); // ✅ safely round to 2 decimals
+        interest = flt(interest, 2)+ frm.doc.round_off; // ✅ safely round to 2 decimals
         frm.set_value('interest', interest);
     }
 }
@@ -52,6 +52,9 @@ frappe.ui.form.on("Interest Paid", {
         calculate_int(frm);
     },
     interest_rate(frm){
+        calculate_int(frm);
+    },
+    round_off(frm){
         calculate_int(frm);
     },
     interest_days(frm){

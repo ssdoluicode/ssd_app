@@ -10,9 +10,10 @@
   "date",
   "balance_nego_amount",
   "interest_from",
-  "column_break_rnms",
   "interest_days",
+  "column_break_rnms",
   "interest_rate",
+  "round_off",
   "interest",
   "interest_upto_date",
   "note",
@@ -86,12 +87,18 @@
    "label": "Balance Nego Amount",
    "non_negative": 1,
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "round_off",
+   "fieldtype": "Float",
+   "label": "Round Off"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-13 23:23:20.167387",
+ "modified": "2025-11-17 00:20:42.682305",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Interest Paid",
