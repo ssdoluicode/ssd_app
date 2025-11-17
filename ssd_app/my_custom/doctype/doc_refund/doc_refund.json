@@ -21,6 +21,8 @@
   "refund_amount",
   "column_break_dpof",
   "note",
+  "invoice_no",
+  "custom_title",
   "refund_details"
  ],
  "fields": [
@@ -118,13 +120,25 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Refund Details"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Invoice No"
+  },
+  {
+   "fieldname": "custom_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Custom Title"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-12 23:13:02.254949",
+ "modified": "2025-11-18 01:19:24.735528",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Refund",

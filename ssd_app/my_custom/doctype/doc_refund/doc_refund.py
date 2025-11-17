@@ -62,7 +62,12 @@ def put_value_from_cif(doc):
                 if not getattr(doc, field):  # only set if value is missing
                     setattr(doc, field, data.get(field))
 
-    
+
+
+def set_calculated_fields(doc):
+    invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
+    doc.custom_title = f"{doc.name} ({invoice})".strip()
+    doc.invoice_no = invoice
 
 # ----------------------------
 # 📄 DocType Class
@@ -73,6 +78,7 @@ class DocRefund(Document):
 
     def before_save(self):
         put_value_from_cif(self)
+        set_calculated_fields(self)
 
     def on_trash(self):
         protect_delete(self)

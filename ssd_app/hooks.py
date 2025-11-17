@@ -162,9 +162,9 @@ scheduler_events = {
 # 	"all": [
 # 		"ssd_app.tasks.all"
 # 	],
-# 	"daily": [
-# 		"ssd_app.tasks.daily"
-# 	],
+	"daily": [
+		"ssd_app.my_custom.utils.auto_excel_report.send_daily_banking_email"
+	],
 # 	"hourly": [
 # 		"ssd_app.tasks.hourly"
 # 	],
