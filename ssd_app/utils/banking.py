@@ -162,17 +162,17 @@ def import_banking_data(as_on):
                 bank.bank AS bank,
                 'Usance LC' AS p_term,
                 0 AS document,
-                ROUND(IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0)/ lc_o.ex_rate,2) AS amount_usd
+                ROUND(IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0)/ u_lc.ex_rate,2) AS amount_usd
             FROM `tabUsance LC` u_lc
             LEFT JOIN `tabLC Open` lc_o ON u_lc.lc_no = lc_o.name
             LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-            LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+            LEFT JOIN `tabBank` bank ON bank.name = u_lc.bank
             LEFT JOIN (
                 SELECT inv_no, SUM(amount) AS u_lc_p_amount
                 FROM `tabUsance LC Payment` 
                 GROUP BY inv_no
             ) u_lc_p ON u_lc_p.inv_no = u_lc.name
-            LEFT JOIN `tabCompany` com ON lc_o.company= com.name
+            LEFT JOIN `tabCompany` com ON u_lc.company= com.name
         
     UNION ALL
     

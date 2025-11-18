@@ -5,14 +5,18 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "lc_no",
-  "inv_no",
   "usance_lc_date",
+  "inv_no",
   "inv_date",
+  "supplier",
+  "company",
+  "bank",
+  "term_days",
   "usance_lc_amount",
   "column_break_dpjv",
   "currency",
-  "term_days",
+  "ex_rate",
+  "usance_lc_amount_usd",
   "due_date",
   "due_date_confirm",
   "note",
@@ -26,14 +30,6 @@
    "label": "Inv No",
    "reqd": 1,
    "unique": 1
-  },
-  {
-   "fieldname": "lc_no",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "LC No",
-   "options": "LC Open",
-   "reqd": 1
   },
   {
    "default": "Today",
@@ -82,12 +78,12 @@
    "unique": 1
   },
   {
-   "allow_in_quick_entry": 1,
+   "default": "USD",
    "fieldname": "currency",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Currency",
-   "options": "Currency"
+   "options": "Currency",
+   "reqd": 1
   },
   {
    "fieldname": "inv_date",
@@ -99,12 +95,46 @@
    "fieldname": "due_date_confirm",
    "fieldtype": "Check",
    "label": "Due Date Confirm"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "ex_rate",
+   "fieldtype": "Float",
+   "label": "Ex Rate",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "usance_lc_amount_usd",
+   "fieldtype": "Float",
+   "label": "Usance LC Amount (USD)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-04 11:46:40.231050",
+ "modified": "2025-11-19 02:57:24.359564",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC",
@@ -126,6 +156,7 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

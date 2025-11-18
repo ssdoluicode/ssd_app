@@ -10,30 +10,23 @@
   "supplier",
   "company",
   "bank",
+  "term_days",
   "loan_amount",
   "column_break_rhpt",
   "currency",
   "ex_rate",
   "loan_amount_usd",
-  "term_days",
   "due_date",
   "due_date_confirm",
   "note",
-  "custom_title",
-  "lc_no"
+  "custom_title"
  ],
  "fields": [
-  {
-   "fieldname": "lc_no",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "LC No",
-   "options": "LC Open"
-  },
   {
    "default": "Today",
    "fieldname": "loan_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Loan Date",
    "reqd": 1
   },
@@ -48,7 +41,8 @@
   {
    "fieldname": "due_date",
    "fieldtype": "Date",
-   "label": "Due Date"
+   "label": "Due Date",
+   "read_only": 1
   },
   {
    "fieldname": "note",
@@ -58,6 +52,7 @@
   {
    "fieldname": "inv_no",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Inv No",
    "reqd": 1,
    "unique": 1
@@ -106,11 +101,13 @@
   {
    "fieldname": "loan_amount_usd",
    "fieldtype": "Float",
-   "label": "Loan Amount (USD)"
+   "label": "Loan Amount (USD)",
+   "read_only": 1
   },
   {
    "fieldname": "supplier",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Supplier",
    "options": "Supplier",
    "reqd": 1
@@ -125,15 +122,16 @@
   {
    "fieldname": "company",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "reqd": 1
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-18 16:00:48.931421",
+ "modified": "2025-11-19 01:24:27.692273",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",
@@ -155,6 +153,7 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

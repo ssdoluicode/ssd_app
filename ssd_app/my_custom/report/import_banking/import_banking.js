@@ -58,6 +58,12 @@ frappe.query_reports["Import Banking"] = {
 		report.page.add_inner_button("New LC Open", function () {
 			frappe.new_doc("LC Open", true);
 		}, "New");
+        report.page.add_inner_button("New Import Loan", function () {
+			frappe.new_doc("Import Loan", true);
+		}, "New");
+        report.page.add_inner_button("New Usance LC", function () {
+			frappe.new_doc("Usance LC", true);
+		}, "New");
 
 		report.page.add_inner_button("New Cash Loan", function () {
 			frappe.new_doc("Cash Loan", true);
@@ -86,14 +92,14 @@ frappe.query_reports["Import Banking"] = {
 
 
 
-function showImportBankingFlow(lc_no,  dc_name, supplier_name, bank_name) {
+function showImportBankingFlow(name,  dc_name, supplier_name, bank_name) {
     frappe.call({
         method: "ssd_app.my_custom.report.import_banking.import_banking.get_import_banking_flow",
-        args: { lc_no,  dc_name, supplier_name, bank_name },
+        args: { name,  dc_name, supplier_name, bank_name },
         callback: function (r) {
             if (r.message) {
                 const d = new frappe.ui.Dialog({
-                    title: `Document Flow for: `,
+                    title: `Document Flow for: ${name}`,
                     size: 'large',
                     fields: [
                         {

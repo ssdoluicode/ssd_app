@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "company_code",
+  "number_code",
   "full_name",
   "city",
   "country",
@@ -46,12 +47,18 @@
    "hidden": 1,
    "label": "Country",
    "options": "Country"
+  },
+  {
+   "fieldname": "number_code",
+   "fieldtype": "Int",
+   "label": "Number Code",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-20 18:12:55.763841",
+ "modified": "2025-11-19 01:14:10.581369",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Company",
@@ -73,6 +80,7 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

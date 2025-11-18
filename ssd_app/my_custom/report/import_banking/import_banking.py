@@ -128,7 +128,7 @@ def get_lc_combined_data(filters):
 		-- Import Loan
 		SELECT 
 			imp_l.name, 
-			"working" AS lc_no,
+			"imp l" AS lc_no,
 			imp_l.inv_no,
 			imp_l.loan_date AS date, 
 			sup.supplier AS supplier, 
@@ -159,13 +159,13 @@ def get_lc_combined_data(filters):
 		-- Usance LC
 		SELECT 
 			u_lc.name, 
-			lc_o.lc_no,
+			"u_lc" AS lc_no,
 			u_lc.inv_no,
 			u_lc.usance_lc_date AS date, 
 			sup.supplier AS supplier, 
 			bank.bank AS bank,
 			'u_lc' AS dc_name,
-			lc_o.currency, 
+			u_lc.currency, 
 			0 AS lc_o_amount,
 			0 AS amount_usd, 
 			0 AS imp_loan_amount,
@@ -176,9 +176,8 @@ def get_lc_combined_data(filters):
 			CASE WHEN u_lc.due_date IS NOT NULL THEN DATEDIFF(u_lc.due_date, CURDATE()) END AS days_to_due,
 			u_lc.note
 		FROM `tabUsance LC` u_lc
-		LEFT JOIN `tabLC Open` lc_o ON u_lc.lc_no = lc_o.name
-		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+		LEFT JOIN `tabSupplier` sup ON sup.name = u_lc.supplier
+		LEFT JOIN `tabBank` bank ON bank.name = u_lc.bank
 		LEFT JOIN (
 			SELECT inv_no, SUM(amount) AS u_lc_p_amount
 			FROM `tabUsance LC Payment` 
@@ -227,7 +226,7 @@ def get_lc_combined_data(filters):
 
 
 @frappe.whitelist()
-def get_import_banking_flow(lc_no, dc_name, supplier_name, bank_name):
+def get_import_banking_flow(name, dc_name, supplier_name, bank_name):
 
 	# Table headers
 	dc_labels = {
@@ -240,7 +239,7 @@ def get_import_banking_flow(lc_no, dc_name, supplier_name, bank_name):
 	label_1, label_2 = dc_labels.get(dc_name, ("", "Payment"))
 
 	# Get relevant records
-	entries = get_entries(dc_name, lc_no)
+	entries = get_entries(dc_name, name)
 	if entries == "Error":
 		return "<p>Error: Invalid dc_name provided.</p>"
 	else:
@@ -249,7 +248,7 @@ def get_import_banking_flow(lc_no, dc_name, supplier_name, bank_name):
 	# Generate rows
 	rows_html, col_1, col_2 = build_rows(entries, dc_name)
 
-	buttons_html= build_buttons(dc_name, lc_no, col_1, col_2)
+	buttons_html= build_buttons(dc_name, name, col_1, col_2)
 
 	# Final HTML output
 	return build_html(supplier_name, bank_name, dc_name, label_1, label_2, rows_html, buttons_html)
