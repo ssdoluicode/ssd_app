@@ -128,13 +128,13 @@ def get_lc_combined_data(filters):
 		-- Import Loan
 		SELECT 
 			imp_l.name, 
-			lc_o.lc_no,
+			"working" AS lc_no,
 			imp_l.inv_no,
 			imp_l.loan_date AS date, 
 			sup.supplier AS supplier, 
 			bank.bank AS bank,
 			'imp_l' AS dc_name,
-			lc_o.currency, 
+			imp_l.currency, 
 			0 AS lc_o_amount,
 			0 AS amount_usd, 
 			IFNULL(imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 0) AS imp_loan_amount,
@@ -145,9 +145,8 @@ def get_lc_combined_data(filters):
 			CASE WHEN imp_l.due_date IS NOT NULL THEN DATEDIFF(imp_l.due_date, CURDATE()) END AS days_to_due,
 			imp_l.note
 		FROM `tabImport Loan` imp_l
-		LEFT JOIN `tabLC Open` lc_o ON imp_l.lc_no = lc_o.name
-		LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-		LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+		LEFT JOIN `tabSupplier` sup ON sup.name = imp_l.supplier
+		LEFT JOIN `tabBank` bank ON bank.name = imp_l.bank
 		LEFT JOIN (
 			SELECT inv_no, SUM(amount) AS imp_l_p_amount
 			FROM `tabImport Loan Payment` 

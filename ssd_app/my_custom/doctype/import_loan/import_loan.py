@@ -8,23 +8,24 @@ from datetime import datetime, timedelta
 
 
 def set_custom_title(doc):
-	if doc.lc_no and doc.inv_no:
-		lc_no = frappe.db.get_value('LC Open', doc.lc_no, 'lc_no') or ''
-		doc.custom_title = f"{lc_no.strip()} :: {doc.inv_no.strip()}"
+	if doc.inv_no:
+		doc.custom_title = f"{doc.name}({doc.inv_no.strip()})"
 
-def set_currency(doc):
-	if doc.lc_no:
-		doc.currency = frappe.db.get_value('LC Open', doc.lc_no, 'currency') or ''
-
+# def set_currency(doc): #working
+# 	if doc.lc_no:
+# 		doc.currency = frappe.db.get_value('LC Open', doc.lc_no, 'currency') or ''
 
 def calculate_due_date(doc):
-    if doc.term_days:
-        if isinstance(doc.loan_date, str):
-            loan_date = datetime.strptime(doc.loan_date, "%Y-%m-%d").date()
-        else:
-            loan_date = doc.loan_date
-        doc.due_date = loan_date + timedelta(days=int(doc.term_days))
+	if doc.term_days: 
+		if isinstance(doc.loan_date, str): 
+			loan_date = datetime.strptime(doc.loan_date, "%Y-%m-%d").date() 
+		else: loan_date = doc.loan_date 
+		doc.due_date = loan_date + timedelta(days=int(doc.term_days))
 
+
+def calculate_loan_amount_usd(doc):
+    if doc.loan_amount and doc.ex_rate:
+        doc.loan_amount_usd = round(float(doc.loan_amount) / float(doc.ex_rate), 2)
 
 
 def final_validation(doc):
@@ -79,30 +80,33 @@ def bank_line_validtation(doc):
     if not doc.loan_amount:
         frappe.throw("❌ Loan Amount cannot be empty. Please enter the amount.")
 
-    com = frappe.db.get_value('LC Open', doc.lc_no, 'company')
-    company_code = frappe.db.get_value("Company", com, "company_code")
+    company_code = frappe.db.get_value("Company", doc.company, "company_code")
     company_code=company_code.replace('.', '').replace('-', '').replace(' ', '_')
-    bank = frappe.db.get_value('LC Open', doc.lc_no, 'bank')
-    bank_details = frappe.db.get_value("Bank", bank, "bank")
+    bank_details = frappe.db.get_value("Bank", doc.bank, "bank")
     bank_details=bank_details.replace('.', '').replace('-', '').replace(' ', '_')
+    frappe.msgprint(bank_details)
     bl = check_banking_line(company_code, bank_details, "imp_l")
     # ex_rate = frappe.db.get_value('LC Open', doc.lc_no, 'ex_rate')
+    # frappe.msgprint(str(bl))
     if bl == None:
-        frappe.throw("❌ No banking Line")
+        frappe.throw(f"❌ In {company_code} {bank_details} Bank No banking Line")
 
-    # elif (doc.loan_amount / ex_rate) > bl:
-    #     frappe.throw((f"""
-    #     ❌ <b>Loan amount exceeds Bank Line Limit.</b><br>
-    #     <b>Banking Line Balance:</b> {bl:,.2f}<br>
-    #     <b>Try to Entry:</b> {(doc.loan_amount / ex_rate):,.2f}<br>
-    # """))
+    elif doc.loan_amount_usd  > bl:
+        frappe.throw((f"""
+        ❌ <b>Loan amount exceeds Bank Line Limit.</b><br>
+        <b>Banking Line Balance:</b> {bl:,.2f}<br>
+        <b>Try to Entry:</b> {doc.loan_amount_usd:,.2f}<br>
+    """))
 
 class ImportLoan(Document):
+
 	def before_save(self):
-		set_currency(self)
+		# set_currency(self) working
 		set_custom_title(self)
 		calculate_due_date(self)
+		calculate_loan_amount_usd(self)
 
 	def validate(self):
-		final_validation(self)
+		# final_validation(self)
+		calculate_loan_amount_usd(self)
 		bank_line_validtation(self)

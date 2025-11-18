@@ -138,20 +138,22 @@ def import_banking_data(as_on):
             ROUND(IFNULL(
                 imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 
                 0
-            ) / imp_l.ex_rate,2
+            ) / lc_o.ex_rate,2
         ) AS amount_usd
         FROM `tabImport Loan` imp_l
+        LEFT JOIN `tabLC Open` lc_o 
+            ON imp_l.lc_no = lc_o.name
         LEFT JOIN `tabSupplier` sup 
-            ON sup.name = imp_l.supplier
+            ON sup.name = lc_o.supplier
         LEFT JOIN `tabBank` bank 
-            ON bank.name = imp_l.bank
+            ON bank.name = lc_o.bank
         LEFT JOIN (
             SELECT inv_no, SUM(amount) AS imp_l_p_amount
             FROM `tabImport Loan Payment` 
             GROUP BY inv_no
         ) imp_l_p 
             ON imp_l_p.inv_no = imp_l.name
-        LEFT JOIN `tabCompany` com ON imp_l.company= com.name
+        LEFT JOIN `tabCompany` com ON lc_o.company= com.name
             
         UNION ALL   
             

@@ -5,17 +5,22 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "lc_no",
-  "inv_no",
   "loan_date",
+  "inv_no",
+  "supplier",
+  "company",
+  "bank",
   "loan_amount",
-  "currency",
   "column_break_rhpt",
+  "currency",
+  "ex_rate",
+  "loan_amount_usd",
   "term_days",
   "due_date",
   "due_date_confirm",
   "note",
-  "custom_title"
+  "custom_title",
+  "lc_no"
  ],
  "fields": [
   {
@@ -23,8 +28,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "LC No",
-   "options": "LC Open",
-   "reqd": 1
+   "options": "LC Open"
   },
   {
    "default": "Today",
@@ -44,7 +48,6 @@
   {
    "fieldname": "due_date",
    "fieldtype": "Date",
-   "hidden": 1,
    "label": "Due Date"
   },
   {
@@ -79,24 +82,58 @@
    "unique": 1
   },
   {
+   "default": "USD",
    "fieldname": "currency",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Currency",
    "options": "Currency",
-   "read_only": 1
+   "reqd": 1
   },
   {
    "default": "0",
    "fieldname": "due_date_confirm",
    "fieldtype": "Check",
    "label": "Due Date Confirm"
+  },
+  {
+   "default": "1",
+   "fieldname": "ex_rate",
+   "fieldtype": "Float",
+   "label": "Ex Rate",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_amount_usd",
+   "fieldtype": "Float",
+   "label": "Loan Amount (USD)"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-04 11:39:48.206174",
+ "modified": "2025-11-18 16:00:48.931421",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",
