@@ -4,14 +4,6 @@
 import frappe
 from frappe.model.document import Document
 
-def set_custom_title(doc):
-	lc_no = frappe.db.get_value('LC Open', doc.lc_no, 'lc_no')
-	doc.custom_title = f"{lc_no.strip()} :: {doc.inv_no.strip()}".strip()
-	
-def set_currency(doc):
-	curr = frappe.db.get_value('LC Open', doc.lc_no, 'currency')
-	doc.currency = curr
-
 
 def final_validation(doc):
 	# Get LC Open amount and tolerance
@@ -71,8 +63,7 @@ def final_validation(doc):
 
 class LCPayment(Document):
 	def before_save(self):
-		set_currency(self)
-		if self.lc_no and self.inv_no:
-			set_custom_title(self)
+		if self.company and self.bank:
+			self.group_id = f"{self.company} : {self.bank}"
 	def validate(self):
 		final_validation(self)

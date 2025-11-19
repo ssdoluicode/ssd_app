@@ -7,8 +7,7 @@ import pandas as pd
 import numpy as np
 import json
 from ssd_app.utils.banking import export_banking_data, import_banking_data, banking_line_data, balance_banking_line_data, check_banking_line
-from datetime import date
-today = date.today() 
+from frappe.utils import today
 
 
 def bank_line_validtation(doc):
@@ -41,8 +40,9 @@ def bank_line_validtation(doc):
 
 class LCOpen(Document):
     def before_save(self):
-        if self.amount and self.ex_rate:
-            self.amount_usd = round(self.amount / self.ex_rate, 2)
+        if self.company and self.bank:
+            self.group_id = f"{self.company} : {self.bank}"
+
     def validate(self):
         bank_line_validtation(self)
 
@@ -296,7 +296,7 @@ def banking_line():
 
 @frappe.whitelist()
 def banking_line_balance():
-    balance_banking_line = balance_banking_line_data(today)
+    balance_banking_line = balance_banking_line_data(today())
     total_balance = sum(balance_banking_line.values())
     css= """
     <style>

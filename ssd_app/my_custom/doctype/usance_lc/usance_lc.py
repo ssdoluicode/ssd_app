@@ -32,24 +32,50 @@ def calculate_usance_lc_amount_usd(doc):
         doc.usance_lc_amount_usd = round(float(doc.usance_lc_amount) / float(doc.ex_rate), 2)
 
 
+# def set_company(doc):
+# 	if doc.inv_no:
+# 		com_num_code= doc.inv_no[0]
+# 		company_id = frappe.db.get_value("Company", {"number_code":int(com_num_code)}, "name") or 0
+# 		doc.company= company_id
+          
+# 	else:
+# 		frappe.throw("Please Fill Company Name")
+
 def set_company(doc):
-	if doc.inv_no:
-		com_num_code= doc.inv_no[0]
-		company_id = frappe.db.get_value("Company", {"number_code":int(com_num_code)}, "name") or 0
-		doc.company= company_id
-	else:
-		frappe.throw("Please Fill Company Name")
+    if doc.inv_no:
+        com_num_code = doc.inv_no[0]
+
+        # Validate numeric company code
+        if not com_num_code.isdigit():
+            frappe.throw(f"Invalid company code '{com_num_code}' in Invoice No.")
+
+        # Fetch company by number_code
+        company_id = frappe.db.get_value(
+            "Company",
+            {"number_code": int(com_num_code)},
+            "name"
+        )
+
+        if not company_id:
+            frappe.throw(f"No Company found for number_code: {com_num_code}")
+
+        # Set company
+        doc.company = company_id
+
+    else:
+        frappe.throw("Please Fill Company Name")
+
+
 
 def bank_line_validtation(doc):
     if not doc.usance_lc_amount:
         frappe.throw("❌ Usance LC Amount cannot be empty. Please enter the amount.")
 
     company_code = frappe.db.get_value("Company", doc.company, "company_code") or ""
-    company_code = company_code.replace('.', '').replace('-', '').replace(' ', '_')
+    company_code = company_code.replace('.', '').replace('-', '').replace(' ', '_') or ""
 
     bank_details = frappe.db.get_value("Bank", doc.bank, "bank") or ""
-    bank_details = bank_details.replace('.', '').replace('-', '').replace(' ', '_')
-
+    bank_details = bank_details.replace('.', '').replace('-', '').replace(' ', '_') or ""
     bl = check_banking_line(company_code, bank_details, "lc")
 
     if bl is None:
@@ -63,18 +89,21 @@ def bank_line_validtation(doc):
 
     if doc.usance_lc_amount_usd > allowed_limit:
         frappe.throw(f"""
-            ❌ <b>Loan amount exceeds Bank Line Limit!</b><br><br>
+            ❌ <b>Usance LC amount exceeds Bank Line Limit!</b><br><br>
             <b>Banking Line Balance:</b> {allowed_limit:,.2f}<br>
             <b>You are trying to enter:</b> {doc.usance_lc_amount_usd:,.2f}
         """)
 
 class UsanceLC(Document):
 
+    def before_save(self):
+        set_custom_title(self)
+        calculate_due_date(self)
+
     def validate(self):
         set_company(self)
         calculate_usance_lc_amount_usd(self)
         bank_line_validtation(self)
 
-    def before_save(self):
-        set_custom_title(self)
-        calculate_due_date(self)
+
+

@@ -82,24 +82,12 @@ def import_banking_data(as_on):
         -- LC Open
         SELECT 
             lc_o.name, 
-            lc_o.lc_no AS ref_no,
+            "lc_open" AS ref_no,
             com.company_code AS com,
             bank.bank AS bank,
             'LC Open' AS p_term,
             0 AS document,
-            ROUND(IF(
-                lc_o.amount 
-                - IFNULL(lc_p.lc_p_amount, 0) 
-                - IFNULL(imp_loan.imp_loan_amount, 0) 
-                - IFNULL(u_lc.u_lc_amount, 0) 
-                < lc_o.amount * lc_o.tolerance / 100,
-                0,
-                lc_o.amount 
-                - IFNULL(lc_p.lc_p_amount, 0) 
-                - IFNULL(imp_loan.imp_loan_amount, 0) 
-                - IFNULL(u_lc.u_lc_amount, 0)
-            ) / lc_o.ex_rate,2
-        ) AS amount_usd
+            lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) AS amount_usd
         FROM `tabLC Open` lc_o
         LEFT JOIN `tabSupplier` sup 
             ON sup.name = lc_o.supplier
@@ -216,14 +204,13 @@ def balance_banking_line_data(as_on):
     sino_imp_lc_3=banking_line["sino_imp_lc_3"]
     sino_da_dp_3=banking_line["sino_da_dp_3"]
     
-    
-
 
     export_banking=export_banking_data(as_on)
     export_banking_result = {}
     for row in export_banking:
-        bank=row['bank'].replace('.', '').replace('-', '').replace(' ', '_')
-        com= row['com'].replace('.', '').replace('-', '').replace(' ', '_')
+        print(row)
+        bank=row['bank'].replace('.', '').replace('-', '').replace(' ', '_') 
+        com= row['com'].replace('.', '').replace('-', '').replace(' ', '_') 
         p_term=row['p_term'].replace('.', '').replace('-', '').replace(' ', '_')
         key = f"{bank}_{com}_{p_term}"
         export_banking_result[key] = export_banking_result.get(key, 0) + row['nego']

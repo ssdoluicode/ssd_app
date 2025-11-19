@@ -8,6 +8,8 @@ function calculate_usd(frm) {
     }
 }
 
+
+
 frappe.ui.form.on("LC Open", {
     ex_rate: function(frm) {
         calculate_usd(frm);

@@ -88,11 +88,7 @@ def get_lc_combined_data(filters):
 				ELSE 'u_lc_o' 
 			END AS dc_name,
 			lc_o.currency, 
-			IF(
-				lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0) < lc_o.amount * lc_o.tolerance / 100,
-				0,
-				lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) - IFNULL(imp_loan.imp_loan_amount, 0) - IFNULL(u_lc.u_lc_amount, 0)
-			) AS lc_o_amount,
+			lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) AS lc_o_amount,
 			0 AS amount_usd, 
 			0 AS imp_loan_amount,
 			0 AS u_lc_amount,

@@ -5,14 +5,17 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "lc_no",
   "date",
-  "inv_no",
-  "column_break_blgc",
+  "company",
+  "bank",
   "amount",
-  "currency",
+  "inv_no",
   "note",
-  "custom_title"
+  "group_id",
+  "column_break_blgc",
+  "currency",
+  "custom_title",
+  "lc_no"
  ],
  "fields": [
   {
@@ -20,8 +23,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "LC No",
-   "options": "LC Open",
-   "reqd": 1
+   "options": "LC Open"
   },
   {
    "fieldname": "inv_no",
@@ -67,12 +69,32 @@
    "hidden": 1,
    "label": "Currency",
    "options": "Currency"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank",
+   "reqd": 1
+  },
+  {
+   "fieldname": "group_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Group ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-05 18:06:52.589741",
+ "modified": "2025-11-19 15:36:21.078451",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment",
@@ -94,9 +116,7 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
- "title_field": "custom_title"
+ "states": []
 }

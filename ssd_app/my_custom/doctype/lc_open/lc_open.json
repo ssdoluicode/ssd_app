@@ -5,21 +5,20 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "supplier",
-  "lc_no",
   "lc_open_date",
-  "lc_type",
-  "term_days",
-  "column_break_vpri",
   "company",
   "bank",
   "amount",
   "currency",
   "ex_rate",
+  "group_id",
   "column_break_humr",
   "amount_usd",
-  "tolerance",
-  "note"
+  "note",
+  "supplier",
+  "lc_no",
+  "lc_type",
+  "tolerance"
  ],
  "fields": [
   {
@@ -27,52 +26,35 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Supplier",
-   "options": "Supplier",
-   "reqd": 1
+   "options": "Supplier"
   },
   {
    "fieldname": "lc_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "LC Type",
-   "options": "LC at Sight\nUsance LC",
-   "reqd": 1
-  },
-  {
-   "fieldname": "term_days",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Term Days",
-   "non_negative": 1
+   "options": "LC at Sight\nUsance LC"
   },
   {
    "fieldname": "lc_no",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "LC No",
-   "reqd": 1,
    "unique": 1
-  },
-  {
-   "fieldname": "column_break_vpri",
-   "fieldtype": "Column Break"
   },
   {
    "default": "USD",
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
-   "options": "Currency",
-   "reqd": 1
+   "options": "Currency"
   },
   {
    "default": "1",
    "fieldname": "ex_rate",
    "fieldtype": "Float",
    "label": "Ex Rate",
-   "non_negative": 1,
-   "precision": "4",
-   "reqd": 1
+   "precision": "4"
   },
   {
    "fieldname": "amount",
@@ -86,6 +68,7 @@
    "default": "0",
    "fieldname": "amount_usd",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Amount (USD)",
    "precision": "2",
    "read_only": 1
@@ -99,10 +82,10 @@
    "fieldname": "tolerance",
    "fieldtype": "Float",
    "label": "Tolerance",
-   "precision": "2",
-   "reqd": 1
+   "precision": "2"
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
@@ -127,12 +110,17 @@
    "label": "Company",
    "options": "Company",
    "reqd": 1
+  },
+  {
+   "fieldname": "group_id",
+   "fieldtype": "Data",
+   "label": "Group ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-12 22:37:34.599751",
+ "modified": "2025-11-19 16:04:58.940414",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Open",
@@ -154,9 +142,7 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
- "title_field": "lc_no"
+ "states": []
 }
