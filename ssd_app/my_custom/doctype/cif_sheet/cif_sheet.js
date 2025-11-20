@@ -380,7 +380,6 @@ function checkDuplicateExpenses(frm, cdt, cdn) {
     }
 }
  
-
 // Check duplicates on validation
 function checkDuplicateExpensesOnValidation(frm) {
     let table = frm.doc.expenses || [];
@@ -392,8 +391,6 @@ function checkDuplicateExpensesOnValidation(frm) {
         frappe.throw(__('Expenses must be unique.'));
     }
 }
-
-
 
 //If Doc Nego or Receive then lock Bank Name & document Amount 
 function check_and_lock_fields(frm) {
@@ -407,6 +404,7 @@ function check_and_lock_fields(frm) {
             if (r.message === true) {
                 frm.set_df_property("document", "read_only", 1);
                 frm.set_df_property("bank", "read_only", 1);
+                // frm.set_df_property("customer", "read_only", 1);
                 frm.refresh_field("document");
                 frm.refresh_field("bank");
             }

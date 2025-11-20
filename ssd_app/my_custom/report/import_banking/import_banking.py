@@ -103,7 +103,7 @@ def get_lc_combined_data(filters):
 				lc_no,
 				SUM(amount) AS lc_p_amount
 			FROM `tabLC Payment`
-			WHERE date <= "2025-11-19"
+			WHERE date <= %(as_on)s
 			GROUP BY group_id, lc_no
 		) lc_p
 			ON lc_p.group_id = lc_o.group_id
@@ -248,26 +248,26 @@ def get_entries(dc_name, name):
 			SELECT
 				lc_o.group_id AS name,
 				'LC Open' AS Type,
-				MAX(lc_o.lc_open_date) AS Date,
-				SUM(lc_o.amount) AS amount,
+				lc_o.lc_open_date AS Date,
+				lc_o.amount AS amount,
 				'' AS Inv_no,
 				'USD' AS currency
 			FROM `tabLC Open` lc_o 
 			WHERE lc_o.group_id = %s
-			GROUP BY lc_o.group_id
+
 
 			UNION ALL
 
 			SELECT
 				lc_p.group_id AS name,
 				'LC Paid' AS Type,
-				MAX(lc_p.date) AS Date,
-				SUM(lc_p.amount) AS amount,
+				lc_p.date AS Date,
+				lc_p.amount AS amount,
 				'' AS Inv_no,
 				'USD' AS currency
 			FROM `tabLC Payment` lc_p 
 			WHERE lc_p.group_id = %s
-			GROUP BY lc_p.group_id
+
 		""", (name, name), as_dict=1)
 
 

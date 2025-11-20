@@ -80,38 +80,26 @@ def import_banking_data(as_on):
     SELECT *
     FROM (
         -- LC Open
-        SELECT 
-            lc_o.name, 
-            "lc_open" AS ref_no,
-            com.company_code AS com,
-            bank.bank AS bank,
+       SELECT
+            lc_o.group_id AS name,
+            'lc_open' AS ref_no,
+            MAX(com.company_code) AS com,
+            MAX(bank.bank) AS bank,
             'LC Open' AS p_term,
             0 AS document,
-            lc_o.amount - IFNULL(lc_p.lc_p_amount, 0) AS amount_usd
+            (SUM(lc_o.amount)- IFNULL(lc_p.lc_p_amount, 0)) AS amount_usd
+        
         FROM `tabLC Open` lc_o
-        LEFT JOIN `tabSupplier` sup 
-            ON sup.name = lc_o.supplier
-        LEFT JOIN `tabBank` bank 
-            ON bank.name = lc_o.bank
         LEFT JOIN (
-            SELECT lc_no, SUM(amount) AS lc_p_amount 
+            SELECT 
+                group_id,
+                SUM(amount) AS lc_p_amount
             FROM `tabLC Payment`
-            GROUP BY lc_no
-        ) lc_p 
-            ON lc_p.lc_no = lc_o.name
-        LEFT JOIN (
-            SELECT lc_no, SUM(loan_amount) AS imp_loan_amount 
-            FROM `tabImport Loan`
-            GROUP BY lc_no
-        ) imp_loan 
-            ON imp_loan.lc_no = lc_o.name
-        LEFT JOIN (
-            SELECT lc_no, SUM(usance_lc_amount) AS u_lc_amount 
-            FROM `tabUsance LC`
-            GROUP BY lc_no
-        ) u_lc 
-            ON u_lc.lc_no = lc_o.name
-        LEFT JOIN `tabCompany` com ON lc_o.company= com.name
+            GROUP BY group_id
+        ) lc_p ON lc_p.group_id = lc_o.group_id
+        LEFT JOIN `tabCompany` com ON com.name = lc_o.company
+        LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+        GROUP BY lc_o.group_id
 
         UNION ALL
 

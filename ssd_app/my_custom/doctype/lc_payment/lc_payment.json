@@ -26,11 +26,11 @@
    "options": "LC Open"
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "inv_no",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Inv No",
-   "reqd": 1
+   "label": "Inv No"
   },
   {
    "fieldname": "amount",
@@ -48,6 +48,7 @@
    "reqd": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
@@ -94,7 +95,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-19 15:36:21.078451",
+ "modified": "2025-11-20 09:43:31.166404",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment",
