@@ -102,5 +102,9 @@ frappe.ui.form.on("Interest Paid", {
     interest_days(frm){
         calculate_interest_upto_date(frm)
         calculate_int(frm);
+    },
+    after_save: function(frm) {
+        // Redirect to the report page after save
+        window.location.href = "/app/query-report/Doc Entry";
     }
 });
