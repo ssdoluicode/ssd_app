@@ -25,7 +25,8 @@
   "bank_amount",
   "interest_upto_date",
   "note",
-  "invoice_no"
+  "invoice_no",
+  "cif_id"
  ],
  "fields": [
   {
@@ -156,12 +157,18 @@
    "fieldname": "min_comm",
    "fieldtype": "Check",
    "label": "Min Comm"
+  },
+  {
+   "fieldname": "cif_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "CIF ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-14 20:57:41.844160",
+ "modified": "2025-11-29 22:59:39.676131",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego Details",
@@ -182,6 +189,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

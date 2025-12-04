@@ -8,7 +8,19 @@
   "inv_no",
   "refund_date",
   "refund_amount",
-  "bank"
+  "bank",
+  "interest_from",
+  "interest_on",
+  "interest_days",
+  "column_break_hamz",
+  "interest_pct",
+  "interest",
+  "bank_charges",
+  "bank_amount",
+  "interest_upto_date",
+  "note",
+  "invoice_no",
+  "cif_id"
  ],
  "fields": [
   {
@@ -23,7 +35,6 @@
    "default": "Today",
    "fieldname": "refund_date",
    "fieldtype": "Date",
-   "is_virtual": 1,
    "label": "Refund Date",
    "read_only": 1
   },
@@ -31,23 +42,91 @@
    "default": "0",
    "fieldname": "refund_amount",
    "fieldtype": "Float",
-   "is_virtual": 1,
    "label": "Refund Amount",
    "read_only": 1
   },
   {
    "default": "-",
    "fieldname": "bank",
-   "fieldtype": "Link",
-   "is_virtual": 1,
-   "label": "Bank",
-   "options": "Bank"
+   "fieldtype": "Data",
+   "label": "Bank"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  },
+  {
+   "fieldname": "column_break_hamz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Invoice No"
+  },
+  {
+   "fieldname": "cif_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "CIF ID"
+  },
+  {
+   "fieldname": "interest_from",
+   "fieldtype": "Date",
+   "label": "Interest From"
+  },
+  {
+   "fieldname": "interest_on",
+   "fieldtype": "Float",
+   "label": "Interest On",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "interest_days",
+   "fieldtype": "Int",
+   "label": "Interest Days"
+  },
+  {
+   "fieldname": "interest_pct",
+   "fieldtype": "Float",
+   "label": "Interest %",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "interest",
+   "fieldtype": "Float",
+   "label": "Interest",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_charges",
+   "fieldtype": "Float",
+   "label": "Bank Charges",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_amount",
+   "fieldtype": "Float",
+   "label": "Bank Amount",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "interest_upto_date",
+   "fieldtype": "Date",
+   "label": "Interest Upto Date",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-18 01:06:36.195231",
+ "modified": "2025-12-04 23:34:43.642585",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Refund Details",

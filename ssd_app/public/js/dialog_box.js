@@ -176,12 +176,55 @@ function showDocFlow(inv_name, inv_no) {
 
 
 
+// function showCIFDetails(inv_name, inv_no) {
+//     frappe.call({
+//         method: "ssd_app.my_custom.doctype.cif_sheet.cif_sheet.render_cif_sheet_pdf",
+//         args: { inv_name },
+//         callback: function (r) {
+//             if (!r.message) return;
+//             const htmlContent = `
+//                 <div id="cif-details-a4" style="
+//                     width: 20cm;
+//                     max-width: 100%;
+//                     min-height: 28.7cm;
+//                     padding: 0.3cm;
+//                     background: white;
+//                     font-size: 13px;
+//                     box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+//                 >${r.message}</div>
+//             `;
+
+//             const dialog = new frappe.ui.Dialog({
+//                 title: `CIF Sheet: ${inv_no}`,
+//                 size: 'large',
+//                 primary_action_label: 'PDF',
+//                 primary_action() {
+//                     window.open(
+//                         `/api/method/ssd_app.my_custom.doctype.cif_sheet.cif_sheet.render_cif_sheet_pdf?inv_name=${inv_name}&pdf=1`,
+//                         '_blank'
+//                     );
+//                 },
+//                 fields: [
+//                     {
+//                         fieldtype: 'HTML',
+//                         fieldname: 'details_html',
+//                         options: htmlContent
+//                     }
+//                 ]
+//             });
+
+//             dialog.show();
+//         }
+//     });
+// } 
+
 function showCIFDetails(inv_name, inv_no) {
     frappe.call({
         method: "ssd_app.my_custom.doctype.cif_sheet.cif_sheet.render_cif_sheet_pdf",
         args: { inv_name },
         callback: function (r) {
             if (!r.message) return;
+
             const htmlContent = `
                 <div id="cif-details-a4" style="
                     width: 20cm;
@@ -214,15 +257,56 @@ function showCIFDetails(inv_name, inv_no) {
             });
 
             dialog.show();
+
+            // ------------------------------------------
+            // ⭐ Add custom buttons inside title bar
+            // ------------------------------------------
+            const $title_area = dialog.$wrapper.find('.modal-title');
+
+            // Set the title area to a flex container to control button alignment
+            $title_area.css({
+                display: 'flex',
+                'justify-content': 'flex-end',  // Align buttons to the right
+                'gap': '8px',  // Optional: adds space between buttons
+                'align-items': 'center'  // Vertically center the buttons if needed
+            });
+
+            // Cost Sheet Button (Right-aligned)
+            const costBtn = $(`
+                <button class="btn btn-sm btn-primary">
+                    Cost Sheet
+                </button>
+            `);
+
+            costBtn.on("click", function () {
+                showCostDetails(inv_name, inv_no);
+            });
+
+            // Master Sheet Button (Right-aligned)
+            const masterBtn = $(`
+                <button class="btn btn-sm btn-primary">
+                    Master Sheet
+                </button>
+            `);
+
+            masterBtn.on("click", function () {
+                showMasterDetails(inv_name, inv_no);
+            });
+
+            // Append both buttons to the title area (right side)
+            $title_area.append(costBtn);
+            $title_area.append(masterBtn);
+
         }
     });
-} 
+}
 
 
-function showCostDetails(cost_id, inv_no) {
+
+function showCostDetails(inv_name, inv_no) {
     frappe.call({
         method: "ssd_app.my_custom.doctype.cost_sheet.cost_sheet.render_cost_sheet_pdf",
-        args: { cost_id },
+        args: { inv_name },
         callback: function (r) {
             if (!r.message) return;
             const htmlContent = `
@@ -243,7 +327,7 @@ function showCostDetails(cost_id, inv_no) {
                 primary_action_label: 'PDF',
                 primary_action() {
                     window.open(
-                        `/api/method/ssd_app.my_custom.doctype.cost_sheet.cost_sheet.render_cost_sheet_pdf?cost_id=${cost_id}&pdf=1`,
+                        `/api/method/ssd_app.my_custom.doctype.cost_sheet.cost_sheet.render_cost_sheet_pdf?cost_id=${inv_name}&pdf=1`,
                         '_blank'
                     );
                 },
@@ -257,6 +341,45 @@ function showCostDetails(cost_id, inv_no) {
             });
 
             dialog.show();
+            // ------------------------------------------
+            // ⭐ Add custom buttons inside title bar
+            // ------------------------------------------
+            const $title_area = dialog.$wrapper.find('.modal-title');
+
+            // Set the title area to a flex container to control button alignment
+            $title_area.css({
+                display: 'flex',
+                'justify-content': 'flex-end',  // Align buttons to the right
+                'gap': '8px',  // Optional: adds space between buttons
+                'align-items': 'center'  // Vertically center the buttons if needed
+            });
+
+            // Cost Sheet Button (Right-aligned)
+            const costBtn = $(`
+                <button class="btn btn-sm btn-primary">
+                    CIF Sheet
+                </button>
+            `);
+
+            costBtn.on("click", function () {
+                showCIFDetails(inv_name, inv_no);
+            });
+
+            // Master Sheet Button (Right-aligned)
+            const masterBtn = $(`
+                <button class="btn btn-sm btn-primary">
+                    Master Sheet
+                </button>
+            `);
+
+            masterBtn.on("click", function () {
+                showMasterDetails(inv_name, inv_no);
+            });
+
+            // Append both buttons to the title area (right side)
+            $title_area.append(costBtn);
+            $title_area.append(masterBtn);
+
         }
     });
 } 
@@ -299,6 +422,45 @@ function showMasterDetails(inv_name, inv_no) {
             });
 
             dialog.show();
+
+            // ------------------------------------------
+            // ⭐ Add custom buttons inside title bar
+            // ------------------------------------------
+            const $title_area = dialog.$wrapper.find('.modal-title');
+
+            // Set the title area to a flex container to control button alignment
+            $title_area.css({
+                display: 'flex',
+                'justify-content': 'flex-end',  // Align buttons to the right
+                'gap': '8px',  // Optional: adds space between buttons
+                'align-items': 'center'  // Vertically center the buttons if needed
+            });
+
+            // Cost Sheet Button (Right-aligned)
+            const costBtn = $(`
+                <button class="btn btn-sm btn-primary">
+                    CIF Sheet
+                </button>
+            `);
+
+            costBtn.on("click", function () {
+                showCIFDetails(inv_name, inv_no);
+            });
+
+            // Master Sheet Button (Right-aligned)
+            const masterBtn = $(`
+                <button class="btn btn-sm btn-primary">
+                    Cost Sheet
+                </button>
+            `);
+
+            masterBtn.on("click", function () {
+                showCostDetails(inv_name, inv_no);
+            });
+
+            // Append both buttons to the title area (right side)
+            $title_area.append(costBtn);
+            $title_area.append(masterBtn);
         }
     });
 } 

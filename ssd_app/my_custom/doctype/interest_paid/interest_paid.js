@@ -2,26 +2,53 @@
 // For license information, please see license.txt
 
 
-// 🧠 Fetch negotiation data based on selected inv_no
+
+// Helper function to reliably calculate the difference in days using native JS.
+const calculateDaysDifference = (endDateStr, startDateStr) => {
+    // Standard approach: Use T00:00:00 to prevent timezone issues.
+    const endDate = new Date(endDateStr + 'T00:00:00');
+    const startDate = new Date(startDateStr + 'T00:00:00');
+    
+    // Difference in milliseconds
+    const diff_ms = endDate.getTime() - startDate.getTime();
+    
+    // Conversion factor (milliseconds in a day)
+    const ms_per_day = 1000 * 60 * 60 * 24;
+    
+    // Return the difference in days, rounded to handle potential floating point issues
+    return Math.round(diff_ms / ms_per_day);
+};
+
+
 function get_nego_data(frm) {
     if (!frm.doc.inv_no || !frm.doc.date) return;
 
+    // Run ONLY in New Form
     if (frm.is_new() && !frappe.quick_entry) {
         frappe.call({
-            method: "ssd_app.my_custom.doctype.interest_paid.interest_paid.get_nego_data",
-            args: {inv_no: frm.doc.inv_no, date: frm.doc.date, name:frm.name },
+            method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_cif_summary",
+            args: {
+                id_name:"nego",
+                id: frm.doc.inv_no,
+                as_on: frm.doc.date
+            },
             callback: function (r) {
+                if (!r.message) return;
+
                 const data = r.message;
-                if (!data) return;
 
                 frm.set_value({
-                    balance_nego_amount: data.nego_amount,
-                    interest_from: data.last_interest_upto,
+                    balance_nego_amount: data.b_liab,
+                    interest_from: data.int_upto,
+                    interest_rate: data.int_pct
                 });
             }
         });
     }
 }
+
+
+
 function calculate_interest_upto_date(frm){
     if (frm.doc.interest_from && frm.doc.interest_days) {
             let int_from = frappe.datetime.str_to_obj(frm.doc.interest_from);
@@ -37,12 +64,26 @@ function calculate_int(frm) {
         frm.set_value('interest', interest);
     }
 }
+
+function calculate_interest_days(frm) {
+    let days = 0; // Default days to 0
+    
+    // Check if both required dates exist
+    if (frm.doc.date && frm.doc.interest_from) {
+        // End Date (later) is received_date, Start Date (earlier) is interest_from
+        days = calculateDaysDifference(frm.doc.date, frm.doc.interest_from);  
+    }
+    frm.set_value("interest_days", days);
+}
+
+
 frappe.ui.form.on("Interest Paid", {
 	inv_no(frm) {
         get_nego_data(frm);
     },
     date(frm) {
         get_nego_data(frm);
+        calculate_interest_days(frm);
     },
     balance_nego_amount(frm){
         calculate_int(frm);
@@ -50,6 +91,7 @@ frappe.ui.form.on("Interest Paid", {
     interest_from(frm) {
         calculate_interest_upto_date(frm);
         calculate_int(frm);
+        calculate_interest_days(frm);
     },
     interest_rate(frm){
         calculate_int(frm);

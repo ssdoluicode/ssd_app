@@ -1,5 +1,5 @@
-# # Copyright (c) 2025, SSDolui and contributors
-# # For license information, please see license.txt
+# Copyright (c) 2025, SSDolui and contributors
+# For license information, please see license.txt
 
 import frappe
 
@@ -10,16 +10,16 @@ def execute(filters=None):
     # Build WHERE clause based on status
     where_clause = ""
     if status_filter == "Pending":
-        where_clause = "WHERE nego.nego_details != 1"
+        where_clause = "WHERE rec.rec_details != 1"
     elif status_filter == "Updated":
-        where_clause = "WHERE nego.nego_details = 1"
+        where_clause = "WHERE rec.rec_details = 1"
     # "All" -> no WHERE clause
 
     query = f"""
-        SELECT 
-            nego.name,
+       SELECT 
+            rec.name,
             cif.inv_no, 
-            nego.nego_date,
+            rec.received_date,
             cif.inv_date, 
             cus.customer, 
             noti.notify, 
@@ -29,15 +29,15 @@ def execute(filters=None):
                 cif.payment_term
             ) AS p_term,
             cif.document,
-            nego.nego_amount,
-            nego.nego_details
-        FROM `tabDoc Nego` nego
-        LEFT JOIN `tabCIF Sheet` cif ON cif.name = nego.inv_no
-        LEFT JOIN `tabCustomer` cus ON cus.name = nego.customer
-        LEFT JOIN `tabNotify` noti ON noti.name = nego.notify
-        LEFT JOIN `tabBank` bank ON bank.name = nego.bank
-        {where_clause}
-		ORDER BY nego.nego_date DESC
+            rec.received,
+            rec.rec_details
+        FROM `tabDoc Received` rec
+        LEFT JOIN `tabCIF Sheet` cif ON cif.name = rec.inv_no
+        LEFT JOIN `tabCustomer` cus ON cus.name = rec.customer
+        LEFT JOIN `tabNotify` noti ON noti.name = rec.notify
+        LEFT JOIN `tabBank` bank ON bank.name = rec.bank
+		{where_clause}
+		ORDER BY rec.received_date DESC
     """
 
     data = frappe.db.sql(query, as_dict=1)
@@ -45,13 +45,13 @@ def execute(filters=None):
     columns = [
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 125},
         {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
-        {"label": "Nego Date", "fieldname": "nego_date", "fieldtype": "Date", "width": 110},
+        {"label": "Rec Date", "fieldname": "received_date", "fieldtype": "Date", "width": 110},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 250},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 250},
         {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},
         {"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 95},
         {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 125},
-        {"label": "Nego Amnt", "fieldname": "nego_amount", "fieldtype": "Float", "width": 125},
+        {"label": "Rec Amnt", "fieldname": "received", "fieldtype": "Float", "width": 125},
     ]
 
     return columns, data

@@ -235,7 +235,7 @@ function run_all_calculations(frm) {
 //  Create Custom Print button
 function custom_print(frm){
     frm.add_custom_button("Custom Print", function() {
-        showCostDetails(frm.doc.name, frm.doc.custom_title);
+        showCostDetails(frm.doc.inv_no, frm.doc.custom_title);
     });
 }
 

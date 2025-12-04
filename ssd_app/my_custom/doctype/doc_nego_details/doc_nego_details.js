@@ -55,6 +55,7 @@ function calculate_comm(frm) {
 function if_min_comm(frm){
     if (frm.doc.min_comm==1){
         frm.set_value("commission",0)
+        frm.set_value("commission_pct",0)
         frm.set_df_property("commission_pct", "read_only", 1);
         frm.set_df_property("commission", "read_only", 0);
     }else{
@@ -109,6 +110,10 @@ frappe.ui.form.on("Doc Nego Details", {
         calculate_comm(frm);
         calculate_bank_amount(frm);
     },
+    commission(frm) {
+        calculate_comm(frm);
+        calculate_bank_amount(frm);
+    },
     postage_charges(frm) {
         calculate_bank_amount(frm);
     },
@@ -120,8 +125,8 @@ frappe.ui.form.on("Doc Nego Details", {
         calculate_bank_amount(frm);
     },
     min_comm(frm){
-        calculate_comm(frm);
         if_min_comm(frm);
+        calculate_comm(frm);
     },
     nego_amount(frm) {
         // ✅ Recalculate everything when main amount changes
@@ -133,5 +138,9 @@ frappe.ui.form.on("Doc Nego Details", {
     nego_date(frm) {
         // ✅ Recalculate interest due date when base date changes
         calculate_int(frm);
+    },
+    after_save: function(frm) {
+        // Redirect to the report page after save
+        window.location.href = "/app/query-report/Doc Entry";
     }
 });

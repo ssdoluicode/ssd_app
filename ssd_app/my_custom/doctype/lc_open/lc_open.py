@@ -25,11 +25,11 @@ def bank_line_validtation(doc):
     if not doc.is_new():  # need to add logic here
         actual_lc_open = frappe.db.get_value("LC Open", doc.name, ["amount", "ex_rate"], as_dict=True)
         if round(doc.amount / doc.ex_rate, 2) > round(bl + (actual_lc_open.amount / actual_lc_open.ex_rate), 2):
-            frappe.throw(_(f"""
+            frappe.throw(f"""
                 ❌ <b>Nego amount exceeds Bank Line Limit.</b><br>
                 <b>Banking Line Balance:</b> {bl + (actual_lc_open.amount / actual_lc_open.ex_rate):,.2f}<br>
                 <b>Try to Entry:</b> {doc.amount / doc.ex_rate:,.2f}<br>
-            """))
+            """)
 
     elif (round(doc.amount / doc.ex_rate,2)) > bl:
         frappe.throw((f"""

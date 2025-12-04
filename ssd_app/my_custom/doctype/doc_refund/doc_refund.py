@@ -68,6 +68,7 @@ def set_calculated_fields(doc):
     invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
     doc.custom_title = f"{doc.name} ({invoice})".strip()
     doc.invoice_no = invoice
+    doc.cif_id = doc.inv_no
 
 # ----------------------------
 # 📄 DocType Class

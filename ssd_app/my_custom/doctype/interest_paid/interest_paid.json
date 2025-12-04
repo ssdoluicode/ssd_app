@@ -17,7 +17,8 @@
   "interest",
   "interest_upto_date",
   "note",
-  "invoice_no"
+  "invoice_no",
+  "cif_id"
  ],
  "fields": [
   {
@@ -93,12 +94,18 @@
    "fieldname": "round_off",
    "fieldtype": "Float",
    "label": "Round Off"
+  },
+  {
+   "fieldname": "cif_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "CIF ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-17 00:20:42.682305",
+ "modified": "2025-11-29 00:37:30.128194",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Interest Paid",

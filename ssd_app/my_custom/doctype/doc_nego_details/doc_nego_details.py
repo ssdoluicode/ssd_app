@@ -38,8 +38,15 @@ def get_nego_data(name):
     }
 
 def set_calculated_fields(doc):
-    invoice = frappe.db.get_value("Doc Nego", doc.inv_no, "invoice_no")
+  
+    invoice, cif_id = frappe.db.get_value(
+        "Doc Nego",
+        doc.inv_no,
+        ["invoice_no", "inv_no"]
+    )
     doc.invoice_no = invoice
+    doc.cif_id = cif_id
+
 
 class DocNegoDetails(Document):
 

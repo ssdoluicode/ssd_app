@@ -3,6 +3,12 @@ from frappe.model.document import Document
 from frappe import _
 
 
+def set_calculated_fields(doc):
+    invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
+    doc.custom_title = f"{doc.name} ({invoice})".strip()
+    doc.invoice_no = invoice
+    doc.cif_id= doc.inv_no
+
 def update_cif_bank_if_missing(doc):
     # Only update bank if it's missing
     bank = frappe.db.get_value("CIF Sheet", doc.inv_no, "bank")
@@ -61,6 +67,7 @@ class DocReceived(Document):
     
     def before_save(self):
         put_value_from_cif(self)
+        set_calculated_fields(self)
 
 
 @frappe.whitelist()

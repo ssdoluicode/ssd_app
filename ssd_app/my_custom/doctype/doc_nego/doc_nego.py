@@ -42,6 +42,7 @@ def set_calculated_fields(doc):
     invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
     doc.custom_title = f"{doc.name} ({invoice})".strip()
     doc.invoice_no = invoice
+    doc.cif_id= doc.inv_no
 
    
 
@@ -410,6 +411,142 @@ def update_import_due_date(doctype_name,docname, new_due_date, due_date_confirm,
     })
     return "success"
 
+
+@frappe.whitelist()
+def get_cif_summary(id_name, id, as_on= None):
+    """
+    Returns CIF financial summary as dict.
+    Args:
+        cif_id (str): CIF ID like 'cif-0000145'
+        as_on (str): Date 'YYYY-MM-DD'
+    """
+    rec_date="0000-00-00"
+    ref_date="0000-00-00"
+    rec_amount=0
+    ref_amount=0
+    bank= None
+    if id_name == "nego":
+        cif_id = frappe.db.get_value("Doc Nego", id, "cif_id")
+        bank = frappe.db.get_value("CIF Sheet", cif_id, "bank")
+        bank_name = frappe.db.get_value("Bank", bank, "bank")
+
+    elif id_name == "rec":
+        data = frappe.db.get_value("Doc Received",id,["cif_id", "received_date", "received"],as_dict=True)
+        cif_id = data.cif_id
+        rec_date = data.received_date
+        rec_amount = data.received
+        as_on= data.received_date
+        bank = frappe.db.get_value("CIF Sheet", cif_id, "bank")
+        bank_name = frappe.db.get_value("Bank", bank, "bank")
+
+    elif id_name == "ref":
+        data = frappe.db.get_value("Doc Refund",id,["cif_id", "refund_date", "refund_amount"],as_dict=True)
+        cif_id = data.cif_id
+        ref_date = data.refund_date
+        ref_amount = data.refund_amount
+        as_on= data.refund_date
+        bank = frappe.db.get_value("CIF Sheet", cif_id, "bank")
+        bank_name = frappe.db.get_value("Bank", bank, "bank")
+
+    query = f"""
+        SELECT
+            n.cif_id,
+            n.nego_date,
+            n.nego_amount,
+            "xxxx" AS bank_name,
+            NULLIF(rec_d.rec_amount,0) AS total_rec_amount,
+            NULLIF(ref.ref_amount,0) AS total_ref_amount,
+
+            -- Final MAX interest_upto_date
+            NULLIF(
+                GREATEST(
+                    COALESCE(n.nego_int_upto, '0000-00-00'),
+                    COALESCE(i.int_int_upto, '0000-00-00'),
+                    COALESCE(rec_d.rec_int_upto, '0000-00-00'),
+                    COALESCE(ref.ref_int_upto, '0000-00-00')
+                ), '0000-00-00'
+            ) AS int_upto,
+
+            -- Final MAX interest_pct
+            NULLIF(
+                GREATEST(
+                    COALESCE(n.nego_int_pct, 0),
+                    COALESCE(i.int_int_pct, 0),
+                    COALESCE(rec_d.rec_int_pct, 0),
+                    COALESCE(ref.ref_int_pct, 0)
+                ), 0
+            ) AS int_pct,
+
+            -- Balance liability
+            NULLIF(GREATEST((n.nego_amount - COALESCE(rec_d.bank_liab,0) - COALESCE(ref.ref_amount,0)), 0),0) AS b_liab
+
+        FROM (
+            SELECT
+                nd.cif_id,
+                SUM(nd.nego_amount) AS nego_amount,
+                MAX(nd.nego_date) AS nego_date,
+                MAX(nd.interest_upto_date) AS nego_int_upto,
+                MAX(nd.interest_pct) AS nego_int_pct
+            FROM `tabDoc Nego Details` nd
+            WHERE nd.cif_id = %s
+              AND nd.nego_date < %s
+            GROUP BY nd.cif_id
+        ) AS n
+
+        LEFT JOIN (
+            SELECT
+                ip.cif_id,
+                MAX(ip.interest_rate) AS int_int_pct,
+                MAX(ip.interest_upto_date) AS int_int_upto
+            FROM `tabInterest Paid` ip
+            WHERE ip.cif_id = %s
+              AND ip.date < %s
+            GROUP BY ip.cif_id
+        ) AS i
+        ON n.cif_id = i.cif_id
+
+        LEFT JOIN (
+            SELECT  
+                rd.cif_id,
+                SUM(rd.received_amount) AS rec_amount,
+                SUM(rd.bank_liability) AS bank_liab,
+                MAX(rd.interest_upto_date) AS rec_int_upto,
+                MAX(rd.interest_pct) AS rec_int_pct
+            FROM `tabDoc Received Details` rd
+            WHERE rd.cif_id = %s
+              AND rd.received_date < %s
+            GROUP BY rd.cif_id
+        ) AS rec_d
+        ON n.cif_id = rec_d.cif_id
+
+
+        LEFT JOIN (
+            SELECT 
+                dr.cif_id,
+                SUM(dr.refund_amount) AS ref_amount, 
+                MAX(dr.interest_upto_date) AS ref_int_upto, 
+                MAX(dr.interest_pct) AS ref_int_pct
+            FROM `tabDoc Refund Details` dr
+            WHERE dr.cif_id = %s
+              AND dr.refund_date < %s
+            GROUP BY dr.cif_id
+        ) AS ref
+        ON n.cif_id = ref.cif_id
+    """
+
+    params = (cif_id, as_on, cif_id, as_on, cif_id, as_on, cif_id, as_on)
+
+    result = frappe.db.sql(query, params, as_dict=True)
+    
+    data= result[0] if result else {}
+
+    data["rec_date"]=rec_date
+    data["ref_date"]= ref_date
+    data["rec_amount"]= rec_amount
+    data["ref_amount"]= ref_amount
+    data["bank_name"]= bank_name
+
+    return data
 
 
 

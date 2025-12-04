@@ -91,8 +91,8 @@ class CostSheet(Document):
 
 # To Prepare Cost Sheet PDF
 @frappe.whitelist()
-def render_cost_sheet_pdf(cost_id, pdf=0):
-    inv_name=cost_id
+def render_cost_sheet_pdf(inv_name, pdf=0):
+    cost_id = frappe.db.get_value("Cost Sheet", {"inv_no": inv_name}, "name")
     doc = frappe.get_doc("Cost Sheet", cost_id)
     cif_doc= frappe.get_doc("CIF Sheet", doc.inv_no, "load_port")
     doc.customer_name=frappe.db.get_value("Customer", doc.customer, "customer")

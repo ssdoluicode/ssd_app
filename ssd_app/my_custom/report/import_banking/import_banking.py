@@ -16,10 +16,11 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"label": "LC No", "fieldname": "lc_no", "fieldtype": "Data", "width": 110},
+		# {"label": "LC No", "fieldname": "lc_no", "fieldtype": "Data", "width": 110},
 		{"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
 		{"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 280},
+		{"label": "Company", "fieldname": "com", "fieldtype": "Data", "width": 110},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},
 		# {"label": "DocType", "fieldname": "dc_name", "fieldtype": "Data", "width": 70},
 		{"label": "LC Open", "fieldname": "lc_o_amount", "fieldtype": "Currency", "options": "currency", "width": 130},
@@ -84,6 +85,7 @@ def get_lc_combined_data(filters):
 			"" AS inv_no,
 			MAX(lc_o.lc_open_date) AS date,
 			"" AS supplier,
+			MAX(com.company_code) AS com,
 			MAX(bank.bank) AS bank,
 			'lc_o' AS dc_name,
 			"USD" AS currency,
@@ -121,6 +123,7 @@ def get_lc_combined_data(filters):
 			imp_l.inv_no,
 			imp_l.loan_date AS date, 
 			sup.supplier AS supplier, 
+			com.company_code AS com,
 			bank.bank AS bank,
 			'imp_l' AS dc_name,
 			imp_l.currency, 
@@ -135,6 +138,7 @@ def get_lc_combined_data(filters):
 		FROM `tabImport Loan` imp_l
 		LEFT JOIN `tabSupplier` sup ON sup.name = imp_l.supplier
 		LEFT JOIN `tabBank` bank ON bank.name = imp_l.bank
+		LEFT JOIN `tabCompany` com ON com.name= imp_l.company
 		LEFT JOIN (
 			SELECT inv_no, SUM(amount) AS imp_l_p_amount
 			FROM `tabImport Loan Payment` 
@@ -151,6 +155,7 @@ def get_lc_combined_data(filters):
 			u_lc.inv_no,
 			u_lc.usance_lc_date AS date, 
 			sup.supplier AS supplier, 
+			com.company_code AS com,
 			bank.bank AS bank,
 			'u_lc' AS dc_name,
 			u_lc.currency, 
@@ -165,6 +170,7 @@ def get_lc_combined_data(filters):
 		FROM `tabUsance LC` u_lc
 		LEFT JOIN `tabSupplier` sup ON sup.name = u_lc.supplier
 		LEFT JOIN `tabBank` bank ON bank.name = u_lc.bank
+		LEFT JOIN `tabCompany` com ON com.name= u_lc.company
 		LEFT JOIN (
 			SELECT inv_no, SUM(amount) AS u_lc_p_amount
 			FROM `tabUsance LC Payment` 
@@ -177,10 +183,11 @@ def get_lc_combined_data(filters):
 		-- Cash Loan
 		SELECT 
 			c_loan.name, 
-			c_loan.cash_loan_no AS lc_no,
-			"" AS inv_no,
+			"" AS lc_no,
+			c_loan.cash_loan_no AS inv_no,
 			c_loan.cash_loan_date AS date, 
 			"" AS supplier, 
+			com.company_code AS com,
 			bank.bank AS bank,
 			'c_loan' AS dc_name,
 			c_loan.currency, 
@@ -194,6 +201,7 @@ def get_lc_combined_data(filters):
 			c_loan.note
 		FROM `tabCash Loan` c_loan
 		LEFT JOIN `tabBank` bank ON bank.name = c_loan.bank
+		LEFT JOIN `tabCompany` com ON com.name= c_loan.company
 		LEFT JOIN (
 			SELECT cash_loan_no, SUM(amount) AS c_loan_p_amount
 			FROM `tabCash Loan Payment` 
@@ -214,16 +222,6 @@ def get_lc_combined_data(filters):
 @frappe.whitelist()
 def get_import_banking_flow(name, dc_name, supplier_name, bank_name):
 
-	# Table headers
-	dc_labels = {
-		"lc_o": ("Open LC", "Line Clear"),
-		# "s_lc_o": ("Open LC", "Import Loan"),
-		"imp_l": ("Import Loan", "Payment"),
-		"u_lc": ("Usance LC", "Payment"),
-		"c_loan": ("Cash Loan", "Payment")
-	}
-	label_1, label_2 = dc_labels.get(dc_name, ("", "Payment"))
-
 	# Get relevant records
 	entries = get_entries(dc_name, name)
 	if entries == "Error":
@@ -232,12 +230,12 @@ def get_import_banking_flow(name, dc_name, supplier_name, bank_name):
 		entries = sorted(entries, key=lambda x: x.get("Date") or "")
 
 	# Generate rows
-	rows_html, col_1, col_2 = build_rows(entries, dc_name)
+	rows_html, col_1 = build_rows(entries)
 
-	buttons_html= build_buttons(dc_name, name, col_1, col_2)
+	buttons_html= build_buttons(dc_name, name, col_1)
 
 	# Final HTML output
-	return build_html(supplier_name, bank_name, dc_name, label_1, label_2, rows_html, buttons_html)
+	return build_html(supplier_name, bank_name, dc_name, rows_html, buttons_html)
 
 
 def get_entries(dc_name, name):
@@ -251,7 +249,8 @@ def get_entries(dc_name, name):
 				lc_o.lc_open_date AS Date,
 				lc_o.amount AS amount,
 				'' AS Inv_no,
-				'USD' AS currency
+				'USD' AS currency,
+				note AS note
 			FROM `tabLC Open` lc_o 
 			WHERE lc_o.group_id = %s
 
@@ -264,7 +263,8 @@ def get_entries(dc_name, name):
 				lc_p.date AS Date,
 				lc_p.amount AS amount,
 				'' AS Inv_no,
-				'USD' AS currency
+				'USD' AS currency,
+				note AS note
 			FROM `tabLC Payment` lc_p 
 			WHERE lc_p.group_id = %s
 
@@ -273,19 +273,19 @@ def get_entries(dc_name, name):
 
 	elif dc_name == "c_loan":
 		return frappe.db.sql("""
-			SELECT name, 'Cash Loan' AS Type, cash_loan_date AS Date, cash_loan_amount AS amount, '' AS Inv_no, currency 
+			SELECT name, 'Cash Loan' AS Type, cash_loan_date AS Date, cash_loan_amount AS amount, '' AS Inv_no, currency, note AS note
 			FROM `tabCash Loan` WHERE name=%s
 			UNION ALL
-			SELECT c_l_p.name, 'Cash Loan Paid', c_l_p.payment_date , c_l_p.amount, c_l.cash_loan_no AS Inv_no, c_l_p.currency 
+			SELECT c_l_p.name, 'Cash Loan Paid', c_l_p.payment_date , c_l_p.amount, c_l.cash_loan_no AS Inv_no, c_l_p.currency, c_l_p.note AS note 
 			FROM `tabCash Loan Payment` c_l_p LEFT JOIN `tabCash Loan` c_l ON c_l_p.cash_loan_no= c_l.name WHERE c_l_p.cash_loan_no=%s
 		""", (name, name), as_dict=1)
 
 	elif dc_name == "imp_l":
 		return frappe.db.sql("""
-			SELECT name, 'Import Loan' AS Type, loan_date AS Date, loan_amount AS amount, inv_no AS Inv_no, currency 
+			SELECT name, 'Import Loan' AS Type, loan_date AS Date, loan_amount AS amount, inv_no AS Inv_no, currency, note AS note
 			FROM `tabImport Loan` WHERE name=%s
 			UNION ALL
-			SELECT imp_l_p.name, 'Imp Loan Payment', imp_l_p.payment_date, imp_l_p.amount, imp_l.inv_no, imp_l.currency 
+			SELECT imp_l_p.name, 'Imp Loan Payment', imp_l_p.payment_date, imp_l_p.amount, imp_l.inv_no, imp_l.currency, imp_l.note AS note
 			FROM `tabImport Loan Payment` imp_l_p 
 			LEFT JOIN `tabImport Loan` imp_l ON imp_l.name = imp_l_p.inv_no 
 			WHERE imp_l_p.inv_no=%s
@@ -293,10 +293,10 @@ def get_entries(dc_name, name):
 	
 	elif dc_name == "u_lc":
 		return frappe.db.sql("""
-			SELECT name, 'U LC' AS Type, usance_lc_date AS Date, usance_lc_amount AS amount, inv_no AS Inv_no, currency 
+			SELECT name, 'U LC' AS Type, usance_lc_date AS Date, usance_lc_amount AS amount, inv_no AS Inv_no, currency, note AS note
 			FROM `tabUsance LC` WHERE name=%s
 			UNION ALL
-			SELECT u_lc_p.name, 'U LC Payment', u_lc_p.payment_date , u_lc_p.amount, u_lc.inv_no, u_lc_p.currency 
+			SELECT u_lc_p.name, 'U LC Payment', u_lc_p.payment_date , u_lc_p.amount, u_lc.inv_no, u_lc_p.currency, u_lc_p.note AS note
 			FROM `tabUsance LC Payment` u_lc_p 
 			LEFT JOIN `tabUsance LC` u_lc ON u_lc.name = u_lc_p.inv_no 
 			WHERE u_lc_p.inv_no=%s
@@ -305,47 +305,16 @@ def get_entries(dc_name, name):
 	return "Error"
 
 
-def build_rows(entries, dc_name):
-	col_1, col_2 = 0, 0
+def build_rows(entries):
+	balance = 0
 	rows = []
 
 	for e in entries:
 		type_ = e["Type"]
 		amount = e["amount"] or 0
-
-		# Column calculations
-		if type_ == "LC Open":
-			col_1 += amount
-		elif type_ == "LC Paid":
-			col_1 -= amount
-			col_2 += amount
-		elif type_ == "Cash Loan":
-			col_1 += amount
-		elif type_ == "Cash Loan Paid":
-			col_1 -= amount
-			col_2 += amount
-		# elif dc_name == "s_lc_o" and type_ == "Import Loan":
-		# 	col_1 -= amount
-		# 	col_2 += amount
-		# elif dc_name == "u_lc_o" and type_ == "U LC":
-		# 	col_1 -= amount
-		# 	col_2 += amount
-		# elif dc_name == "s_lc_o" and type_ == "Imp Loan Payment":
-		# 	col_2 -= amount
-		# elif dc_name == "u_lc_o" and type_ == "U LC Payment":
-		# 	col_2 -= amount
-		elif dc_name == "imp_l" and type_ == "Import Loan":
-			col_1 += amount
-		elif dc_name == "imp_l" and type_ == "Imp Loan Payment":
-			col_1 -= amount
-			col_2 += amount
-		elif dc_name == "u_lc" and type_ == "U LC":
-			col_1 += amount
-		elif dc_name == "u_lc" and type_ == "U LC Payment":
-			col_1 -= amount
-			col_2 += amount
+		note = e["note"] or ""
+		balance += amount
 			
-
 		# Row HTML
 		rows.append(f"""
 			<tr>
@@ -353,16 +322,15 @@ def build_rows(entries, dc_name):
 				<td>{e['Inv_no']}</td>
 				<td style="text-align:right;">{amount:,.2f}</td>
 				<td>{type_}</td>
-				<td style="text-align:right;">{col_1:,.2f}</td>
-				<td style="text-align:right;">{col_2:,.2f}</td>
-				<td style="text-align:right;">-</td>
+				<td style="text-align:right;">{balance:,.2f}</td>
+				<td style="text-align:left;">{note}</td>
 			</tr>
 		""")
 
-	return rows, col_1, col_2
+	return rows, balance
 
 
-def build_buttons(dc_name, lc_no, col_1, col_2):
+def build_buttons(dc_name, lc_no, balance):
     today_str = date.today().strftime("%Y-%m-%d")
     buttons_html = ""
 
@@ -377,31 +345,31 @@ def build_buttons(dc_name, lc_no, col_1, col_2):
         </button>
         """
 
-    if dc_name == "lc_o" and col_1 > 0:
+    if dc_name == "lc_o" and balance > 0:
         company, bank = [p.strip() for p in lc_no.split(":")]
-        buttons_html += quick_btn("LC Clear", "LC Payment",
+        buttons_html += quick_btn("LC Paid / Clear", "LC Payment",
                                   company=company, usance_lc_date=today_str, bank=bank)
-        buttons_html += quick_btn("LC Payment", "LC Payment",
-                                  company=company, usance_lc_date=today_str, bank=bank)
+        # buttons_html += quick_btn("LC Payment", "LC Payment",
+        #                           company=company, usance_lc_date=today_str, bank=bank)
 
-    elif dc_name == "imp_l" and col_1 > 0:
+    elif dc_name == "imp_l" and balance > 0:
         buttons_html += quick_btn("Imp Loan Payment", "Import Loan Payment",
-                                  inv_no=lc_no, payment_date=today_str, amount=col_1)
+                                  inv_no=lc_no, payment_date=today_str, amount=balance)
 
-    elif dc_name == "u_lc" and col_1 > 0:
+    elif dc_name == "u_lc" and balance > 0:
         buttons_html += quick_btn("U LC Payment", "Usance LC Payment",
-                                  inv_no=lc_no, payment_date=today_str, amount=col_1)
+                                  inv_no=lc_no, payment_date=today_str, amount=balance)
 
-    elif dc_name == "c_loan" and col_1 > 0:
+    elif dc_name == "c_loan" and balance > 0:
         buttons_html += quick_btn("Cash Loan Payment", "Cash Loan Payment",
-                                  cash_loan_no=lc_no, payment_date=today_str, amount=col_1)
+                                  cash_loan_no=lc_no, payment_date=today_str, amount=balance)
 
     # return f'<div id="lc-buttons" style="margin-top: 12px; right: 10px; float:right;">{buttons_html}</div>'
     return f'<div id="lc-buttons" style="margin-top:30px; float:right;">{buttons_html}</div>'
 
 
 
-def build_html(supplier_name, bank_name, term, label_1, label_2, rows_html, buttons_html):
+def build_html(supplier_name, bank_name, term, rows_html, buttons_html):
 	return f"""
 	<div style="margin-bottom: 12px; background-color: #f9f9f9; padding: 8px 12px; border-radius: 6px;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -424,13 +392,12 @@ def build_html(supplier_name, bank_name, term, label_1, label_2, rows_html, butt
 	<table class="table table-bordered" style="font-size:14px; border:1px solid #ddd;">
 		<thead style="background-color: #f1f1f1;">
 			<tr>
-				<th style="width:14%; text-align:center;">Date</th>
-				<th style="width:16%; text-align:center;">Inv No</th>
+				<th style="width:15%; text-align:center;">Date</th>
+				<th style="width:20%; text-align:center;">Inv No</th>
 				<th style="width:15%; text-align:center;">Amount</th>
-				<th style="width:20%; text-align:center;">Details</th>
-				<th style="width:15%; text-align:center;">{label_1}</th>
-				<th style="width:15%; text-align:center;">{label_2}</th>
-				<th style="width:5%; text-align:center;">Note</th>
+				<th style="width:15%; text-align:center;">Details</th>
+				<th style="width:15%; text-align:center;">Balance</th>			
+				<th style="width:20%; text-align:center;">Note</th>
 			</tr>
 		</thead>
 		<tbody>
