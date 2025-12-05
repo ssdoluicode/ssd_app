@@ -10,8 +10,17 @@ frappe.query_reports["Doc Entry"] = {
             "options": ["All", "Updated", "Pending"],
             "default": "Pending",
             "reqd": 1
+        },
+        {
+            "fieldname": "type",
+            "label": __("Type"),
+            "fieldtype": "Select",
+            "options": ["All", "Nego", "Refund", "Received"],
+            "default": "All",
+            "reqd": 1
         }
     ],
+    
 
     onload: function(report) {
         report.page.add_inner_button(

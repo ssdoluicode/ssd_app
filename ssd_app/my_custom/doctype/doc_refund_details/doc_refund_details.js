@@ -42,6 +42,7 @@ function get_ref_data(frm) {
                 if (!data) return;
 
                 // --- 1. Set values fetched from the server ---
+                console.log(data);
                 frm.set_value({
                     refund_amount: data.ref_amount,
                     refund_date: data.ref_date,
@@ -148,6 +149,19 @@ function calculate_bank_amount(frm) {
     frm.set_value("bank_amount", bank_amount);
 }
 
+function calculate_interest_upto_date(frm) {
+    if (frm.doc.interest_from && frm.doc.interest_days) {
+        let from_date = new Date(frm.doc.interest_from + "T00:00:00");
+        let days = Number(frm.doc.interest_days) || 0;
+
+        let upto = new Date(from_date);
+        upto.setDate(upto.getDate() + days);
+
+        // Correct line:
+        frm.set_value("interest_upto_date", frappe.datetime.obj_to_str(upto));
+    }
+}
+
 frappe.ui.form.on("Doc Refund Details", {
 	setup(frm) {
         inv_no_filter(frm);
@@ -156,18 +170,21 @@ frappe.ui.form.on("Doc Refund Details", {
     onload(frm) {
         get_ref_data(frm);
         calculate_bank_amount(frm);
+        calculate_interest_upto_date(frm);
     },
     // Triggers when inv_no is set/changed (fetches data and recalculates)
     inv_no(frm) {
         get_ref_data(frm); 
         calculate_interest(frm);
         calculate_bank_amount(frm);
+        calculate_interest_upto_date(frm);
         
     },
     interest_from(frm) {
         calculate_interest_days(frm);
         calculate_interest(frm);
         calculate_bank_amount(frm);
+        calculate_interest_upto_date(frm);
     },
     refund_date(frm) {
         calculate_interest_days(frm);
@@ -180,6 +197,7 @@ frappe.ui.form.on("Doc Refund Details", {
     interest_days(frm){
         calculate_interest(frm);
         calculate_bank_amount(frm);
+        calculate_interest_upto_date(frm);
     },
     interest_pct(frm){
         calculate_interest(frm);
@@ -192,5 +210,7 @@ frappe.ui.form.on("Doc Refund Details", {
         // Redirect to the report page after save
         window.location.href = "/app/query-report/Doc Entry";
     }
+
+
 
 });

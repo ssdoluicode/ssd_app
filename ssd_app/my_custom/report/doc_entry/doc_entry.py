@@ -7,27 +7,44 @@ import frappe
 
 def execute(filters=None):
     filters = filters or {}
-    status_filter = filters.get("status", "Pending")  # default Pending
+    status_filter = filters.get("status", "Pending")   # default Pending
+    type_filter = filters.get("type", "All")           # default All
 
     # Build WHERE clause based on status
-    where_clause_nego = ""
+    where_clause_nego = "WHERE 1=1"
+    where_clause_ref = "WHERE 1=1"
+    where_clause_rec = "WHERE 1=1"
+
+    # Status filter
     if status_filter == "Pending":
-        where_clause_nego = "WHERE nego.nego_details != 1"
+        where_clause_nego += " AND nego.nego_details != 1"
+        where_clause_ref += " AND ref.refund_details != 1"
+        where_clause_rec += " AND rec.rec_details != 1"
+
     elif status_filter == "Updated":
-        where_clause_nego = "WHERE nego.nego_details = 1"
-        
-    where_clause_ref = ""
-    if status_filter == "Pending":
-        where_clause_ref = "WHERE ref.refund_details != 1"
-    elif status_filter == "Updated":
-        where_clause_ref = "WHERE ref.refund_details = 1"
-        
-    where_clause_rec = ""
-    if status_filter == "Pending":
-        where_clause_rec = "WHERE rec.rec_details != 1"
-    elif status_filter == "Updated":
-        where_clause_rec = "WHERE rec.rec_details = 1"
-    
+        where_clause_nego += " AND nego.nego_details = 1"
+        where_clause_ref += " AND ref.refund_details = 1"
+        where_clause_rec += " AND rec.rec_details = 1"
+
+    # Type filter (show only selected table)
+    if type_filter == "Nego":
+        where_clause_nego += " AND 1=1"
+        where_clause_ref += " AND 1=0"
+        where_clause_rec += " AND 1=0"
+
+    elif type_filter == "Refund":
+        where_clause_nego += " AND 1=0"
+        where_clause_ref += " AND 1=1"
+        where_clause_rec += " AND 1=0"
+
+    elif type_filter == "Received":
+        where_clause_nego += " AND 1=0"
+        where_clause_ref += " AND 1=0"
+        where_clause_rec += " AND 1=1"
+	
+
+	# Build WHERE clause based on status
+  
 
     query = f"""
 		SELECT *
