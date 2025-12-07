@@ -25,8 +25,8 @@ def execute(filters=None):
 		LEFT JOIN `tabCIF Sheet` cif ON cif.name = dr.inv_no
 		LEFT JOIN `tabBank` bank ON bank.name = dr.bank
 		LEFT JOIN `tabCustomer` cus ON cus.name = dr.customer
-		WHERE DATE(dr.creation) = %s
-	""", (today(),), as_dict=1)
+		WHERE DATE(dr.creation) = %s OR DATE(dr.received_date) = %s
+	""", (today(),today()), as_dict=1)
 	return columns, data
 
 def send_daily_sales_report():

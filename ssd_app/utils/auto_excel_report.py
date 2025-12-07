@@ -1,17 +1,62 @@
 import openpyxl
+from openpyxl.styles import Font, Alignment
 import frappe
 import os
+from frappe.utils import today
 
-def generate_daily_banking():
+def generate_daily_banking(as_on=today()):
     # Create workbook
     wb = openpyxl.Workbook()
 
     # Sheet 1
+    data = frappe.db.sql("""
+        SELECT 
+            cif.inv_no AS inv_no, 
+            dr.received_date AS date,
+            cus.customer AS customer, 
+            bank.bank AS bank, 
+            dr.received AS received 
+        FROM `tabDoc Received` dr
+        LEFT JOIN `tabCIF Sheet` cif ON cif.name = dr.inv_no
+        LEFT JOIN `tabBank` bank ON bank.name = dr.bank
+        LEFT JOIN `tabCustomer` cus ON cus.name = dr.customer
+        WHERE DATE(dr.creation) = %s 
+        OR DATE(dr.received_date) = %s
+    """, (as_on, as_on), as_dict=True)
+
     ws1 = wb.active
-    ws1.title = "Sales"
-    ws1.append(["Customer", "Amount"])
-    ws1.append(["A", 150])
-    ws1.append(["B", 300])
+    ws1.title = "Doc Received"
+
+    # Write header row
+    headers = ["Inv No", "Date", "Customer", "Bank", "Received Amount"]
+    ws1.append(headers)
+
+    # Apply header style
+    for cell in ws1[1]:
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+
+    # Write data rows
+    for row in data:
+        ws1.append([
+            row.inv_no or "",
+            row.date or "",
+            row.customer or "",
+            row.bank or "",
+            row.received or 0
+        ])
+
+    # Adjust column widths
+    width_map = {
+        "A": 18,
+        "B": 14,
+        "C": 25,
+        "D": 20,
+        "E": 16
+    }
+    for col, width in width_map.items():
+        ws1.column_dimensions[col].width = width
+
 
     # Sheet 2
     ws2 = wb.create_sheet("Stock")
