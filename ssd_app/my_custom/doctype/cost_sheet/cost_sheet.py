@@ -124,7 +124,7 @@ def render_cost_sheet_pdf(inv_name, pdf=0):
             amount_usd AS total_amount 
         FROM `tabExpenses Cost`
         WHERE parent = %s
-    """, (inv_name,), as_dict=1)
+    """, (cost_id,), as_dict=1)
     # exp_dict = {i.expenses: i.total_amount for i in exp}
     # expenses = {e: exp_dict.get(e, 0) for e in ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Others", "Insurance"]}
 

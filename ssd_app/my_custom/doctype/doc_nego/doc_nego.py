@@ -453,7 +453,6 @@ def get_cif_summary(id_name, id, as_on= None):
             n.cif_id,
             n.nego_date,
             n.nego_amount,
-            "xxxx" AS bank_name,
             NULLIF(rec_d.rec_amount,0) AS total_rec_amount,
             NULLIF(ref.ref_amount,0) AS total_ref_amount,
 
