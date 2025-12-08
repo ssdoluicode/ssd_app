@@ -227,7 +227,7 @@ frappe.ui.form.on("CIF Sheet", {
         calculate_due_date(frm);
     },
     after_save(frm) {
-        showCIFDetails(frm.doc.name, frm.doc.inv_no);
+        custom_print(frm.doc.name, frm.doc.inv_no);
     },
     insurance_pct: calculate_and_refresh,
     insurance_based_on: calculate_and_refresh,

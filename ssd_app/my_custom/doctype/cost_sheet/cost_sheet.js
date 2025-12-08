@@ -264,7 +264,8 @@ frappe.ui.form.on("Cost Sheet", {
         calculate_cost(frm);
     },
     after_save(frm) {
-        showCostDetails(frm.doc.name, frm.doc.custom_title);
+        console.log(frm);
+        showCostDetails(frm.doc.inv_no, frm.doc.custom_title);
     },
 });
 

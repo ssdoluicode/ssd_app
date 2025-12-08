@@ -4,12 +4,14 @@
 import frappe
 from frappe.utils import fmt_money
 from datetime import date, timedelta
+from ssd_app.utils.auto_excel_report import generate_daily_banking
 
 
 def get_today_str():
     return date.today().strftime("%Y-%m-%d")
 
 def execute(filters=None):
+	generate_daily_banking("2025-12-08")
 	as_on = filters.as_on
 	conditional_filter = ""
 

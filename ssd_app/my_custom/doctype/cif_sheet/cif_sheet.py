@@ -104,6 +104,8 @@ def render_cif_sheet_pdf(inv_name, pdf=0):
 @frappe.whitelist()
 def render_master_sheet_pdf(inv_name, pdf=0):
     cost_name = frappe.db.get_value("Cost Sheet", {"inv_no": inv_name}, "name")
+    if not cost_name:
+        frappe.throw(f"No Cost Sheet found for Invoice: {inv_name}")
     doc = frappe.get_doc("CIF Sheet", inv_name)
     doc.customer_name=frappe.db.get_value("Customer", doc.customer, "customer")
     doc.notify_name=frappe.db.get_value("Notify", doc.notify, "notify")
