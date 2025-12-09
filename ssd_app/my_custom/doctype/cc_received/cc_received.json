@@ -8,16 +8,14 @@
  "field_order": [
   "customer",
   "date",
+  "entry_type",
   "amount",
   "currency",
   "column_break_blhc",
   "ex_rate",
-  "bank_charges",
   "amount_usd",
-  "company",
-  "column_break_nzjp",
-  "bank",
   "note",
+  "cc_received_details",
   "section_break_haer",
   "cc_breakup"
  ],
@@ -44,10 +42,6 @@
    "label": "Currency",
    "options": "Currency",
    "reqd": 1
-  },
-  {
-   "fieldname": "column_break_nzjp",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "ex_rate",
@@ -94,29 +88,24 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company"
-  },
-  {
-   "fieldname": "bank",
-   "fieldtype": "Link",
-   "label": "Bank",
-   "options": "Bank"
-  },
-  {
    "default": "0",
-   "fieldname": "bank_charges",
-   "fieldtype": "Float",
-   "label": "Bank Charges",
-   "precision": "2"
+   "fieldname": "cc_received_details",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "CC Received Details"
+  },
+  {
+   "default": "Bank Entry",
+   "fieldname": "entry_type",
+   "fieldtype": "Select",
+   "label": "Entry Type",
+   "options": "Bank Entry\nJournal Entry"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-19 03:23:52.261585",
+ "modified": "2025-12-10 00:31:57.923643",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CC Received",
@@ -137,6 +126,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

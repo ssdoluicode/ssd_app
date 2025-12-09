@@ -11,7 +11,7 @@ def get_today_str():
     return date.today().strftime("%Y-%m-%d")
 
 def execute(filters=None):
-	generate_daily_banking("2025-12-08")
+	generate_daily_banking()
 	as_on = filters.as_on
 	conditional_filter = ""
 

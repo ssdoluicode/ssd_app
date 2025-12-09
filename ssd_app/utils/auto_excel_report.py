@@ -239,7 +239,7 @@ def generate_daily_banking(as_on=today()):
         SELECT 
             cif.inv_no AS inv_no, 
             dr.received_date AS date,
-            cus.customer AS customer, 
+            cus.customer AS customer,
             bank.bank AS bank, 
             dr.received AS received 
         FROM `tabDoc Received` dr

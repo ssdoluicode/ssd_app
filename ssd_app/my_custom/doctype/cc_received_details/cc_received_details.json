@@ -1,0 +1,127 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-09 23:28:48.366178",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cc_received_id",
+  "date",
+  "customer",
+  "currency",
+  "amount",
+  "bank_charge",
+  "column_break_pulp",
+  "bank_amount",
+  "company",
+  "bank",
+  "note"
+ ],
+ "fields": [
+  {
+   "fieldname": "cc_received_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "CC Received ID",
+   "options": "CC Received",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "default": "USD",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "label": "Amount",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_charge",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Bank Charge",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_amount",
+   "fieldtype": "Float",
+   "label": "Bank Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Bank",
+   "link_filters": "[[\"Bank\",\"active\",\"=\",1]]",
+   "options": "Bank",
+   "reqd": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "customer",
+   "fieldtype": "Data",
+   "label": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_pulp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-10 01:38:05.047435",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "CC Received Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

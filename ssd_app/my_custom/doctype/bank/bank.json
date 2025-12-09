@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "bank",
+  "active",
   "full_name",
   "opening_balance",
   "lc_line",
@@ -52,12 +53,18 @@
    "fieldname": "cash_loan_line",
    "fieldtype": "Float",
    "label": "Cash Loan Line"
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-13 14:50:49.729267",
+ "modified": "2025-12-10 01:26:58.224323",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Bank",
@@ -79,6 +86,7 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
