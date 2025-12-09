@@ -130,7 +130,7 @@ def execute(filters=None):
 
     columns = [
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 125},
-        {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
+        # {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
         {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 250},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 250},

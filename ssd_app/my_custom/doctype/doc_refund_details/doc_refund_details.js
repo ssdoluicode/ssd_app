@@ -140,8 +140,8 @@ function calculate_bank_amount(frm) {
 
     // Perform the calculation
     bank_amount = (
-        refund_amount - 
-        interest - 
+        refund_amount + 
+        interest + 
         bank_charges
     );
 

@@ -87,6 +87,9 @@ function calculate_bank_amount(frm) {
     const received_amount = get_safe_value('received_amount');
     const interest = get_safe_value('interest');
     const bank_charge = get_safe_value('bank_charge');
+    const commission = get_safe_value('commission');
+    const postage = get_safe_value('postage');
+    const cable_charges = get_safe_value('cable_charges');
     const discrepancy_charges = get_safe_value('discrepancy_charges');
     const short_payment = get_safe_value('short_payment');
     const foreign_charges = get_safe_value('foreign_charges');
@@ -97,6 +100,9 @@ function calculate_bank_amount(frm) {
         received_amount - 
         interest - 
         bank_charge - 
+        commission -
+        postage -
+        cable_charges -
         discrepancy_charges - 
         short_payment - 
         foreign_charges - 
@@ -146,11 +152,12 @@ function get_rec_data(frm) {
                     "interest_from",
                     "interest_days",
                     "interest_pct",
+                    "interest",
                     'bank_liability'
                 ];
                 
                 // Check liability remaining
-                if (data.remaining_liability == 0) {
+                if (! data.b_liab) {
                   
                     fields_to_control.forEach(field => {
                         frm.set_df_property(field, 'read_only', true);
@@ -238,6 +245,15 @@ frappe.ui.form.on("Doc Received Details", {
         calculate_bank_amount(frm);
     },
     bank_charge(frm) {
+        calculate_bank_amount(frm);
+    },
+    commission(frm) {
+        calculate_bank_amount(frm);
+    },
+    postage(frm) {
+        calculate_bank_amount(frm);
+    },
+    cable_charges(frm) {
         calculate_bank_amount(frm);
     },
     discrepancy_charges(frm) {
