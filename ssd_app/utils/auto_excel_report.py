@@ -229,6 +229,7 @@ from openpyxl.styles import Font, Alignment
 import frappe
 from frappe.utils import today
 
+@frappe.whitelist()
 def generate_daily_banking(as_on=today()):
     wb = openpyxl.Workbook()
 
@@ -404,7 +405,7 @@ def send_daily_banking_email():
         file_data = f.read()
 
     frappe.sendmail(
-        recipients=["sasdolui.in@gmail.com"],
+        recipients=["ssdolui.in@gmail.com"],
         subject="Auto Excel Report",
         message="Please find the attached Excel report.",
         attachments=[{

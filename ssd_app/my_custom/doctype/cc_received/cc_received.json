@@ -99,13 +99,13 @@
    "fieldname": "entry_type",
    "fieldtype": "Select",
    "label": "Entry Type",
-   "options": "Bank Entry\nJournal Entry"
+   "options": "Bank Entry\nJournal Entry\nDirect JV"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-10 00:31:57.923643",
+ "modified": "2025-12-10 10:15:45.082597",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CC Received",
@@ -126,7 +126,6 @@
   }
  ],
  "row_format": "Dynamic",
- "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

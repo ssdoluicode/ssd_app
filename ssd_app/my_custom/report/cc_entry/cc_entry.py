@@ -19,6 +19,7 @@ def execute(filters=None):
 		SELECT ccr.name, cus.customer, ccr.date, ccr.currency, ccr.amount, ccr.cc_received_details AS details FROM `tabCC Received` ccr
 		LEFT JOIN `tabCustomer` cus on cus.name= ccr.customer
 		WHERE ccr.entry_type= 'Bank Entry' {where_clause}
+		ORDER BY ccr.date
 	"""
 	
 	data = frappe.db.sql(query, as_dict=1)

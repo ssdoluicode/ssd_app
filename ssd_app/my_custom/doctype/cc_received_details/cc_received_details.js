@@ -63,5 +63,6 @@ frappe.ui.form.on("CC Received Details", {
     after_save: function(frm) {
         // Redirect to the report page after save
         window.location.href = "/app/query-report/CC Entry";
+        // frappe.set_route("query-report", "CC Entry");
     }
 });
