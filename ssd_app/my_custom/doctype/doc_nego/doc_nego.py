@@ -499,7 +499,7 @@ def get_cif_summary(id_name, id, as_on= None):
                 MAX(ip.interest_upto_date) AS int_int_upto
             FROM `tabInterest Paid` ip
             WHERE ip.cif_id = %s
-              AND ip.date < %s
+              AND ip.date <= %s
             GROUP BY ip.cif_id
         ) AS i
         ON n.cif_id = i.cif_id

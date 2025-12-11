@@ -58,26 +58,26 @@ function get_ref_data(frm) {
                 calculate_bank_amount(frm); // Call bank amount calculation
 
                 // --- 3. Control Read-Only Fields ---
-                const fields_to_control = [
-                    "interest_on",
-                    "interest_from",
-                    "interest_days",
-                    "interest_pct"
-                ];
+                // const fields_to_control = [
+                //     "interest_on",
+                //     "interest_from",
+                //     "interest_days",
+                //     "interest_pct"
+                // ];
                 
-                // Check liability remaining
-                if (data.remaining_liability == 0) {
+                // // Check liability remaining
+                // if (data.remaining_liability == 0) {
                   
-                    fields_to_control.forEach(field => {
-                        frm.set_df_property(field, 'read_only', true);
-                    });
+                //     fields_to_control.forEach(field => {
+                //         frm.set_df_property(field, 'read_only', true);
+                //     });
                     
-                } else {
-                    fields_to_control.forEach(field => {
-                        frm.set_df_property(field, 'read_only', false);
-                    });
+                // } else {
+                //     fields_to_control.forEach(field => {
+                //         frm.set_df_property(field, 'read_only', false);
+                //     });
      
-                }
+                // }
             }
         });
     }else{
@@ -116,6 +116,7 @@ function calculate_interest(frm) {
         
         // Round the result to 2 decimal places and convert back to a number
         interest = parseFloat(calculated_interest.toFixed(2));
+        interest += frm.doc.round_off
 
     }
     
@@ -200,6 +201,14 @@ frappe.ui.form.on("Doc Refund Details", {
         calculate_interest_upto_date(frm);
     },
     interest_pct(frm){
+        calculate_interest(frm);
+        calculate_bank_amount(frm);
+    },
+    interest_pct(frm){
+        calculate_interest(frm);
+        calculate_bank_amount(frm);
+    },
+    round_off(frm){
         calculate_interest(frm);
         calculate_bank_amount(frm);
     },
