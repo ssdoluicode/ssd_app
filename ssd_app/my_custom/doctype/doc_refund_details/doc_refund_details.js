@@ -3,17 +3,10 @@
 
 // Helper function to reliably calculate the difference in days using native JS.
 const calculateDaysDifference = (endDateStr, startDateStr) => {
-    // Standard approach: Use T00:00:00 to prevent timezone issues.
     const endDate = new Date(endDateStr + 'T00:00:00');
     const startDate = new Date(startDateStr + 'T00:00:00');
-    
-    // Difference in milliseconds
     const diff_ms = endDate.getTime() - startDate.getTime();
-    
-    // Conversion factor (milliseconds in a day)
     const ms_per_day = 1000 * 60 * 60 * 24;
-    
-    // Return the difference in days, rounded to handle potential floating point issues
     return Math.round(diff_ms / ms_per_day);
 };
 

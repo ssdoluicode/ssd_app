@@ -6,6 +6,7 @@ import frappe
 from frappe import _
 from datetime import date, timedelta
 from frappe.utils import formatdate, fmt_money
+from frappe.utils import flt
 
 
 def execute(filters=None):
@@ -403,15 +404,15 @@ def build_buttons(dc_name, lc_no, balance):
 
     elif dc_name == "imp_l" and balance > 0:
         buttons_html += quick_btn("Imp Loan Payment", "Import Loan Payment",
-                                  inv_no=lc_no, payment_date=today_str, amount=balance)
+                                  inv_no=lc_no, payment_date=today_str, amount=flt(balance))
 
     elif dc_name == "u_lc" and balance > 0:
         buttons_html += quick_btn("U LC Payment", "Usance LC Payment",
-                                  inv_no=lc_no, payment_date=today_str, amount=balance)
+                                  inv_no=lc_no, payment_date=today_str, amount=flt(balance))
 
     elif dc_name == "c_loan" and balance > 0:
         buttons_html += quick_btn("Cash Loan Payment", "Cash Loan Payment",
-                                  cash_loan_no=lc_no, payment_date=today_str, amount=balance)
+                                  cash_loan_no=lc_no, payment_date=today_str, amount=flt(balance))
 
     # return f'<div id="lc-buttons" style="margin-top: 12px; right: 10px; float:right;">{buttons_html}</div>'
     return f'<div id="lc-buttons" style="margin-top:30px; float:right;">{buttons_html}</div>'

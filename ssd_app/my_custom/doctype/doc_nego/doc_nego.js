@@ -67,6 +67,10 @@ frappe.ui.form.on("Doc Nego", {
     },
     inv_no(frm) {
         get_cif_data(frm);   // ✅ Fetch CIF details
+    },
+    after_save: function(frm) {
+        // Redirect to the report page after save
+        window.location.href = "/app/query-report/Document Receivable";
     }
 
 });

@@ -57,7 +57,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-05 23:06:40.455078",
+ "modified": "2025-12-12 11:01:34.407497",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC Payment",
@@ -76,7 +76,6 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",

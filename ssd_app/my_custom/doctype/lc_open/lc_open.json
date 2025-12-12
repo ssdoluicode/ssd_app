@@ -94,7 +94,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-24 00:25:14.029101",
+ "modified": "2025-12-12 09:39:05.993099",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Open",
@@ -114,9 +114,7 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "row_format": "Dynamic",
- "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

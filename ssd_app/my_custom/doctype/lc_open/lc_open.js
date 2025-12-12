@@ -19,6 +19,6 @@ frappe.ui.form.on("LC Open", {
     },
     after_save(frm) {
         // Redirect to your report page "Import Banking"
-        frappe.set_route('query-report', 'Import Banking');
+         window.location.href = "/app/query-report/Import Banking ";
     }
 });

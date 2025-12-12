@@ -72,7 +72,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-24 00:38:53.887423",
+ "modified": "2025-12-12 10:14:19.708120",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment",
@@ -92,7 +92,6 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
