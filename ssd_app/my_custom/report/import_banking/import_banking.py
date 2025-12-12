@@ -6,7 +6,6 @@ import frappe
 from frappe import _
 from datetime import date, timedelta
 from frappe.utils import formatdate, fmt_money
-from frappe.utils import flt
 
 
 def execute(filters=None):
@@ -79,43 +78,43 @@ def get_lc_combined_data(filters):
 	# Full query with placeholders for parameters
 
 	
-	query = f"""
-		SELECT
-			lc_o.group_id AS name,
-			"" AS lc_no,
-			"" AS inv_no,
-			MAX(lc_o.lc_open_date) AS date,
-			"" AS supplier,
-			MAX(com.company_code) AS com,
-			MAX(bank.bank) AS bank,
-			'lc_o' AS dc_name,
-			"USD" AS currency,
-			(SUM(lc_o.amount) - COALESCE(SUM(lc_p.lc_p_amount), 0)) AS lc_o_amount,
-			0 AS imp_loan_amount,
-			0 AS u_lc_amount,
-			0 AS cash_loan,
-			NULL AS due_date,
-			1 as due_date_confirm, 
-			100 AS days_to_due,
-			"" AS note
-		FROM `tabLC Open` lc_o
+	# query = f"""
+	# 	SELECT
+	# 		lc_o.group_id AS name,
+	# 		"" AS lc_no,
+	# 		"" AS inv_no,
+	# 		MAX(lc_o.lc_open_date) AS date,
+	# 		"" AS supplier,
+	# 		MAX(com.company_code) AS com,
+	# 		MAX(bank.bank) AS bank,
+	# 		'lc_o' AS dc_name,
+	# 		"USD" AS currency,
+	# 		(SUM(lc_o.amount_usd) - COALESCE(SUM(lc_p.lc_p_amount), 0)) AS lc_o_amount,
+	# 		0 AS imp_loan_amount,
+	# 		0 AS u_lc_amount,
+	# 		0 AS cash_loan,
+	# 		NULL AS due_date,
+	# 		1 as due_date_confirm, 
+	# 		100 AS days_to_due,
+	# 		"" AS note
+	# 	FROM `tabLC Open` lc_o
 
-		LEFT JOIN (
-			SELECT 
-				group_id,
-				lc_no,
-				SUM(amount) AS lc_p_amount
-			FROM `tabLC Payment`
-			WHERE date <= %(as_on)s
-			GROUP BY group_id, lc_no
-		) lc_p
-			ON lc_p.group_id = lc_o.group_id
-		LEFT JOIN `tabBank` bank ON bank.name= lc_o.bank
-		LEFT JOIN `tabCompany` com ON com.name= lc_o.company
+	# 	LEFT JOIN (
+	# 		SELECT 
+	# 			group_id,
+	# 			lc_no,
+	# 			SUM(amount) AS lc_p_amount
+	# 		FROM `tabLC Payment`
+	# 		WHERE date <= %(as_on)s
+	# 		GROUP BY group_id, lc_no
+	# 	) lc_p
+	# 		ON lc_p.group_id = lc_o.group_id
+	# 	LEFT JOIN `tabBank` bank ON bank.name= lc_o.bank
+	# 	LEFT JOIN `tabCompany` com ON com.name= lc_o.company
 		
-		WHERE lc_o.lc_open_date <= %(as_on)s {conds['lc_o']}
-		GROUP BY lc_o.group_id
-		HAVING (SUM(lc_o.amount) - COALESCE(SUM(lc_p.lc_p_amount), 0)) > 0"""
+	# 	WHERE lc_o.lc_open_date <= %(as_on)s {conds['lc_o']}
+	# 	GROUP BY lc_o.group_id
+	# 	HAVING (SUM(lc_o.amount) - COALESCE(SUM(lc_p.lc_p_amount), 0)) > 0"""
 
 	query = f"""	
 		SELECT
@@ -138,7 +137,7 @@ def get_lc_combined_data(filters):
 			"" AS note
 		FROM
 			(
-				SELECT group_id, MAX(lc_open_date) AS date, company, bank, SUM(amount) AS lc_open_amount
+				SELECT group_id, MAX(lc_open_date) AS date, company, bank, SUM(amount_usd) AS lc_open_amount
 				FROM `tabLC Open`
 				WHERE lc_open_date <= %(as_on)s
 				GROUP BY group_id
@@ -155,12 +154,8 @@ def get_lc_combined_data(filters):
 		LEFT JOIN `tabCompany` com ON com.name= lco.company
 		WHERE 1=1  {conds['lc_o']}
 
-
-
-
-
-
 		UNION ALL
+
 		-- Import Loan
 		SELECT 
 			imp_l.name, 
@@ -293,7 +288,7 @@ def get_entries(dc_name, name):
 				'LC Open' AS Type,
 				'rec' AS t_type,
 				lc_o.lc_open_date AS Date,
-				lc_o.amount AS amount,
+				lc_o.amount_usd AS amount,
 				'' AS Inv_no,
 				'USD' AS currency,
 				note AS note
@@ -404,15 +399,15 @@ def build_buttons(dc_name, lc_no, balance):
 
     elif dc_name == "imp_l" and balance > 0:
         buttons_html += quick_btn("Imp Loan Payment", "Import Loan Payment",
-                                  inv_no=lc_no, payment_date=today_str, amount=flt(balance))
+                                  inv_no=lc_no, payment_date=today_str, amount=balance)
 
     elif dc_name == "u_lc" and balance > 0:
         buttons_html += quick_btn("U LC Payment", "Usance LC Payment",
-                                  inv_no=lc_no, payment_date=today_str, amount=flt(balance))
+                                  inv_no=lc_no, payment_date=today_str, amount=balance)
 
     elif dc_name == "c_loan" and balance > 0:
         buttons_html += quick_btn("Cash Loan Payment", "Cash Loan Payment",
-                                  cash_loan_no=lc_no, payment_date=today_str, amount=flt(balance))
+                                  cash_loan_no=lc_no, payment_date=today_str, amount=balance)
 
     # return f'<div id="lc-buttons" style="margin-top: 12px; right: 10px; float:right;">{buttons_html}</div>'
     return f'<div id="lc-buttons" style="margin-top:30px; float:right;">{buttons_html}</div>'

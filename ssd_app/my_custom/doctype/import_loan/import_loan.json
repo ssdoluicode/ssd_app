@@ -19,7 +19,9 @@
   "due_date",
   "due_date_confirm",
   "note",
-  "custom_title"
+  "custom_title",
+  "group_id",
+  "from_lc_open"
  ],
  "fields": [
   {
@@ -126,12 +128,24 @@
    "label": "Company",
    "options": "Company",
    "read_only": 1
+  },
+  {
+   "fieldname": "group_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Group ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "from_lc_open",
+   "fieldtype": "Check",
+   "label": "From LC Open"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-12 10:16:41.305298",
+ "modified": "2025-12-12 18:20:56.338981",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",

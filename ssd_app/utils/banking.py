@@ -87,7 +87,7 @@ def import_banking_data(as_on):
             MAX(bank.bank) AS bank,
             'LC Open' AS p_term,
             0 AS document,
-            (SUM(lc_o.amount)- IFNULL(lc_p.lc_p_amount, 0)) AS amount_usd
+            (SUM(lc_o.amount_usd)- IFNULL(lc_p.lc_p_amount, 0)) AS amount_usd
         
         FROM `tabLC Open` lc_o
         LEFT JOIN (

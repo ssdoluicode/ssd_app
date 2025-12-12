@@ -12,9 +12,9 @@
   "column_break_humr",
   "currency",
   "ex_rate",
-  "group_id",
   "amount_usd",
-  "note"
+  "note",
+  "group_id"
  ],
  "fields": [
   {
@@ -22,14 +22,16 @@
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
-   "options": "Currency"
+   "options": "Currency",
+   "reqd": 1
   },
   {
    "default": "1",
    "fieldname": "ex_rate",
    "fieldtype": "Float",
    "label": "Ex Rate",
-   "precision": "4"
+   "precision": "4",
+   "reqd": 1
   },
   {
    "fieldname": "amount",
@@ -44,10 +46,10 @@
    "default": "0",
    "fieldname": "amount_usd",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Amount (USD)",
    "precision": "2",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "column_break_humr",
@@ -64,6 +66,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Bank",
+   "link_filters": "[[\"Bank\",\"active\",\"=\",1]]",
    "options": "Bank",
    "reqd": 1
   },
@@ -94,7 +97,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-12 09:39:05.993099",
+ "modified": "2025-12-12 16:45:09.898593",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Open",
