@@ -87,16 +87,31 @@ def import_banking_data(as_on):
             MAX(bank.bank) AS bank,
             'LC Open' AS p_term,
             0 AS document,
-            (SUM(lc_o.amount_usd)- IFNULL(lc_p.lc_p_amount, 0)) AS amount_usd
-        
+            (SUM(lc_o.amount_usd)- IFNULL(lc_p.lc_p_amount, 0)- IFNULL(imp_ln.to_imp_ln, 0)- IFNULL(usance_lc.to_usance_lc, 0)) AS amount_usd
         FROM `tabLC Open` lc_o
         LEFT JOIN (
             SELECT 
                 group_id,
-                SUM(amount) AS lc_p_amount
+                SUM(amount_usd) AS lc_p_amount
             FROM `tabLC Payment`
             GROUP BY group_id
         ) lc_p ON lc_p.group_id = lc_o.group_id
+        LEFT JOIN
+			(
+				SELECT group_id, company, bank, SUM(loan_amount_usd) AS to_imp_ln
+				FROM `tabImport Loan`
+				WHERE from_lc_open=1
+				GROUP BY group_id
+			) imp_ln
+		ON lc_o.group_id = imp_ln.group_id
+        LEFT JOIN
+			(
+				SELECT group_id, company, bank, SUM(usance_lc_amount_usd) AS to_usance_lc
+				FROM `tabUsance LC`
+				WHERE from_lc_open=1
+				GROUP BY group_id
+			) usance_lc
+		ON lc_o.group_id = usance_lc.group_id
         LEFT JOIN `tabCompany` com ON com.name = lc_o.company
         LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
         GROUP BY lc_o.group_id
@@ -196,7 +211,6 @@ def balance_banking_line_data(as_on):
     export_banking=export_banking_data(as_on)
     export_banking_result = {}
     for row in export_banking:
-        print(row)
         bank=row['bank'].replace('.', '').replace('-', '').replace(' ', '_') 
         com= row['com'].replace('.', '').replace('-', '').replace(' ', '_') 
         p_term=row['p_term'].replace('.', '').replace('-', '').replace(' ', '_')

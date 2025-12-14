@@ -77,45 +77,6 @@ def get_lc_combined_data(filters):
 
 	# Full query with placeholders for parameters
 
-	
-	# query = f"""
-	# 	SELECT
-	# 		lc_o.group_id AS name,
-	# 		"" AS lc_no,
-	# 		"" AS inv_no,
-	# 		MAX(lc_o.lc_open_date) AS date,
-	# 		"" AS supplier,
-	# 		MAX(com.company_code) AS com,
-	# 		MAX(bank.bank) AS bank,
-	# 		'lc_o' AS dc_name,
-	# 		"USD" AS currency,
-	# 		(SUM(lc_o.amount_usd) - COALESCE(SUM(lc_p.lc_p_amount), 0)) AS lc_o_amount,
-	# 		0 AS imp_loan_amount,
-	# 		0 AS u_lc_amount,
-	# 		0 AS cash_loan,
-	# 		NULL AS due_date,
-	# 		1 as due_date_confirm, 
-	# 		100 AS days_to_due,
-	# 		"" AS note
-	# 	FROM `tabLC Open` lc_o
-
-	# 	LEFT JOIN (
-	# 		SELECT 
-	# 			group_id,
-	# 			lc_no,
-	# 			SUM(amount) AS lc_p_amount
-	# 		FROM `tabLC Payment`
-	# 		WHERE date <= %(as_on)s
-	# 		GROUP BY group_id, lc_no
-	# 	) lc_p
-	# 		ON lc_p.group_id = lc_o.group_id
-	# 	LEFT JOIN `tabBank` bank ON bank.name= lc_o.bank
-	# 	LEFT JOIN `tabCompany` com ON com.name= lc_o.company
-		
-	# 	WHERE lc_o.lc_open_date <= %(as_on)s {conds['lc_o']}
-	# 	GROUP BY lc_o.group_id
-	# 	HAVING (SUM(lc_o.amount) - COALESCE(SUM(lc_p.lc_p_amount), 0)) > 0"""
-
 	query = f"""	
 		SELECT
 			lco.group_id AS name,
@@ -127,7 +88,7 @@ def get_lc_combined_data(filters):
 			bank.bank AS bank,
 			'lc_o' AS dc_name,
 			"USD" AS currency,
-			(lco.lc_open_amount - COALESCE(lcp.lc_payment_amount, 0)) AS lc_o_amount,
+			(lco.lc_open_amount - COALESCE(lcp.lc_payment_amount, 0)- COALESCE(imp_ln.to_imp_ln, 0)- COALESCE(usance_lc.to_usamce_lc, 0)) AS lc_o_amount,
 			0 AS imp_loan_amount,
 			0 AS u_lc_amount,
 			0 AS cash_loan,
@@ -144,12 +105,28 @@ def get_lc_combined_data(filters):
 			) lco
 		LEFT JOIN
 			(
-				SELECT company, bank, SUM(amount) AS lc_payment_amount
+				SELECT group_id, company, bank, SUM(amount_usd) AS lc_payment_amount
 				FROM `tabLC Payment`
 				WHERE date <= %(as_on)s
 				GROUP BY group_id
 			) lcp
-		ON lco.company = lcp.company AND lco.bank = lcp.bank
+		ON lco.group_id = lcp.group_id
+		LEFT JOIN
+			(
+				SELECT group_id, company, bank, SUM(loan_amount_usd) AS to_imp_ln
+				FROM `tabImport Loan`
+				WHERE loan_date <= %(as_on)s AND from_lc_open=1
+				GROUP BY group_id
+			) imp_ln
+		ON lco.group_id = imp_ln.group_id
+		LEFT JOIN
+			(
+				SELECT group_id, company, bank, SUM(usance_lc_amount_usd) AS to_usamce_lc
+				FROM `tabUsance LC`
+				WHERE usance_lc_date <= %(as_on)s AND from_lc_open=1
+				GROUP BY group_id
+			) usance_lc
+		ON lco.group_id = usance_lc.group_id
 		LEFT JOIN `tabBank` bank ON bank.name= lco.bank
 		LEFT JOIN `tabCompany` com ON com.name= lco.company
 		WHERE 1=1  {conds['lc_o']}
@@ -295,7 +272,6 @@ def get_entries(dc_name, name):
 			FROM `tabLC Open` lc_o 
 			WHERE lc_o.group_id = %s
 
-
 			UNION ALL
 
 			SELECT
@@ -303,14 +279,45 @@ def get_entries(dc_name, name):
 				'LC Paid' AS Type,
 				'pay' AS t_type,
 				lc_p.date AS Date,
-				lc_p.amount AS amount,
+				lc_p.amount_usd AS amount,
 				'' AS Inv_no,
 				'USD' AS currency,
 				note AS note
 			FROM `tabLC Payment` lc_p 
 			WHERE lc_p.group_id = %s
+					   
+			UNION ALL
 
-		""", (name, name), as_dict=1)
+			SELECT
+				imp_ln.group_id AS name,
+				'Import Loan' AS Type,
+				'pay' AS t_type,
+				imp_ln.loan_date AS Date,
+				imp_ln.loan_amount_usd AS amount,
+				'' AS Inv_no,
+				'USD' AS currency,
+				note AS note
+			FROM `tabImport Loan` imp_ln 
+			WHERE imp_ln.group_id = %s AND imp_ln.from_lc_open=1
+					   
+			UNION ALL
+
+			SELECT
+				usance_lc.group_id AS name,
+				'Usance LC' AS Type,
+				'pay' AS t_type,
+				usance_lc.usance_lc_date AS Date,
+				usance_lc.usance_lc_amount_usd AS amount,
+				'' AS Inv_no,
+				'USD' AS currency,
+				note AS note
+			FROM `tabUsance LC` usance_lc
+			WHERE usance_lc.group_id = %s AND usance_lc.from_lc_open=1
+					   
+			
+			
+
+		""", (name, name, name, name), as_dict=1)
 
 
 	elif dc_name == "c_loan":
@@ -350,6 +357,7 @@ def get_entries(dc_name, name):
 def build_rows(entries):
 	balance = 0
 	rows = []
+	row_style= ""
 
 	for e in entries:
 		type_ = e["Type"]
@@ -357,12 +365,16 @@ def build_rows(entries):
 		note = e["note"] or ""
 		if e["t_type"]== "pay":
 			balance -= amount
+			row_style = "color:red;"
 		else:
 			balance += amount
+			row_style= ""
+		
+		
 			
 		# Row HTML
 		rows.append(f"""
-			<tr>
+			<tr style="{row_style}">
 				<td>{e['Date']}</td>
 				<td>{e['Inv_no']}</td>
 				<td style="text-align:right;">{amount:,.2f}</td>
@@ -372,7 +384,7 @@ def build_rows(entries):
 			</tr>
 		""")
 
-	return rows, balance
+	return rows[-10:], balance
 
 
 def build_buttons(dc_name, lc_no, balance):
@@ -392,10 +404,12 @@ def build_buttons(dc_name, lc_no, balance):
 
     if dc_name == "lc_o" and balance > 0:
         company, bank = [p.strip() for p in lc_no.split(":")]
-        buttons_html += quick_btn("LC Paid / Clear", "LC Payment",
-                                  company=company, usance_lc_date=today_str, bank=bank)
-        # buttons_html += quick_btn("LC Payment", "LC Payment",
-        #                           company=company, usance_lc_date=today_str, bank=bank)
+        buttons_html += quick_btn("LC Paid", "LC Payment",
+                                  company=company, date=today_str, bank=bank)
+        buttons_html += quick_btn("To Import Loan", "Import Loan",
+                                  company=company, date=today_str, bank=bank, from_lc_open=1)
+        buttons_html += quick_btn("To Usance LC", "Usance LC",
+                                  company=company, date=today_str, bank=bank, from_lc_open=1)
 
     elif dc_name == "imp_l" and balance > 0:
         buttons_html += quick_btn("Imp Loan Payment", "Import Loan Payment",

@@ -41,21 +41,29 @@ frappe.query_reports["Document Receivable"] = {
         style.textContent = `
             .dt-scrollable .dt-cell__content:first-child,
             .dt-scrollable .dt-header__cell:first-child {
-                min-width: 40px !important;
+                min-width: 50px !important;
             }
         `;
         document.head.appendChild(style);
 
+        report.page.add_inner_button("Import Banking", function () {
+            frappe.set_route("query-report", "Import Banking");
+        });
         report.page.add_inner_button("Export Banking Used", function () {
             let filters = report.get_values();
             exportBankingLine(filters.as_on);
         });
-        report.page.add_inner_button("Banking Line", function () {
-            bankingLine();
+         report.page.add_inner_button("Used Banking Line", function () {
+            let filters = report.get_values();
+            usedBankingLine(filters.as_on);
         });
         report.page.add_inner_button("Banking Line Balance", function () {
             bankingLineBalance();
         });
+        report.page.add_inner_button("Banking Line", function () {
+            bankingLine();
+        });
+    
 
        
     },

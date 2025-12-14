@@ -43,16 +43,25 @@ frappe.query_reports["Import Banking"] = {
 		// report.page.add_inner_button("New LC Open", function () {
         //     frappe.new_doc("LC Open");
         // });
-        report.page.add_inner_button("Import Banking Used", function () {
-            let filters = report.get_values();
-            importBanking(filters.as_on);
+        
+        report.page.add_inner_button("Doc Receivable", function () {
+            frappe.set_route("query-report", "Document Receivable");
         });
-        report.page.add_inner_button("Banking Line", function () {
-            bankingLine();
+
+        // report.page.add_inner_button("Import Banking Used", function () {
+        //     let filters = report.get_values();
+        //     importBanking(filters.as_on);
+        // });
+        report.page.add_inner_button("Used Banking Line", function () {
+            let filters = report.get_values();
+            usedBankingLine(filters.as_on);
         });
 
         report.page.add_inner_button("Banking Line Balance", function () {
             bankingLineBalance();
+        });
+        report.page.add_inner_button("Banking Line", function () {
+            bankingLine();
         });
 
 		report.page.add_inner_button("New LC Open", function () {

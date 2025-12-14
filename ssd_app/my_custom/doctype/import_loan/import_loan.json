@@ -6,16 +6,16 @@
  "engine": "InnoDB",
  "field_order": [
   "loan_date",
-  "inv_no",
-  "supplier",
   "company",
   "bank",
-  "term_days",
   "loan_amount",
-  "column_break_rhpt",
   "currency",
   "ex_rate",
+  "column_break_rhpt",
   "loan_amount_usd",
+  "inv_no",
+  "supplier",
+  "term_days",
   "due_date",
   "due_date_confirm",
   "note",
@@ -43,8 +43,7 @@
   {
    "fieldname": "due_date",
    "fieldtype": "Date",
-   "label": "Due Date",
-   "read_only": 1
+   "label": "Due Date"
   },
   {
    "fieldname": "note",
@@ -61,7 +60,8 @@
   },
   {
    "fieldname": "column_break_rhpt",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "hidden": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -101,10 +101,12 @@
    "reqd": 1
   },
   {
+   "default": "0",
    "fieldname": "loan_amount_usd",
    "fieldtype": "Float",
    "label": "Loan Amount (USD)",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "supplier",
@@ -127,7 +129,7 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "read_only": 1
+   "reqd": 1
   },
   {
    "fieldname": "group_id",
@@ -139,13 +141,14 @@
    "default": "0",
    "fieldname": "from_lc_open",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "From LC Open"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-12 18:20:56.338981",
+ "modified": "2025-12-12 23:35:18.312622",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",

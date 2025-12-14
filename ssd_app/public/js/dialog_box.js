@@ -69,6 +69,42 @@ function importBanking(as_on) {
     });
 } 
 
+function usedBankingLine(as_on) {
+    columns_order = ["LC", "LC at Sight", "DA", "DP", "Cash Loan", "Imp Loan", "LC Open", "Usance LC"] 
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.used_banking_line",
+        args: {as_on, columns_order},
+        callback: function (r) {
+            if (!r.message) return;
+            const htmlContent = `
+                <div id="cif-details-a4" style="
+                    width: 30cm;
+                    max-width: 100%;
+                    min-height: 5cm;
+                    padding: 0.3cm;
+                    background: white;
+                    font-size: 13px;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);"
+                >${r.message}</div>
+            `;
+
+            const dialog = new frappe.ui.Dialog({
+                title: `Import Banking Line`,
+                size: 'extra-large',
+                fields: [
+                    {
+                        fieldtype: 'HTML',
+                        fieldname: 'details_html',
+                        options: htmlContent
+                    }
+                ]
+            });
+
+            dialog.show();
+        }
+    });
+} 
+
 function bankingLine() {
     frappe.call({
         method: "ssd_app.my_custom.doctype.lc_open.lc_open.banking_line",
@@ -174,49 +210,6 @@ function showDocFlow(inv_name, inv_no) {
     });
 }
 
-
-
-// function showCIFDetails(inv_name, inv_no) {
-//     frappe.call({
-//         method: "ssd_app.my_custom.doctype.cif_sheet.cif_sheet.render_cif_sheet_pdf",
-//         args: { inv_name },
-//         callback: function (r) {
-//             if (!r.message) return;
-//             const htmlContent = `
-//                 <div id="cif-details-a4" style="
-//                     width: 20cm;
-//                     max-width: 100%;
-//                     min-height: 28.7cm;
-//                     padding: 0.3cm;
-//                     background: white;
-//                     font-size: 13px;
-//                     box-shadow: 0 0 8px rgba(0,0,0,0.2);"
-//                 >${r.message}</div>
-//             `;
-
-//             const dialog = new frappe.ui.Dialog({
-//                 title: `CIF Sheet: ${inv_no}`,
-//                 size: 'large',
-//                 primary_action_label: 'PDF',
-//                 primary_action() {
-//                     window.open(
-//                         `/api/method/ssd_app.my_custom.doctype.cif_sheet.cif_sheet.render_cif_sheet_pdf?inv_name=${inv_name}&pdf=1`,
-//                         '_blank'
-//                     );
-//                 },
-//                 fields: [
-//                     {
-//                         fieldtype: 'HTML',
-//                         fieldname: 'details_html',
-//                         options: htmlContent
-//                     }
-//                 ]
-//             });
-
-//             dialog.show();
-//         }
-//     });
-// } 
 
 function showCIFDetails(inv_name, inv_no) {
     frappe.call({

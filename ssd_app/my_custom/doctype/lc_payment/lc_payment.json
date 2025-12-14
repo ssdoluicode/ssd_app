@@ -8,11 +8,14 @@
   "date",
   "company",
   "bank",
-  "column_break_blgc",
   "amount",
+  "currency",
+  "column_break_blgc",
+  "ex_rate",
+  "amount_usd",
   "inv_no",
-  "group_id",
-  "note"
+  "note",
+  "group_id"
  ],
  "fields": [
   {
@@ -67,12 +70,33 @@
    "hidden": 1,
    "label": "Group ID",
    "read_only": 1
+  },
+  {
+   "default": "USD",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "ex_rate",
+   "fieldtype": "Float",
+   "label": "Ex. Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount_usd",
+   "fieldtype": "Float",
+   "label": "Amount USD",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-12 10:14:19.708120",
+ "modified": "2025-12-12 22:11:42.512913",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment",
