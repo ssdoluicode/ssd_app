@@ -10,7 +10,7 @@ def execute(filters=None):
 
 	where_clause=""
 	if status_filter == "Pending":
-		where_clause = " AND ccr.cc_received_details != 1"
+		where_clause = " AND ccr.cc_received_details = 0"
 	
 	elif status_filter == "Updated":
 		where_clause = " AND ccr.cc_received_details = 1"

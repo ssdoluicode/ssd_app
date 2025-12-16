@@ -26,9 +26,7 @@ def update_doctype(doctype):
 
 
 def execute():
-    update_doctype("Doc Nego Details")
-    update_doctype("Doc Refund Details")
-    update_doctype("Doc Received Details")
+    update_doctype("Interest Paid")
 
     frappe.db.commit()
 

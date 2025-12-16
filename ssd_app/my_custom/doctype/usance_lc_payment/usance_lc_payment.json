@@ -9,8 +9,7 @@
   "payment_date",
   "column_break_gzrb",
   "amount",
-  "note",
-  "currency"
+  "note"
  ],
  "fields": [
   {
@@ -45,19 +44,12 @@
   {
    "fieldname": "column_break_gzrb",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "currency",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Currency",
-   "options": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-12 11:01:34.407497",
+ "modified": "2025-12-16 09:25:20.233009",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC Payment",

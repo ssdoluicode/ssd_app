@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_import": 1,
- "allow_rename": 1,
  "autoname": "nego_d-.#####",
  "creation": "2025-11-06 15:05:08.516215",
  "doctype": "DocType",
@@ -27,7 +26,8 @@
   "interest_upto_date",
   "note",
   "invoice_no",
-  "cif_id"
+  "cif_id",
+  "custom_title"
  ],
  "fields": [
   {
@@ -164,12 +164,18 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "CIF ID"
+  },
+  {
+   "fieldname": "custom_title",
+   "fieldtype": "Data",
+   "label": "Custom Title",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-05 10:00:54.550284",
+ "modified": "2025-12-16 11:48:51.828489",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego Details",
@@ -190,8 +196,10 @@
   }
  ],
  "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "custom_title",
  "track_changes": 1
 }

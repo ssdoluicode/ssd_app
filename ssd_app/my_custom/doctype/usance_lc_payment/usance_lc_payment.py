@@ -3,6 +3,8 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils import flt
+
 
 def set_currency(doc):
 	curr = frappe.db.get_value('Usance LC', doc.inv_no, 'currency')
@@ -11,7 +13,7 @@ def set_currency(doc):
 def final_validation(doc):
 	u_lc_amount = frappe.db.get_value("Usance LC", doc.inv_no, "usance_lc_amount") or 0
 
-	# Calculate converted to Import Loan
+	# Get the U LC Payment amount
 	u_lc_p_data = frappe.db.sql("""
 		SELECT SUM(amount) AS total_u_lc_p
 		FROM `tabUsance LC Payment`
@@ -20,7 +22,7 @@ def final_validation(doc):
 	u_lc_p_amount = (u_lc_p_data[0]["total_u_lc_p"] or 0) if u_lc_p_data else 0
 
 	# Check if LC balance is exceeded
-	if doc.amount > u_lc_amount - u_lc_p_amount:
+	if flt(doc.amount) > u_lc_amount - u_lc_p_amount:
 		msg = f"""<b>❌ Usance LC Payment Exceeds Usance LC Amount.</b><br>
 		<b>Usance LC:</b> {u_lc_amount:,.2f}<br>
 		<b>Usance LC Paid:</b> {u_lc_p_amount:,.2f}<br>
@@ -29,7 +31,7 @@ def final_validation(doc):
 		"""
 		frappe.throw(msg)
 	
-	if not doc.amount:
+	if not flt(doc.amount):
 		frappe.throw("❌ Amount cannot be empty. Please enter the amount.")
 
 class UsanceLCPayment(Document):

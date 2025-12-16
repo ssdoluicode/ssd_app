@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "allow_rename": 1,
+ "autoname": "ref_d-.#####",
  "creation": "2025-11-18 00:57:44.180342",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -22,7 +22,8 @@
   "interest_upto_date",
   "note",
   "invoice_no",
-  "cif_id"
+  "cif_id",
+  "custom_title"
  ],
  "fields": [
   {
@@ -133,15 +134,22 @@
    "fieldtype": "Float",
    "label": "Round Off",
    "reqd": 1
+  },
+  {
+   "fieldname": "custom_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Custom Title"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-11 14:30:50.767369",
+ "modified": "2025-12-16 11:48:15.488933",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Refund Details",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -158,7 +166,9 @@
   }
  ],
  "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "custom_title"
 }

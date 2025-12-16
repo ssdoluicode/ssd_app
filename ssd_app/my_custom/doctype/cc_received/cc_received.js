@@ -96,12 +96,21 @@ function auto_fill_amount_on_add(frm, cdt, cdn) {
 
 // --------------------- Main Form Triggers ---------------------
 
+function calculate_amount_usd(frm) {
+    if (frm.doc.amount && frm.doc.ex_rate) {
+        let usd = frm.doc.amount / frm.doc.ex_rate;
+        frm.set_value('amount_usd', parseFloat(usd.toFixed(2)));
+    }
+}
+
 frappe.ui.form.on("CC Received", {
     onload_post_render(frm) {
-        // 🟩 Pre-fill defaults on load
-        frm.set_value('date', frappe.datetime.get_today());
-        frm.set_value('currency', "USD");
-        frm.set_value('ex_rate', 1);
+        if (frm.is_new()) {
+            // 🟩 Pre-fill defaults ONLY for new doc
+            frm.set_value('date', frappe.datetime.get_today());
+            frm.set_value('currency', 'USD');
+            frm.set_value('ex_rate', 1);
+        }
     },
 
     refresh(frm) {
@@ -113,21 +122,14 @@ frappe.ui.form.on("CC Received", {
     },
 
     amount(frm) {
-        // 🟩 Auto-calculate amount_usd when amount or ex_rate changes
-        if (frm.doc.amount && frm.doc.ex_rate) {
-            frm.set_value('amount_usd', frm.doc.amount * frm.doc.ex_rate - frm.doc.bank_charges);
-        }
+        add_first_cc_breakup_row_if_needed(frm);
+        calculate_amount_usd(frm);
+       
     },
 
     ex_rate(frm) {
-        if (frm.doc.amount && frm.doc.ex_rate) {
-            frm.set_value('amount_usd', frm.doc.amount * frm.doc.ex_rate - frm.doc.bank_charges );
-        }
-    },
-    bank_charges(frm) {
-        if (frm.doc.amount && frm.doc.ex_rate) {
-            frm.set_value('amount_usd', frm.doc.amount * frm.doc.ex_rate - frm.doc.bank_charges);
-        }
+        add_first_cc_breakup_row_if_needed(frm);
+        calculate_amount_usd(frm);
     },
 
     cc_breakup_add(frm, cdt, cdn) {
