@@ -9,6 +9,7 @@ from frappe.utils import getdate, add_days
 import json
 import pandas as pd
 import numpy as np
+from frappe.utils import today
 
 
 from ssd_app.utils.banking import export_banking_data, balance_banking_line_data, check_banking_line, import_banking_data
@@ -174,15 +175,24 @@ def bank_line_validtation(doc):
             <b>Try to Entry:</b> {doc.nego_amount:,.2f}<br>
         """))
 
+from datetime import date
 class DocNego(Document): 
+    # def onload(self):
+    #     if not self.nego_date:
+    #         self.nego_date = today()
+    def onload(self):
+        
+        if not self.nego_date:
+            # Use str(date.today()) to ensure it's a date string
+            self.nego_date = str(date.today())
+
     def validate(self):
         final_validation(self)
         update_cif_bank_if_missing(self)
         bank_line_validtation(self)
         calculate_term_days(self)
-        calculate_due_date
+        calculate_due_date(self)
 
-    
     def before_save(self):
         put_value_from_cif(self)
         set_calculated_fields(self)

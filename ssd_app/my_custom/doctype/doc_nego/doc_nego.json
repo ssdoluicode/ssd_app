@@ -87,6 +87,7 @@
    "fieldname": "bank",
    "fieldtype": "Link",
    "label": "Bank",
+   "link_filters": "[[\"Bank\",\"active\",\"=\",1]]",
    "options": "Bank",
    "set_only_once": 1
   },
@@ -119,6 +120,7 @@
    "label": "Nego Details"
   },
   {
+   "default": "Today",
    "fieldname": "nego_date",
    "fieldtype": "Date",
    "label": "Nego Date",
@@ -201,7 +203,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-12 09:53:57.610085",
+ "modified": "2025-12-16 23:23:37.198727",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego",

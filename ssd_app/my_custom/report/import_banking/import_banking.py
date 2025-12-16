@@ -413,7 +413,7 @@ def build_buttons(dc_name, lc_no, balance):
 
     elif dc_name == "imp_l" and balance > 0:
         buttons_html += quick_btn("Imp Loan Payment", "Import Loan Payment",
-                                  inv_no=lc_no, payment_date=today_str, amount=balance)
+                                  inv_no=lc_no, payment_date=today_str, amount=float(balance))
 
     elif dc_name == "u_lc" and balance > 0:
         buttons_html += quick_btn("U LC Payment", "Usance LC Payment",

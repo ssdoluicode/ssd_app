@@ -37,14 +37,14 @@ def execute(filters=None):
 		{"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 130},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
 		{"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 80},
-		{"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 105},
-		{"label": "Received", "fieldname": "total_rec", "fieldtype": "Float", "width": 105},
-		{"label": "Receivable", "fieldname": "receivable", "fieldtype": "Float", "width": 105},
+		{"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 115},
+		{"label": "Received", "fieldname": "total_rec", "fieldtype": "Float", "width": 115},
+		{"label": "Receivable", "fieldname": "receivable", "fieldtype": "Float", "width": 115},
 		{"label": "Due Date", "fieldname": "due_date", "fieldtype": "Date", "width": 110},
 		{"label": "Refund Date", "fieldname": "bank_due_date", "fieldtype": "Date", "width": 110},
-		{"label": "Coll", "fieldname": "coll", "fieldtype": "Float", "width": 100},
-		{"label": "Nego", "fieldname": "nego", "fieldtype": "Float", "width": 100},
-		{"label": "Refund", "fieldname": "ref", "fieldtype": "Float", "width": 100},
+		{"label": "Coll", "fieldname": "coll", "fieldtype": "Float", "width": 110},
+		{"label": "Nego", "fieldname": "nego", "fieldtype": "Float", "width": 110},
+		{"label": "Refund", "fieldname": "ref", "fieldtype": "Float", "width": 110},
 	]
 
 	data = frappe.db.sql(f"""
@@ -179,7 +179,7 @@ def get_doc_flow(inv_name):
 	
 	if coll > 0 :
 		buttons_html += f"""
-		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', nego_date:'{get_today_str()}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
+		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
 		
 	if nego_amt > 0:
 		buttons_html += f"""

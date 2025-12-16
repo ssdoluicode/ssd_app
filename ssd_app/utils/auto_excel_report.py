@@ -3,6 +3,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment
 import frappe
 from frappe.utils import today
+from ssd_app.utils.banking import export_banking_data, import_banking_data
 
 
 def generate_daily_banking(as_on=today()):
@@ -25,7 +26,7 @@ def generate_daily_banking(as_on=today()):
         WHERE DATE(dr.creation) = %s 
         OR DATE(dr.received_date) = %s
     """, (as_on, as_on), as_dict=True)
-
+    
     ws1 = wb.active
     ws1.title = "Doc Received"
     headers = ["Inv No", "Rec Date", "Customer", "Bank", "Rec Amount"]
@@ -68,26 +69,28 @@ def generate_daily_banking(as_on=today()):
         OR DATE(dn.nego_date) = %s
     """, (as_on, as_on), as_dict=True)
 
-    ws2 = wb.create_sheet("Doc Negotiation")
-    headers2 = ["Inv No", "Nego Date", "Customer", "Notify", "Bank", "Nego Amount"]
-    ws2.append(headers2)
 
-    for c in ws2[1]:
-        c.font = Font(bold=True)
-        c.alignment = Alignment(horizontal="center")
+    if data2:
+        ws2 = wb.create_sheet("Doc Negotiation")
+        headers2 = ["Inv No", "Nego Date", "Customer", "Notify", "Bank", "Nego Amount"]
+        ws2.append(headers2)
 
-    for row in data2:
-        ws2.append([
-            row.inv_no or "",
-            row.date or "",
-            row.customer or "",
-            row.notify or "",
-            row.bank or "",
-            row.nego or 0
-        ])
+        for c in ws2[1]:
+            c.font = Font(bold=True)
+            c.alignment = Alignment(horizontal="center")
 
-    for c, w in {"A":18,"B":14,"C":25,"D":20,"E":18,"F":18}.items():
-        ws2.column_dimensions[c].width = w
+        for row in data2:
+            ws2.append([
+                row.inv_no or "",
+                row.date or "",
+                row.customer or "",
+                row.notify or "",
+                row.bank or "",
+                row.nego or 0
+            ])
+
+        for c, w in {"A":18,"B":14,"C":25,"D":20,"E":18,"F":18}.items():
+            ws2.column_dimensions[c].width = w
 
 
     # -----------------------------
@@ -110,26 +113,28 @@ def generate_daily_banking(as_on=today()):
         OR DATE(dr.refund_date) = %s
     """, (as_on, as_on), as_dict=True)
 
-    ws3 = wb.create_sheet("Doc Refund")
-    headers3 = ["Inv No", "Refund Date", "Customer", "Notify", "Bank", "Refund Amount"]
-    ws3.append(headers3)
 
-    for c in ws3[1]:
-        c.font = Font(bold=True)
-        c.alignment = Alignment(horizontal="center")
+    if data3:
+        ws3 = wb.create_sheet("Doc Refund")
+        headers3 = ["Inv No", "Refund Date", "Customer", "Notify", "Bank", "Refund Amount"]
+        ws3.append(headers3)
 
-    for row in data3:
-        ws3.append([
-            row.inv_no or "",
-            row.date or "",
-            row.customer or "",
-            row.notify or "",
-            row.bank or "",
-            row.refund or 0
-        ])
+        for c in ws3[1]:
+            c.font = Font(bold=True)
+            c.alignment = Alignment(horizontal="center")
 
-    for c, w in {"A":18,"B":14,"C":25,"D":20,"E":18,"F":18}.items():
-        ws3.column_dimensions[c].width = w
+        for row in data3:
+            ws3.append([
+                row.inv_no or "",
+                row.date or "",
+                row.customer or "",
+                row.notify or "",
+                row.bank or "",
+                row.refund or 0
+            ])
+
+        for c, w in {"A":18,"B":14,"C":25,"D":20,"E":18,"F":18}.items():
+            ws3.column_dimensions[c].width = w
 
 
     # -----------------------------
@@ -146,199 +151,70 @@ def generate_daily_banking(as_on=today()):
         OR DATE(ccr.date) = %s
     """, (as_on, as_on), as_dict=True)
 
-    ws4 = wb.create_sheet("CC Received")
-    headers4 = ["Date", "Customer", "CC Amount"]
-    ws4.append(headers4)
+    if data4:
+        ws4 = wb.create_sheet("CC Received")
+        headers4 = ["Date", "Customer", "CC Amount"]
+        ws4.append(headers4)
 
-    for c in ws4[1]:
-        c.font = Font(bold=True)
-        c.alignment = Alignment(horizontal="center")
+        for c in ws4[1]:
+            c.font = Font(bold=True)
+            c.alignment = Alignment(horizontal="center")
 
-    for row in data4:
-        ws4.append([
-            row.date or "",
-            row.customer or "",
-            row.cc_received or 0
-        ])
+        for row in data4:
+            ws4.append([
+                row.date or "",
+                row.customer or "",
+                row.cc_received or 0
+            ])
 
-    for c, w in {"A":18,"B":25,"C":18}.items():
-        ws4.column_dimensions[c].width = w
+        for c, w in {"A":18,"B":25,"C":18}.items():
+            ws4.column_dimensions[c].width = w
 
     # -----------------------------
     # SHEET 5: Bank liability
     # -----------------------------
+    imp_data = import_banking_data(as_on)
+    exp_data = export_banking_data(as_on)
 
-    data5 = frappe.db.sql("""
-        SELECT
-            cif.name AS name,
-            cif.inv_no,
-            cif.inv_date AS date,
-            bank.bank,
-            cif.payment_term AS p_term,
-            com.company_code AS com,
-            GREATEST(
-                IFNULL(nego.total_nego, 0)
-                - IFNULL(ref.total_ref, 0)
-                - IFNULL(rec.total_rec, 0),
-            0) AS nego
-        FROM `tabCIF Sheet` cif
-        LEFT JOIN (
-            SELECT inv_no, SUM(nego_amount) AS total_nego
-            FROM `tabDoc Nego`
-            WHERE nego_date <= %(as_on)s
-            GROUP BY inv_no
-        ) nego ON cif.name = nego.inv_no
-        LEFT JOIN (
-            SELECT inv_no, SUM(refund_amount) AS total_ref
-            FROM `tabDoc Refund`
-            WHERE refund_date <= %(as_on)s
-            GROUP BY inv_no
-        ) ref ON cif.name = ref.inv_no
-        LEFT JOIN (
-            SELECT inv_no, SUM(received) AS total_rec
-            FROM `tabDoc Received`
-            WHERE received_date <= %(as_on)s
-            GROUP BY inv_no
-        ) rec ON cif.name = rec.inv_no
-        LEFT JOIN `tabBank` bank ON cif.bank = bank.name
-        LEFT JOIN `tabCompany` com ON com.name = cif.shipping_company
-        WHERE cif.inv_date <= %(as_on)s
-        AND GREATEST(
-                IFNULL(nego.total_nego, 0)
-                - IFNULL(ref.total_ref, 0)
-                - IFNULL(rec.total_rec, 0),
-            0) > 0
+    if not imp_data:
+        return "<p>No data found</p>"
 
-        UNION ALL
+    data5 = []
 
-        SELECT
-            NULL AS name,
-            NULL AS inv_no,
-            NULL AS date,
-            bank.bank AS bank,
-            'LC Open' AS p_term,
-            com.company_code AS com,
-            IFNULL(o.lcp_amount, 0) - IFNULL(p.lcp_amount, 0) AS nego
-        FROM (
-            SELECT bank, company, SUM(amount) AS lcp_amount
-            FROM `tabLC Open`
-            WHERE lc_open_date <= %(as_on)s
-            GROUP BY bank, company
-        ) o
-        LEFT JOIN (
-            SELECT bank, company, SUM(amount) AS lcp_amount
-            FROM `tabLC Payment`
-            WHERE date <= %(as_on)s
-            GROUP BY bank, company
-        ) p ON o.bank = p.bank AND o.company = p.company
-        LEFT JOIN `tabBank` bank ON COALESCE(o.bank, p.bank) = bank.name
-        LEFT JOIN `tabCompany` com ON COALESCE(o.company, p.company) = com.name
-        WHERE IFNULL(o.lcp_amount, 0) - IFNULL(p.lcp_amount, 0) > 0
+    # 1️⃣ Add import data (keep as-is)
+    for row in imp_data:
+        data5.append(dict(row))  # safe copy
 
-        UNION ALL
+    # 2️⃣ Add export data with renamed keys
+    for row in exp_data:
+        new_row = dict(row)
 
-        SELECT 
-            iloan.name,
-            iloan.inv_no,
-            iloan.loan_date AS date,
-            bank.bank,
-            'Imp Loan' AS p_term,
-            com.company_code AS com,
-            GREATEST(
-                (COALESCE(iloan.loan_amount, 0) - COALESCE(iloanp.iloanp_amount, 0))
-                    / COALESCE(lco.ex_rate, 1),
-            0) AS nego
-        FROM `tabImport Loan` iloan
-        LEFT JOIN `tabLC Open` lco ON lco.name = iloan.lc_no
-        LEFT JOIN `tabBank` bank ON bank.name = iloan.bank
-        LEFT JOIN `tabCompany` com ON com.name = iloan.company
-        LEFT JOIN (
-            SELECT inv_no, SUM(amount) AS iloanp_amount
-            FROM `tabImport Loan Payment`
-            WHERE payment_date <= %(as_on)s
-            GROUP BY inv_no
-        ) iloanp ON iloanp.inv_no = iloan.name
-        WHERE iloan.loan_date <= %(as_on)s
-        AND GREATEST(
-                (COALESCE(iloan.loan_amount, 0) - COALESCE(iloanp.iloanp_amount, 0))
-                    / COALESCE(lco.ex_rate, 1),
-            0) > 0
+        # Rename keys safely, with default values
+        new_row["ref_no"] = row.get("inv_no", "")
+        new_row["amount_usd"] = row.get("nego", 0)
 
-        UNION ALL
+        data5.append(new_row)
 
-        SELECT 
-            ulc.name,
-            ulc.inv_no,
-            ulc.usance_lc_date AS date,
-            bank.bank,
-            'Usance LC' AS p_term,
-            com.company_code AS com,
-            GREATEST(
-                COALESCE(ulc.usance_lc_amount, 0) / COALESCE(ulc.ex_rate, 1)
-                - COALESCE(ulcp.ulcp_amount, 0) / COALESCE(ulc.ex_rate, 1),
-            0) AS nego
-        FROM `tabUsance LC` ulc
-        LEFT JOIN `tabCompany` com ON com.name = ulc.company
-        LEFT JOIN `tabBank` bank ON bank.name = ulc.bank
-        LEFT JOIN (
-            SELECT inv_no, SUM(amount) AS ulcp_amount
-            FROM `tabUsance LC Payment`
-            WHERE payment_date <= %(as_on)s
-            GROUP BY inv_no
-        ) ulcp ON ulcp.inv_no = ulc.name
-        WHERE ulc.usance_lc_date <= %(as_on)s
-        AND GREATEST(
-                COALESCE(ulc.usance_lc_amount, 0) / COALESCE(ulc.ex_rate, 1)
-                - COALESCE(ulcp.ulcp_amount, 0) / COALESCE(ulc.ex_rate, 1),
-            0) > 0
-
-        UNION ALL
-
-        SELECT 
-            cln.name,
-            cln.cash_loan_no AS inv_no,
-            cln.cash_loan_date AS date,
-            bank.bank,
-            'Cash Loan' AS p_term,
-            com.company_code AS com,
-            GREATEST(
-                COALESCE(cln.cash_loan_amount / cln.ex_rate, 0)
-                - COALESCE(clnp.clnp_amount / cln.ex_rate, 0),
-            0) AS nego
-        FROM `tabCash Loan` cln
-        LEFT JOIN `tabCompany` com ON com.name = cln.company
-        LEFT JOIN `tabBank` bank ON bank.name = cln.bank
-        LEFT JOIN (
-            SELECT cash_loan_no, SUM(amount) AS clnp_amount
-            FROM `tabCash Loan Payment`
-            WHERE payment_date <= %(as_on)s
-            GROUP BY cash_loan_no
-        ) clnp ON clnp.cash_loan_no = cln.name
-        WHERE cln.cash_loan_date <= %(as_on)s
-        AND GREATEST(
-                COALESCE(cln.cash_loan_amount / cln.ex_rate, 0)
-                - COALESCE(clnp.clnp_amount / cln.ex_rate, 0),
-            0) > 0
-
-    """, {"as_on": as_on}, as_dict=True)
-
+    # 3️⃣ Create Excel sheet
     ws5 = wb.create_sheet("Bank Liability")
-    headers5 = [ "Inv No", "Date", "Bank", "Term", "Com", "Nego Amount"]
+    headers5 = ["Inv No", "Bank", "Term", "Com", "Nego Amount"]
     ws5.append(headers5)
 
-    for c in ws5[1]:
-        c.font = Font(bold=True)
-        c.alignment = Alignment(horizontal="center")
+    # Make header bold & centered
+    for cell in ws5[1]:
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
 
+    # 4️⃣ Append data rows safely
     for row in data5:
         ws5.append([
-            row.inv_no or "",
-            row.date or "",
-            row.bank or "",
-            row.p_term or "",
-            row.com or "",
-            row.nego or 0,
+            row.get("ref_no", ""),      # safer than row["ref_no"] or ""
+            row.get("bank", ""),
+            row.get("p_term", ""),
+            row.get("com", ""),
+            row.get("amount_usd", 0)
         ])
+
 
 
     # -----------------------------
@@ -347,13 +223,13 @@ def generate_daily_banking(as_on=today()):
 
     # Step 1: Build pivot structure
     pivot = {}
-    p_terms = sorted({row.p_term for row in data5})
+    p_terms = sorted({row["p_term"] for row in data5})
 
     for row in data5:
-        bank = row.bank
-        com = row.com
-        term = row.p_term
-        nego = row.nego or 0
+        bank = row["bank"]
+        com = row["com"]
+        term = row["p_term"]
+        nego = row["amount_usd"] or 0
 
         pivot.setdefault(bank, {})
         pivot[bank].setdefault(com, {})
@@ -437,12 +313,14 @@ def send_daily_banking_email():
     with open(file_path, "rb") as f:
         file_data = f.read()
 
+    file_name = f"daily_banking_{today()}.xlsx"
+
     frappe.sendmail(
         recipients=["ssdolui.in@gmail.com"],
         subject="Auto Excel Report",
         message="Please find the attached Excel report.",
         attachments=[{
-            "fname": "daily_banking.xlsx",
+            "fname": file_name,
             "fcontent": file_data,
             "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         }]

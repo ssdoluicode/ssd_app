@@ -58,6 +58,53 @@ function get_cif_data(frm) {
     }
 }
 
+function calculate_term_days(frm) {
+    if (!frm.doc.nego_date || !frm.doc.bank_due_date) return;
+
+    const nego_date = frappe.datetime.str_to_obj(frm.doc.nego_date);
+    const due_date  = frappe.datetime.str_to_obj(frm.doc.bank_due_date);
+
+    if (due_date <= nego_date) {
+        frm.set_value('term_days', null);
+        frappe.msgprint({
+            title: __('Invalid Date'),
+            indicator: 'red',
+            message: __('Bank Due Date must be after Negotiation Date.')
+        });
+        return;
+    }
+
+    const days = frappe.datetime.get_diff(
+        frm.doc.bank_due_date,
+        frm.doc.nego_date
+    );
+
+    frm.set_value('term_days', days);
+}
+
+
+function calculate_due_date(frm) {
+    // if (!frm.doc.nego_date  || frm.doc.bank_due_date) return;
+
+    if (frm.doc.term_days <= 0) {
+        frm.set_value('bank_due_date', null);
+        frappe.msgprint({
+            title: __('Invalid Term Days'),
+            indicator: 'red',
+            message: __('Term Days must be a positive integer.')
+        });
+        return;
+    }
+
+    const due_date = frappe.datetime.add_days(
+        frm.doc.nego_date,
+        frm.doc.term_days
+    );
+
+    frm.set_value('bank_due_date', due_date);
+}
+
+
 
 
 frappe.ui.form.on("Doc Nego", {
@@ -68,6 +115,16 @@ frappe.ui.form.on("Doc Nego", {
     inv_no(frm) {
         get_cif_data(frm);   // ✅ Fetch CIF details
     },
+    bank_due_date(frm){
+        calculate_term_days(frm);
+    },
+    term_days(frm){
+        calculate_due_date(frm);
+    },
+    nego_date(frm){
+        calculate_due_date(frm);
+    },
+
     after_save: function(frm) {
         // Redirect to the report page after save
         window.location.href = "/app/query-report/Document Receivable";

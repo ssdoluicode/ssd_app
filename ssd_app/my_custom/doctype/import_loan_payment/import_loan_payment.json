@@ -11,7 +11,9 @@
   "column_break_iavh",
   "amount",
   "currency",
-  "note"
+  "ex_rate",
+  "note",
+  "amount_usd"
  ],
  "fields": [
   {
@@ -37,11 +39,13 @@
    "reqd": 1
   },
   {
+   "default": "USD",
    "fieldname": "currency",
    "fieldtype": "Link",
    "hidden": 1,
    "label": "Currency",
-   "options": "Currency"
+   "options": "Currency",
+   "reqd": 1
   },
   {
    "fieldname": "note",
@@ -51,12 +55,27 @@
   {
    "fieldname": "column_break_iavh",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "ex_rate",
+   "fieldtype": "Float",
+   "label": "Ex Rate",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "amount_usd",
+   "fieldtype": "Float",
+   "label": "Amount (USD)",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-12 10:16:48.536355",
+ "modified": "2025-12-15 22:02:35.900498",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan Payment",
