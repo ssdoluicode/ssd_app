@@ -98,7 +98,7 @@
    "fieldname": "interest",
    "fieldtype": "Float",
    "label": "Interest",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "default": "0",
@@ -119,6 +119,7 @@
    "fieldname": "bank_amount",
    "fieldtype": "Float",
    "label": "Bank Amount",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -196,7 +197,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-16 11:49:12.860606",
+ "modified": "2025-12-17 14:21:58.060565",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Received Details",

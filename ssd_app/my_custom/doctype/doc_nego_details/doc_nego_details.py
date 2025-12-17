@@ -46,6 +46,7 @@ def set_calculated_fields(doc):
     )
     doc.invoice_no = invoice
     doc.cif_id = cif_id
+    doc.custom_title = f"{doc.name} ({invoice})"
 
 
 class DocNegoDetails(Document):

@@ -44,7 +44,6 @@ def set_calculated_fields(doc):
     doc.custom_title = f"{doc.name} ({invoice})".strip()
     doc.invoice_no = invoice
     doc.cif_id= doc.inv_no
-
    
 
 def final_validation(doc):

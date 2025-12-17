@@ -38,6 +38,13 @@ function calculate_bank_amount(frm) {
     frm.set_value("bank_amount", amount - charge);
 }
 
+function calculate_bank_charge(frm) {
+    const amount = flt(frm.doc.amount);
+    const bank_amount = flt(frm.doc.bank_amount);
+
+    frm.set_value("bank_charge", amount - bank_amount);
+}
+
 frappe.ui.form.on("CC Received Details", {
 
     setup(frm) {
@@ -60,6 +67,11 @@ frappe.ui.form.on("CC Received Details", {
     amount(frm) {
         calculate_bank_amount(frm);
     },
+
+    bank_amount(frm){
+        calculate_bank_charge(frm);
+    },
+    
     after_save: function(frm) {
         // Redirect to the report page after save
         window.location.href = "/app/query-report/CC Entry";

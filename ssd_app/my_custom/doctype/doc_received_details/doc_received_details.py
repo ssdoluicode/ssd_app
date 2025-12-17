@@ -21,11 +21,9 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
         LIMIT %s OFFSET %s
     """, values)
 
-
-
-
 def set_calculated_fields(doc):
     invoice, cif_id = frappe.db.get_value("Doc Received", doc.inv_no, ["invoice_no", "inv_no"])
+    doc.custom_title = f"{doc.name} ({invoice})"
     doc.invoice_no = invoice
     doc.cif_id= cif_id
 

@@ -316,7 +316,7 @@ def send_daily_banking_email():
     file_name = f"daily_banking_{today()}.xlsx"
 
     frappe.sendmail(
-        recipients=["ssdolui.in@gmail.com"],
+        recipients=["ssdolui.in@gmail.com","shibsankar.dolui@uniexcelgroup.com.tw"],
         subject="Auto Excel Report",
         message="Please find the attached Excel report.",
         attachments=[{
