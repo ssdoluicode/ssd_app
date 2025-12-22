@@ -83,10 +83,18 @@ def validate_unique_expenses(doc):
                 frappe.throw(_('Expenses must be unique: {0}').format(row.expenses))
             seen.add(row.expenses)
 
+def set_calculated_fields(doc):
+    invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
+    doc.custom_title =invoice
+
+
 
 class CostSheet(Document):
     def validate(self):
         validate_unique_expenses(self)
+    def before_save(self):
+        set_calculated_fields(self)
+    
 
 
 # To Prepare Cost Sheet PDF
