@@ -448,15 +448,15 @@ def build_html(supplier_name, bank_name, term, rows_html, buttons_html):
 		</table>
 	</div>
 
-	<table class="table table-bordered" style="font-size:14px; border:1px solid #ddd;">
-		<thead style="background-color: #f1f1f1;">
+	<table class="table table-bordered table-hover report-table">
+    	<thead>
 			<tr>
-				<th style="width:15%; text-align:center;">Date</th>
-				<th style="width:20%; text-align:center;">Inv No</th>
+				<th style="width:13%; text-align:center;">Date</th>
+				<th style="width:12%; text-align:center;">Inv No</th>
 				<th style="width:15%; text-align:center;">Amount</th>
-				<th style="width:15%; text-align:center;">Details</th>
+				<th style="width:10%; text-align:center;">Details</th>
 				<th style="width:15%; text-align:center;">Balance</th>			
-				<th style="width:20%; text-align:center;">Note</th>
+				<th style="width:35%; text-align:center;">Note</th>
 			</tr>
 		</thead>
 		<tbody>
