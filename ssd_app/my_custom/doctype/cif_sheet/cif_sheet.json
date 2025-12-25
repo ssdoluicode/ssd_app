@@ -30,15 +30,15 @@
   "section_break_lyhe",
   "expenses",
   "section_break_pndb",
-  "insurance_pct",
-  "column_break_irgn",
   "insurance_based_on",
+  "column_break_irgn",
+  "insurance_pct",
   "column_break_xlnx",
   "insurance",
   "section_break_hzbr",
-  "handling_pct",
-  "column_break_ixkc",
   "handling_based_on",
+  "column_break_ixkc",
+  "handling_pct",
   "column_break_lurq",
   "handling_charges",
   "section_break_hwoc",
@@ -201,7 +201,7 @@
    "fieldname": "insurance_based_on",
    "fieldtype": "Select",
    "label": "Based On",
-   "options": "On Total\nOn Gross"
+   "options": "On Total\nOn Gross\nFixed Amount"
   },
   {
    "fieldname": "column_break_xlnx",
@@ -211,7 +211,8 @@
    "fieldname": "insurance",
    "fieldtype": "Float",
    "label": "Insurance",
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
   },
   {
    "collapsible": 1,
@@ -233,7 +234,7 @@
    "fieldname": "handling_based_on",
    "fieldtype": "Select",
    "label": "Based On",
-   "options": "On Total\nOn Gross"
+   "options": "On Total\nOn Gross\nFixed Amount"
   },
   {
    "fieldname": "column_break_lurq",
@@ -243,7 +244,8 @@
    "fieldname": "handling_charges",
    "fieldtype": "Float",
    "label": "Handling Charges",
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_hwoc",
@@ -292,7 +294,7 @@
    "fieldname": "payment_term",
    "fieldtype": "Select",
    "label": "Payment Term",
-   "options": "LC\nLC at Sight\nDP\nDA\nTT",
+   "options": "LC\nLC at Sight\nDP\nDA\nTT\nTT-Doc",
    "reqd": 1
   },
   {
@@ -403,7 +405,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-10-23 18:00:26.152665",
+ "modified": "2025-12-25 11:33:57.339829",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CIF Sheet",
@@ -425,6 +427,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

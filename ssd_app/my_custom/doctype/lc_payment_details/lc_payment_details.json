@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-25 23:33:14.146077",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "lc_payment_id",
+  "payment_date",
+  "company",
+  "bank",
+  "currency",
+  "column_break_yzgw",
+  "payment_amount",
+  "bank_charge",
+  "bank_amount",
+  "note",
+  "section_break_atgp",
+  "inv_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "lc_payment_id",
+   "fieldtype": "Link",
+   "label": "LC Payment ID",
+   "options": "LC Payment"
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "Payment Date"
+  },
+  {
+   "fieldname": "payment_amount",
+   "fieldtype": "Float",
+   "label": "Payment Amount"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "-",
+   "fieldname": "bank",
+   "fieldtype": "Data",
+   "label": "Bank",
+   "read_only": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_charge",
+   "fieldtype": "Float",
+   "label": "Bank Charge"
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_amount",
+   "fieldtype": "Float",
+   "label": "Bank Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "inv_details",
+   "fieldtype": "Table",
+   "label": "Inv Details",
+   "options": "LC Payment Details Inv Break"
+  },
+  {
+   "fieldname": "column_break_yzgw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "fieldname": "section_break_atgp",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-26 01:26:00.313567",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "LC Payment Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

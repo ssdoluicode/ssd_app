@@ -78,8 +78,7 @@
    "fieldname": "gross",
    "fieldtype": "Float",
    "label": "Gross",
-   "precision": "4",
-   "read_only": 1
+   "precision": "4"
   },
   {
    "default": "USD",
@@ -131,7 +130,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-10-21 09:24:39.638850",
+ "modified": "2025-12-25 04:40:00.587631",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Product CIF",
@@ -139,6 +138,7 @@
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

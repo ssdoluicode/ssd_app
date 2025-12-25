@@ -2,11 +2,30 @@
 import openpyxl
 from openpyxl.styles import Font, Alignment
 import frappe
-from frappe.utils import today
+from frappe.utils import today, now_datetime, add_days
 from ssd_app.utils.banking import export_banking_data, import_banking_data
 
+def get_last_report_datetime():
+    last_dt = frappe.db.get_single_value(
+        "Auto Excel Report Settings",
+        "last_report_datetime"
+    )
+
+    if not last_dt:
+        last_dt = add_days(now_datetime(), -1)
+
+    return last_dt
+
+def update_last_report_datetime():
+    frappe.db.set_single_value(
+        "Auto Excel Report Settings",
+        "last_report_datetime",
+        now_datetime()
+    )
+    frappe.db.commit()
 
 def generate_daily_banking(as_on=today()):
+    last_dt_time= get_last_report_datetime()
     wb = openpyxl.Workbook()
 
     # -----------------------------
@@ -23,9 +42,8 @@ def generate_daily_banking(as_on=today()):
         LEFT JOIN `tabCIF Sheet` cif ON cif.name = dr.inv_no
         LEFT JOIN `tabBank` bank ON bank.name = dr.bank
         LEFT JOIN `tabCustomer` cus ON cus.name = dr.customer
-        WHERE DATE(dr.creation) = %s 
-        OR DATE(dr.received_date) = %s
-    """, (as_on, as_on), as_dict=True)
+        WHERE dr.creation > %s
+    """, (last_dt_time), as_dict=True)
     
     ws1 = wb.active
     ws1.title = "Doc Received"
@@ -65,9 +83,8 @@ def generate_daily_banking(as_on=today()):
         LEFT JOIN `tabBank` bank ON bank.name = dn.bank
         LEFT JOIN `tabCustomer` cus ON cus.name = dn.customer
         LEFT JOIN `tabNotify` noti ON noti.name = dn.notify
-        WHERE DATE(dn.creation) = %s 
-        OR DATE(dn.nego_date) = %s
-    """, (as_on, as_on), as_dict=True)
+        WHERE dn.creation > %s 
+    """, (last_dt_time), as_dict=True)
 
 
     if data2:
@@ -109,9 +126,8 @@ def generate_daily_banking(as_on=today()):
         LEFT JOIN `tabBank` bank ON bank.name = dr.bank
         LEFT JOIN `tabCustomer` cus ON cus.name = dr.customer
         LEFT JOIN `tabNotify` noti ON noti.name = dr.notify
-        WHERE DATE(dr.creation) = %s 
-        OR DATE(dr.refund_date) = %s
-    """, (as_on, as_on), as_dict=True)
+        WHERE dr.creation > %s 
+    """, (last_dt_time), as_dict=True)
 
 
     if data3:
@@ -147,9 +163,8 @@ def generate_daily_banking(as_on=today()):
             ccr.amount_usd AS cc_received
         FROM `tabCC Received` ccr
         LEFT JOIN `tabCustomer` cus ON cus.name = ccr.customer
-        WHERE DATE(ccr.creation) = %s 
-        OR DATE(ccr.date) = %s
-    """, (as_on, as_on), as_dict=True)
+        WHERE ccr.creation > %s 
+    """, (last_dt_time), as_dict=True)
 
     if data4:
         ws4 = wb.create_sheet("CC Received")
@@ -299,6 +314,45 @@ def generate_daily_banking(as_on=today()):
             except:
                 pass
         ws6.column_dimensions[column].width = max_len + 2
+
+    # -----------------------------
+    # SHEET 7: CC Received  (Corrected)
+    # -----------------------------
+    data7 = frappe.db.sql("""
+        SELECT 
+            lco.lc_open_date AS date,
+            com.company_code AS com,
+            bank.bank AS bank,
+            lco.amount_usd AS amount,
+            lco.note
+        FROM `tabLC Open` lco
+        LEFT JOIN `tabBank` bank ON bank.name= lco.bank
+        LEFT JOIN `tabCompany` com ON com.name= lco.company
+        WHERE lco.creation > %s 
+    """, (last_dt_time), as_dict=True)
+
+    if data7:
+        ws7 = wb.create_sheet("LC Open")
+        headers7 = ["Date", "Company", "Bank", "Amount", "Note"]
+        ws7.append(headers7)
+
+        for c in ws7[1]:
+            c.font = Font(bold=True)
+            c.alignment = Alignment(horizontal="center")
+
+        for row in data7:
+            ws7.append([
+                row.date or "",
+                row.com or "",
+                row.bank or "",
+                row.amount or 0,
+                row.note or ""
+            ])
+
+        for c, w in {"A":18,"B":25,"C":18, "D":20, "E":20}.items():
+            ws7.column_dimensions[c].width = w
+
+
     # -----------------------------
     # Save workbook
     # -----------------------------
@@ -325,5 +379,5 @@ def send_daily_banking_email():
             "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         }]
     )
-
+    update_last_report_datetime()
     return "Email sent."

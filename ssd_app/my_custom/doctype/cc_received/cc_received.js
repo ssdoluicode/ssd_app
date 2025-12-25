@@ -1,153 +1,148 @@
-// Copyright (c) 2025, SSDolui
-// For license information, please see license.txt
+/*************************************************
+ * CC RECEIVED – FINAL STABLE CLIENT SCRIPT
+ *************************************************/
 
-// --------------------- Core Calculation ---------------------
+frappe.ui.form.on("CC Received", {
 
-function calculate_running_balance(frm) {
-    let total = flt(frm.doc.amount_usd) || 0;
+    amount(frm) {
+        calculate_amount_usd(frm);
+    },
+
+    ex_rate(frm) {
+        calculate_amount_usd(frm);
+    },
+
+    amount_usd(frm) {
+        recalc_balance(frm);
+    },
+
+    cc_breakup_add(frm) {
+        recalc_balance(frm);
+    },
+
+    cc_breakup_remove(frm) {
+        recalc_balance(frm);
+    },
+
+    validate(frm) {
+        let rows = frm.doc.cc_breakup || [];
+        if (!rows.length) return;
+
+        let last_balance = flt(rows[rows.length - 1].balance || 0);
+        if (Math.abs(last_balance) > 0.01) {
+            frappe.throw(
+                __("Last row balance must be ZERO before saving.")
+            );
+        }
+    }
+});
+
+
+/* ===============================
+   CHILD TABLE TRIGGERS
+   =============================== */
+frappe.ui.form.on("CC Breakup", {
+
+    // User edits amount → only recalc balance
+    amount(frm) {
+        recalc_balance(frm);
+    },
+
+    // Ref No changed → default amount + recalc balance
+    ref_no(frm, cdt, cdn) {
+        set_amount_from_previous_balance(frm, cdt, cdn);
+        recalc_balance(frm);
+    }
+});
+
+
+/* ===============================
+   HEADER CALCULATION
+   =============================== */
+function calculate_amount_usd(frm) {
+    if (!frm.doc.amount || !frm.doc.ex_rate) return;
+
+    let usd = flt(frm.doc.amount) / flt(frm.doc.ex_rate);
+    frm.set_value("amount_usd", flt(usd, 2));
+}
+
+
+/* ===============================
+   SET AMOUNT FROM PREVIOUS BALANCE
+   =============================== */
+function set_amount_from_previous_balance(frm, cdt, cdn) {
+    let row = locals[cdt][cdn];
+    let rows = frm.doc.cc_breakup || [];
+    let idx = row.idx - 1; // 1-based index
+
+    if (idx === 0) {
+        // Row 1 → default = amount_usd ONLY if empty
+        if (!row.amount) row.amount = flt(frm.doc.amount_usd || 0);
+    } else {
+        let prev_row = rows[idx - 1];
+        if (!row.amount) row.amount = flt(prev_row.balance || 0);
+    }
+}
+
+
+/* ===============================
+   RECALCULATE BALANCE
+   =============================== */
+function recalc_balance(frm) {
+
+    let total = flt(frm.doc.amount_usd || 0);
+    if (total == 0) return;
+
+    // Ensure at least one row
+    if (!frm.doc.cc_breakup || frm.doc.cc_breakup.length === 0) {
+        frm.add_child("cc_breakup", {
+            ref_no: "On Account",
+            amount: total
+        });
+    }
+
     let running_balance = total;
 
     frm.doc.cc_breakup.forEach((row, idx) => {
 
-        // 🟩 First Row: Set defaults if empty
-        if (idx === 0) {
-            row.ref_no = row.ref_no || "On Account";
-            if (!row.amount) {
-                row.amount = flt(frm.doc.amount_usd);
-            }
-        } 
-        // 🟩 Subsequent Rows: Set defaults if empty
-        else {
-            row.ref_no = row.ref_no || "";
-            if (!row.amount) {
-                const prev = frm.doc.cc_breakup[idx - 1];
-                row.amount = flt(prev.balance) || 0;
-            }
+        // Row 1 default → ONLY if empty
+        if (idx === 0 && (!row.amount || row.amount === 0)) {
+            row.amount = total;
+            row.ref_no= "On Account";
         }
 
-        // 🟩 Calculate balance for the row
-        row.balance = flt(running_balance) - flt(row.amount);
-        if (row.balance === 0) {
-            row.balance = ""; // Display clean empty if zero
+        // Row 2+ default → ONLY if empty
+        else if (idx > 0 && (!row.amount || row.amount === 0)) {
+            let prev_row = frm.doc.cc_breakup[idx - 1];
+            row.amount = flt(prev_row.balance || 0);
         }
 
-        // Update running_balance for the next row
-        running_balance = flt(row.balance) || 0;
+        // // Cap amount
+        // if (row.amount > running_balance) {
+        //     row.amount = running_balance;
+        // }
+
+        // Always calculate balance
+        row.balance = flt(running_balance - flt(row.amount || 0), 2);
+        running_balance = row.balance;
     });
 
-    frm.refresh_field('cc_breakup');
+    frm.refresh_field("cc_breakup");
 
-    // 🟩 Disable save if balance not fully cleared
-    if (running_balance !== 0) {
-        frm.disable_save();
-    } else {
+    // Disable Add Row if balance = 0
+    frm.fields_dict.cc_breakup.grid.cannot_add_rows =
+        Math.abs(running_balance) < 0.01;
+
+    // Save control
+    if (Math.abs(running_balance) < 0.01) {
         frm.enable_save();
-    }
-}
-
-// --------------------- Add First Row If Needed ---------------------
-
-function add_first_cc_breakup_row_if_needed(frm) {
-    if (!frm.doc.amount_usd) return;
-
-    if (!(frm.doc.cc_breakup && frm.doc.cc_breakup.length)) {
-        frm.add_child('cc_breakup', {
-            ref_no: 'On Account',
-            amount: flt(frm.doc.amount_usd)
-        });
-        frm.refresh_field('cc_breakup');
-    }
-
-    calculate_running_balance(frm);
-}
-
-// --------------------- Auto Fill on Row Add ---------------------
-
-function auto_fill_amount_on_add(frm, cdt, cdn) {
-    const row = locals[cdt][cdn];
-    const table = frm.doc.cc_breakup || [];
-    const idx = table.findIndex(r => r.name === row.name);
-
-    // 🚫 Prevent adding if amount_usd is not set
-    if (!frm.doc.amount_usd) {
-        frappe.msgprint("🚫 Please enter Amount before adding breakup rows.");
-        frm.doc.cc_breakup.pop();
-        frm.refresh_field('cc_breakup');
-        return;
-    }
-
-    // 🟩 Fill defaults only if empty (do not overwrite user input)
-    if (idx === 0) {
-        row.ref_no = row.ref_no || "On Account";
-        if (!row.amount) {
-            row.amount = flt(frm.doc.amount_usd);
-        }
+        frm.set_df_property("cc_breakup", "description", "");
     } else {
-        row.ref_no = row.ref_no || "";
-        if (!row.amount) {
-            const prev = table[idx - 1];
-            row.amount = flt(prev.balance) || 0;
-        }
-    }
-
-    frm.refresh_field('cc_breakup');
-    calculate_running_balance(frm);
-}
-
-// --------------------- Main Form Triggers ---------------------
-
-function calculate_amount_usd(frm) {
-    if (frm.doc.amount && frm.doc.ex_rate) {
-        let usd = frm.doc.amount / frm.doc.ex_rate;
-        frm.set_value('amount_usd', parseFloat(usd.toFixed(2)));
+        frm.disable_save();
+        frm.set_df_property(
+            "cc_breakup",
+            "description",
+            `<b style="color:red">Remaining Balance: ${running_balance.toFixed(2)}</b>`
+        );
     }
 }
-
-frappe.ui.form.on("CC Received", {
-    onload_post_render(frm) {
-        if (frm.is_new()) {
-            // 🟩 Pre-fill defaults ONLY for new doc
-            frm.set_value('date', frappe.datetime.get_today());
-            frm.set_value('currency', 'USD');
-            frm.set_value('ex_rate', 1);
-        }
-    },
-
-    refresh(frm) {
-        calculate_running_balance(frm);
-    },
-
-    amount_usd(frm) {
-        add_first_cc_breakup_row_if_needed(frm);
-    },
-
-    amount(frm) {
-        add_first_cc_breakup_row_if_needed(frm);
-        calculate_amount_usd(frm);
-       
-    },
-
-    ex_rate(frm) {
-        add_first_cc_breakup_row_if_needed(frm);
-        calculate_amount_usd(frm);
-    },
-
-    cc_breakup_add(frm, cdt, cdn) {
-        auto_fill_amount_on_add(frm, cdt, cdn);
-    },
-
-    cc_breakup_remove(frm) {
-        calculate_running_balance(frm);
-    }
-});
-
-// --------------------- Child Table Triggers ---------------------
-
-frappe.ui.form.on("CC Breakup", {
-    amount(frm, cdt, cdn) {
-        calculate_running_balance(frm);
-    },
-    ref_no(frm, cdt, cdn) {
-        calculate_running_balance(frm);
-    }
-});

@@ -2,134 +2,88 @@ from frappe.model.document import Document
 import frappe
 from frappe import _
 from frappe.utils import flt
-from frappe.utils import now_datetime
-import pandas as pd
-import json
-
-
-def validate_amount_sum(doc):
-    total_child_amount = sum(flt(row.amount) for row in doc.cc_breakup)
-    if flt(doc.amount_usd) != round(total_child_amount,2):
-        frappe.throw(
-            f"⚠️ Amount (USD) {doc.amount_usd} must equal the total of child amounts {total_child_amount}."
-        )
-
-def validate_child_amount_nonzero(doc):
-        for idx, row in enumerate(doc.cc_breakup, start=1):
-            if flt(row.amount) == 0:
-                frappe.throw(
-                    f"⚠️ Row {idx}: Amount cannot be zero in CC Breakup."
-                )
-
-def validate_unique_ref_no(doc):
-    ref_no_set = set()
-    for idx, row in enumerate(doc.cc_breakup, start=1):
-        row.ref_no = (row.ref_no or "").strip()
-        if not row.ref_no:
-            frappe.throw(f"⚠️ Row {idx}: Ref No cannot be empty.")
-        if row.ref_no in ref_no_set:
-            frappe.throw(f"⚠️ Row {idx}: Ref No '{row.ref_no}' is duplicated in CC Breakup.")
-        ref_no_set.add(row.ref_no)
-
 
 class CCReceived(Document):
     def validate(self):
-        validate_amount_sum(self)
-        validate_child_amount_nonzero(self)
-        validate_unique_ref_no(self)
+        self.validate_child_rows()
+        self.validate_amount_sum()
 
+    def validate_child_rows(self):
+        ref_no_set = set()
+        for idx, row in enumerate(self.cc_breakup, start=1):
+            # Non-zero amount check
+            if flt(row.amount) == 0:
+                frappe.throw(_("Row {0}: Amount cannot be zero.").format(idx))
+            
+            # Unique Ref No check
+            ref = (row.ref_no or "").strip()
+            if not ref:
+                frappe.throw(_("Row {0}: Ref No is required.").format(idx))
+            if ref in ref_no_set:
+                frappe.throw(_("Row {0}: Duplicate Ref No '{1}'.").format(idx, ref))
+            ref_no_set.add(ref)
 
-   
+    def validate_amount_sum(self):
+        total_breakup = sum(flt(row.amount) for row in self.cc_breakup)
+        # Using a small epsilon for float comparison to avoid precision issues
+        if abs(flt(self.amount_usd) - total_breakup) > 0.01:
+            frappe.throw(
+                _("Total Breakup Amount ({0}) must equal Amount USD ({1})")
+                .format(total_breakup, self.amount_usd)
+            )
 
 @frappe.whitelist()
-def cc_balance_breakup(cus_id, as_on):
-    query = """
-        SELECT 
-            cif.inv_no AS ref_no,
-            cif.cc AS amount
-        FROM 
-            `tabCIF Sheet` cif
-        WHERE
-            cif.customer = %(customer)s AND
-            cif.inv_date <= %(date)s AND
-            cif.cc !=0  
+def cc_balance_breakup(customer, as_on):
     """
-
-    params = {
-        "customer": cus_id,
-        "date": as_on
-    }
-
-    raw_data = frappe.db.sql(query, params, as_dict=True)
-    data = json.loads(frappe.as_json(raw_data))
-    if data:
-        df= pd.DataFrame(data)
-        inv_data= df.copy()
-    else:
-        inv_data = pd.DataFrame(columns=["ref_no", "amount"])
-# -------------------------------
-    query = """
-        SELECT 
-            ccb.ref_no, 
-            SUM(ccb.amount) AS amount
-        FROM 
-            `tabCC Breakup` ccb
-        LEFT JOIN 
-            `tabCC Received` ccr ON ccb.parent = ccr.name
-        WHERE
-            ccr.customer = %(customer)s AND
-            ccr.date <= %(date)s
-        GROUP BY
-            ccb.ref_no
+    Calculates balance per reference without using Pandas.
     """
+    # 1. Get CC from CIF Sheets
+    inv_data = frappe.get_all("CIF Sheet", 
+        filters={"customer": customer, "inv_date": ["<=", as_on], "cc": ["!=", 0]},
+        fields=["inv_no as ref_no", "cc as amount"]
+    )
 
-    params = {
-        "customer": cus_id,
-        "date": as_on
-    }
+    # 2. Get already received CC from Breakup table
+    received_entries = frappe.db.sql("""
+        SELECT ccb.ref_no, SUM(ccb.amount) as amount
+        FROM `tabCC Breakup` ccb
+        JOIN `tabCC Received` ccr ON ccb.parent = ccr.name
+        WHERE ccr.customer = %s AND ccr.date <= %s
+        GROUP BY ccb.ref_no
+    """, (customer, as_on), as_dict=True)
 
-    raw_data = frappe.db.sql(query, params, as_dict=True)
-    data = json.loads(frappe.as_json(raw_data))
-    if data:
-        df= pd.DataFrame(data)
-        df["amount"]= df["amount"]*-1
-        rec_data= df.copy()
-    else:
-        rec_data = pd.DataFrame(columns=["ref_no", "amount"])
-# ---------------------------------------------------------
+    # 3. Consolidate balances
+    balances = {}
+    for d in inv_data:
+        balances[d.ref_no] = balances.get(d.ref_no, 0) + flt(d.amount)
+    
+    for d in received_entries:
+        balances[d.ref_no] = balances.get(d.ref_no, 0) - flt(d.amount)
 
-    final_df = pd.concat([inv_data, rec_data], ignore_index=True)
-    final_df = final_df.groupby("ref_no")["amount"].sum().reset_index()
-    # Build HTML table
-    html = """
-    <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-        <thead style="background-color: #f0f0f0;">
-            <tr>
-                <th style="text-align: center;">Ref No</th>
-                <th style="text-align: center;">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-    """
-    total=0
-    for _, row in final_df.iterrows():
-        if round(row['amount'],2) !=0:
-            total+=row['amount']
-            html += f"""
+    # 4. Generate HTML
+    rows_html = ""
+    total = 0
+    for ref_no, amt in balances.items():
+        if round(amt, 2) != 0:
+            total += amt
+            rows_html += f"""
                 <tr>
-                    <td>{row['ref_no']}</td>
-                    <td style="text-align: right;">{row['amount']:,.2f}</td>
-                </tr>
-            """
-    html += f"""
-        </tbody>
-        <tfoot>
-            <tr style="font-weight: bold; background-color: #f9f9f9;">
-                <td style="text-align: center;">Total</td>
-                <td style="text-align: right;">{total:,.2f}</td>
-            </tr>
-        </tfoot>
-    </table>
-    """
+                    <td>{ref_no}</td>
+                    <td style="text-align: right;">{amt:,.2f}</td>
+                </tr>"""
 
-    return html
+    if not rows_html:
+        return _("<div class='text-muted'>No outstanding CC balance found.</div>")
+
+    return f"""
+        <table class="table table-bordered" style="width: 100%;">
+            <thead style="background-color: #f8f9fa;">
+                <tr><th>Ref No</th><th style="text-align: right;">Balance</th></tr>
+            </thead>
+            <tbody>{rows_html}</tbody>
+            <tfoot>
+                <tr style="font-weight: bold;">
+                    <td>Total</td><td style="text-align: right;">{total:,.2f}</td>
+                </tr>
+            </tfoot>
+        </table>"""

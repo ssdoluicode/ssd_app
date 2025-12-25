@@ -239,6 +239,16 @@ function custom_print(frm){
     });
 }
 
+function protect_add_detete_row(frm){
+    let grid = frm.fields_dict.product_details.grid;
+        // 1. Stop adding new rows
+        grid.cannot_add_rows = true;
+        // 2. Stop deleting rows (removes the trash icon/delete button)
+        grid.wrapper.find('.grid-remove-rows').hide(); // Hides the "Delete" button
+        grid.wrapper.find('.grid-delete-row').hide(); // Hides individual trash icons
+        grid.refresh();
+}
+
 // Hooks
 frappe.ui.form.on("Cost Sheet", {
     setup: inv_no_filter,
@@ -252,6 +262,7 @@ frappe.ui.form.on("Cost Sheet", {
         toggle_po_no_field(frm);
         toggle_supplier_field(frm);
         custom_print(frm);
+        protect_add_detete_row(frm); 
     },
     multiple_po: toggle_po_no_field,
     multiple_supplier: toggle_supplier_field,
@@ -264,7 +275,6 @@ frappe.ui.form.on("Cost Sheet", {
         calculate_cost(frm);
     },
     after_save(frm) {
-        console.log(frm);
         showCostDetails(frm.doc.inv_no, frm.doc.custom_title);
     },
 });

@@ -84,8 +84,16 @@ def validate_unique_expenses(doc):
             seen.add(row.expenses)
 
 def set_calculated_fields(doc):
-    invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
-    doc.custom_title =invoice
+    invoice = frappe.db.get_value(
+        "CIF Sheet",
+        {"name": doc.inv_no},
+        ["inv_no", "load_port", "destination_port", "final_destination"],
+        as_dict=True
+    )
+    doc.custom_title =invoice.inv_no
+    doc.load_port= invoice.load_port
+    doc.destination_port= invoice.destination_port
+    doc.final_destination= invoice.final_destination
 
 
 

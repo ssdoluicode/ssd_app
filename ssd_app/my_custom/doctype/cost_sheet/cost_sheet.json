@@ -55,11 +55,11 @@
   "profit_pct",
   "column_break_ummu",
   "profit",
-  "tab_break_isie",
-  "section_break_nmkz",
+  "section_break_sdfc",
   "load_port",
-  "column_break_xqet",
+  "column_break_xhda",
   "destination_port",
+  "column_break_ireq",
   "final_destination"
  ],
  "fields": [
@@ -152,30 +152,25 @@
    "precision": "2"
   },
   {
-   "fieldname": "section_break_nmkz",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "load_port",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Load Port",
    "options": "Port"
   },
   {
    "fieldname": "destination_port",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Destination Port",
    "options": "Port"
   },
   {
    "fieldname": "final_destination",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Final Destination",
    "options": "City"
-  },
-  {
-   "fieldname": "column_break_xqet",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "inv_no",
@@ -198,10 +193,6 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Custom Title"
-  },
-  {
-   "fieldname": "tab_break_isie",
-   "fieldtype": "Tab Break"
   },
   {
    "collapsible": 1,
@@ -345,12 +336,24 @@
    "fieldname": "multiple_supplier",
    "fieldtype": "Check",
    "label": "Multiple Supplier"
+  },
+  {
+   "fieldname": "section_break_sdfc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_xhda",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ireq",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-08 10:38:22.969248",
+ "modified": "2025-12-25 15:43:29.950299",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Sheet",

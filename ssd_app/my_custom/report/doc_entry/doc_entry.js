@@ -34,6 +34,14 @@ frappe.query_reports["Doc Entry"] = {
     formatter: function (value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
 
+        if (column.fieldname === "document" && data?.cif_id) {
+            return `<a style="color:blue;"  href="#" onclick="showDocFlow('${data.cif_id}', '${data.inv_no}'); return false;">${Number(data.document).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</a>`;
+        }
+
+        if (column.fieldname === "inv_no" && data?.cif_id) {
+            return `<a style="color:blue;" href="#" onclick="showCIFDetails('${data.cif_id}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
+        }
+
         if (column.fieldname === "type" && data && data.inv_no && data.details != 1) {
             // const doctype = "Doc Nego Details";
             let doctype = "";
