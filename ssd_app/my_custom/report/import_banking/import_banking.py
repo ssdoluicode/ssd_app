@@ -43,14 +43,14 @@ def get_conditions(based_on):
 
 	if based_on == "Current Position":
 		conditions.update({
-			"lc_o": "AND (lco.lc_open_amount - COALESCE(lcp.lc_payment_amount, 0)) != 0",
+			"lc_o": "AND (lco.lc_open_amount - COALESCE(lcp.lc_payment_amount, 0)- COALESCE(imp_ln.to_imp_ln, 0)- COALESCE(usance_lc.to_usamce_lc, 0)) != 0",
 			"imp_loan": "AND (IFNULL(imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 0) != 0)",
 			"u_lc": "AND (IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0) != 0)",
 			"cash_loan": "AND (IFNULL(c_loan.cash_loan_amount - IFNULL(c_loan_p.c_loan_p_amount, 0), 0) != 0)"
 		})
 
 	elif based_on == "LC Open":
-		conditions.update({"lc_o": "AND (lco.lc_open_amount - COALESCE(lcp.lc_payment_amount, 0)) != 0",
+		conditions.update({"lc_o":  "AND (lco.lc_open_amount - COALESCE(lcp.lc_payment_amount, 0)- COALESCE(imp_ln.to_imp_ln, 0)- COALESCE(usance_lc.to_usamce_lc, 0)) != 0",
 						   "imp_loan": "AND 1=0", "u_lc": "AND 1=0", "cash_loan": "AND 1=0"})
 
 	elif based_on == "Usance LC":

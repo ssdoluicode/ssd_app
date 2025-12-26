@@ -13,8 +13,8 @@ def lc_id_filter(doctype, txt, searchfield, start, page_len, filters):
     return frappe.db.sql(f"""
         SELECT
             name
-        FROM `tabLC Payment`
-        WHERE (lc_payment_details != 1 OR lc_payment_details IS NULL)
+        FROM `tabUsance LC Payment`
+        WHERE (usance_lc_payment_details != 1 OR usance_lc_payment_details IS NULL)
         AND name LIKE %s
         ORDER BY name ASC
         LIMIT %s OFFSET %s
@@ -24,27 +24,28 @@ def lc_id_filter(doctype, txt, searchfield, start, page_len, filters):
 
 @frappe.whitelist()
 def get_lc_data(lc_payment_id):
-    doc = frappe.get_doc("LC Payment", lc_payment_id)
+    payment = frappe.get_doc("Usance LC Payment", lc_payment_id)
+    open = frappe.get_doc("Usance LC", payment.inv_no)
 	
-    bank_name = frappe.db.get_value("Bank", doc.bank, "bank")
-    com = frappe.db.get_value("Company", doc.company, "company_code")
+    bank_name = frappe.db.get_value("Bank", open.bank, "bank")
+    com = frappe.db.get_value("Company", open.company, "company_code")
 	
     # Return only the required fields
     return {
-        "amount": doc.amount,
-        "date": doc.date,
+        "amount": payment.amount,
+        "date": payment.payment_date,
         "com":com,
         "bank_name": bank_name,
-        "currency": doc.currency,
+        "currency": open.currency,
     }
 
 
 
-class LCPaymentDetails(Document):
+class UsanceLCPaymentDetails(Document):
     def before_save(self):
         if self.lc_payment_id:
-            frappe.db.set_value("LC Payment", self.lc_payment_id, "lc_payment_details", 1)		
+            frappe.db.set_value("Usance LC Payment", self.lc_payment_id, "usance_lc_payment_details", 1)		
     def on_trash(self):
         if self.lc_payment_id:
-            frappe.db.set_value("LC Payment", self.lc_payment_id, "lc_payment_details", 0)		
+            frappe.db.set_value("Usance LC Payment", self.lc_payment_id, "usance_lc_payment_details", 0)		
 

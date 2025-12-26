@@ -1,7 +1,7 @@
 {
  "actions": [],
- "autoname": "lc_p_d-.#####",
- "creation": "2025-12-25 23:33:14.146077",
+ "allow_rename": 1,
+ "creation": "2025-12-26 15:46:19.405942",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -9,13 +9,13 @@
   "payment_date",
   "company",
   "bank",
-  "column_break_yzgw",
+  "column_break_ioco",
   "payment_amount",
   "currency",
   "bank_charge",
   "bank_amount",
   "note",
-  "section_break_atgp",
+  "section_break_tgaw",
   "inv_details"
  ],
  "fields": [
@@ -23,12 +23,32 @@
    "fieldname": "lc_payment_id",
    "fieldtype": "Link",
    "label": "LC Payment ID",
-   "options": "LC Payment"
+   "options": "Usance LC Payment"
   },
   {
+   "default": "Today",
    "fieldname": "payment_date",
    "fieldtype": "Date",
-   "label": "Payment Date"
+   "label": "Payment Date",
+   "read_only": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company",
+   "read_only": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "bank",
+   "fieldtype": "Data",
+   "label": "Bank",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ioco",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "payment_amount",
@@ -40,20 +60,7 @@
    "fieldname": "currency",
    "fieldtype": "Link",
    "label": "Currency",
-   "options": "Currency"
-  },
-  {
-   "default": "-",
-   "fieldname": "bank",
-   "fieldtype": "Data",
-   "label": "Bank",
-   "read_only": 1
-  },
-  {
-   "default": "-",
-   "fieldname": "company",
-   "fieldtype": "Data",
-   "label": "Company",
+   "options": "Currency",
    "read_only": 1
   },
   {
@@ -64,40 +71,35 @@
    "label": "Bank Charge"
   },
   {
-   "default": "0",
-   "fieldname": "bank_amount",
-   "fieldtype": "Float",
-   "label": "Bank Amount",
-   "read_only": 1
-  },
-  {
-   "fieldname": "inv_details",
-   "fieldtype": "Table",
-   "label": "Inv Details",
-   "options": "LC Payment Details Inv Break"
-  },
-  {
-   "fieldname": "column_break_yzgw",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
   },
   {
-   "fieldname": "section_break_atgp",
+   "fieldname": "section_break_tgaw",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "inv_details",
+   "fieldtype": "Table",
+   "label": "Inv Details",
+   "options": "Usance LC Payment Details Inv Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_amount",
+   "fieldtype": "Float",
+   "label": "Bank Amount",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-26 13:43:21.509043",
+ "modified": "2025-12-26 16:58:14.890672",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "LC Payment Details",
- "naming_rule": "By \"Naming Series\" field",
+ "name": "Usance LC Payment Details",
  "owner": "Administrator",
  "permissions": [
   {

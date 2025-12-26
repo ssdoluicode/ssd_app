@@ -320,7 +320,7 @@ function showCostDetails(inv_name, inv_no) {
                 primary_action_label: 'PDF',
                 primary_action() {
                     window.open(
-                        `/api/method/ssd_app.my_custom.doctype.cost_sheet.cost_sheet.render_cost_sheet_pdf?cost_id=${inv_name}&pdf=1`,
+                        `/api/method/ssd_app.my_custom.doctype.cost_sheet.cost_sheet.render_cost_sheet_pdf?inv_name=${inv_name}&pdf=1`,
                         '_blank'
                     );
                 },

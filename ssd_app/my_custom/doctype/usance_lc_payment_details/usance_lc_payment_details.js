@@ -4,7 +4,7 @@
 
 function lc_id_filter(frm) {
     frm.set_query("lc_id", () => ({
-        query: "ssd_app.my_custom.doctype.lc_payment_details.lc_payment_details.lc_id_filter"
+        query: "ssd_app.my_custom.doctype.usance_lc_payment_details.usance_lc_payment_details.lc_id_filter"
     }));
 }
 
@@ -15,7 +15,7 @@ function get_lc_data(frm) {
     // Fetch only for new document
     if (frm.is_new()) {
         frappe.call({
-            method: "ssd_app.my_custom.doctype.lc_payment_details.lc_payment_details.get_lc_data",
+            method: "ssd_app.my_custom.doctype.usance_lc_payment_details.usance_lc_payment_details.get_lc_data",
             args: {
                 lc_payment_id: frm.doc.lc_payment_id
             },
@@ -131,7 +131,7 @@ function calculate_bank_amount(frm) {
    PARENT FORM EVENTS
    =============================== */
 
-frappe.ui.form.on("LC Payment Details", {
+frappe.ui.form.on("Usance LC Payment Details", {
 
     setup(frm) {
         lc_id_filter(frm);
@@ -155,7 +155,7 @@ frappe.ui.form.on("LC Payment Details", {
    CHILD TABLE EVENTS
    =============================== */
 
-frappe.ui.form.on("LC Payment Details Inv Break", {
+frappe.ui.form.on("Usance LC Payment Details Inv Break", {
 
     amount(frm) {
         recalc_balance(frm);

@@ -246,6 +246,7 @@ function protect_add_detete_row(frm){
         // 2. Stop deleting rows (removes the trash icon/delete button)
         grid.wrapper.find('.grid-remove-rows').hide(); // Hides the "Delete" button
         grid.wrapper.find('.grid-delete-row').hide(); // Hides individual trash icons
+        // grid.wrapper.find('.sortable-handle').hide();
         grid.refresh();
 }
 

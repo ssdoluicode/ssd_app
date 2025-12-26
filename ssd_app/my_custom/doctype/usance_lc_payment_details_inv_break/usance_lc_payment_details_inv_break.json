@@ -1,7 +1,7 @@
 {
  "actions": [],
- "autoname": "lc_p_d_i_b-.#####",
- "creation": "2025-12-25 23:51:59.177862",
+ "autoname": "u_lc_d_i_b-.#####",
+ "creation": "2025-12-26 15:41:23.095737",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -9,10 +9,10 @@
   "supplier",
   "inv_no",
   "amount",
-  "column_break_hcay",
+  "column_break_qssm",
   "currency",
-  "note",
-  "balance"
+  "balance",
+  "note"
  ],
  "fields": [
   {
@@ -24,15 +24,22 @@
    "reqd": 1
   },
   {
+   "fieldname": "inv_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Inv No",
+   "options": "Cost Sheet",
+   "reqd": 1
+  },
+  {
    "fieldname": "amount",
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Amount",
-   "non_negative": 1,
    "reqd": 1
   },
   {
-   "fieldname": "column_break_hcay",
+   "fieldname": "column_break_qssm",
    "fieldtype": "Column Break"
   },
   {
@@ -44,11 +51,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "note",
-   "fieldtype": "Data",
-   "label": "Note"
-  },
-  {
    "default": "0",
    "fieldname": "balance",
    "fieldtype": "Float",
@@ -56,23 +58,20 @@
    "read_only": 1
   },
   {
-   "fieldname": "inv_no",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Inv No",
-   "options": "Cost Sheet",
-   "reqd": 1
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-12-26 12:26:16.330401",
+ "modified": "2025-12-26 16:30:46.025847",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "LC Payment Details Inv Break",
- "naming_rule": "By \"Naming Series\" field",
+ "name": "Usance LC Payment Details Inv Break",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",

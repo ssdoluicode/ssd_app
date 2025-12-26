@@ -8,8 +8,8 @@
  "field_order": [
   "inv_no",
   "payment_date",
-  "column_break_iavh",
   "amount",
+  "column_break_iavh",
   "currency",
   "ex_rate",
   "note",
@@ -75,7 +75,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-18 09:41:43.945498",
+ "modified": "2025-12-26 17:36:32.849107",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan Payment",
