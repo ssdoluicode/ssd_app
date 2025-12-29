@@ -9,14 +9,15 @@
   "payment_date",
   "company",
   "bank",
-  "column_break_yzgw",
-  "payment_amount",
   "currency",
+  "payment_amount",
+  "column_break_yzgw",
+  "supplier",
+  "inv_no",
   "bank_charge",
   "bank_amount",
   "note",
-  "section_break_atgp",
-  "inv_details"
+  "tally_entry"
  ],
  "fields": [
   {
@@ -26,9 +27,11 @@
    "options": "LC Payment"
   },
   {
+   "default": "Today",
    "fieldname": "payment_date",
    "fieldtype": "Date",
-   "label": "Payment Date"
+   "label": "Payment Date",
+   "read_only": 1
   },
   {
    "fieldname": "payment_amount",
@@ -60,7 +63,6 @@
    "default": "0",
    "fieldname": "bank_charge",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Bank Charge"
   },
   {
@@ -69,12 +71,6 @@
    "fieldtype": "Float",
    "label": "Bank Amount",
    "read_only": 1
-  },
-  {
-   "fieldname": "inv_details",
-   "fieldtype": "Table",
-   "label": "Inv Details",
-   "options": "LC Payment Details Inv Break"
   },
   {
    "fieldname": "column_break_yzgw",
@@ -86,14 +82,32 @@
    "label": "Note"
   },
   {
-   "fieldname": "section_break_atgp",
-   "fieldtype": "Section Break"
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inv_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Inv No",
+   "options": "Cost Sheet",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "tally_entry",
+   "fieldtype": "Check",
+   "label": "Tally Entry"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-26 13:43:21.509043",
+ "modified": "2025-12-29 00:21:03.516525",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Payment Details",

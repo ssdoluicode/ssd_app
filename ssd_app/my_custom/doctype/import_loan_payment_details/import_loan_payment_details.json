@@ -1,0 +1,220 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-28 01:58:09.789149",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "import_loan_id",
+  "payment_date",
+  "company",
+  "bank",
+  "currency",
+  "payment_amount",
+  "interest_on",
+  "interest_from",
+  "referance_inv_no",
+  "inv_no",
+  "column_break_ttlp",
+  "interest_pct",
+  "interest_days",
+  "round_off",
+  "interest",
+  "prev_accrued_interest",
+  "bank_charge",
+  "accrued_interest",
+  "bank_amount",
+  "interest_upto",
+  "note",
+  "tally_entry",
+  "loan_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "import_loan_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Import Loan ID",
+   "options": "Import Loan Payment",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "Payment Date",
+   "read_only": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company",
+   "read_only": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "bank",
+   "fieldtype": "Data",
+   "label": "Bank",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "payment_amount",
+   "fieldtype": "Float",
+   "label": "Payment Amount",
+   "read_only": 1
+  },
+  {
+   "default": "USD",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "interest_from",
+   "fieldtype": "Date",
+   "label": "Interest From",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "interest_days",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Interest Days",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "interest_pct",
+   "fieldtype": "Float",
+   "label": "Interest %",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "interest",
+   "fieldtype": "Float",
+   "label": "Interest",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fetch_if_empty": 1,
+   "fieldname": "round_off",
+   "fieldtype": "Float",
+   "label": "Round Off",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_amount",
+   "fieldtype": "Float",
+   "label": "Bank Amount",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "interest_upto",
+   "fieldtype": "Date",
+   "label": "Interest Upto",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ttlp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "default": "0",
+   "fieldname": "interest_on",
+   "fieldtype": "Float",
+   "label": "Interest On",
+   "read_only": 1
+  },
+  {
+   "default": "-",
+   "fieldname": "referance_inv_no",
+   "fieldtype": "Data",
+   "is_virtual": 1,
+   "label": "Referance Inv No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "inv_no",
+   "fieldtype": "Link",
+   "label": "Inv No",
+   "options": "Cost Sheet",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_charge",
+   "fieldtype": "Float",
+   "label": "Bank Charge",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "accrued_interest",
+   "fieldtype": "Float",
+   "label": "Accrued Interest",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "tally_entry",
+   "fieldtype": "Check",
+   "label": "Tally Entry"
+  },
+  {
+   "fieldname": "prev_accrued_interest",
+   "fieldtype": "Float",
+   "label": "Prev Accrued Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "loan_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Loan ID"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-29 02:35:24.960134",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "Import Loan Payment Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

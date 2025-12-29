@@ -44,104 +44,121 @@ def execute(filters=None):
 	
 
 	# Build WHERE clause based on status
+    """
+    SELECT 
+	lcp.date AS date, bank.bank AS bank, com.company_code AS com, lcp.currency AS curr, lcp.amount AS amount, "LC Paid" AS type
+	FROM `tabLC Payment` lcp
+	LEFT JOIN `tabBank` bank ON bank.name= lcp.bank
+	LEFT JOIN `tabCompany` com ON com.name=lcp.company
+	WHERE lcp.lc_payment_details=0
+    
+    UNION ALL
+    
+    SELECT 
+	ulcp.payment_date AS date, bank.bank AS bank, com.company_code AS com, ulc.currency AS curr, ulcp.amount AS amount, "U LC Payment" AS type
+	FROM `tabUsance LC Payment` ulcp
+	LEFT JOIN `tabUsance LC` ulc ON ulc.name= ulcp.inv_no
+	LEFT JOIN `tabBank` bank ON bank.name= ulc.bank
+	LEFT JOIN `tabCompany` com ON com.name=ulc.company
+	WHERE ulcp.usance_lc_payment_details=0
+    
+    UNION ALL
+    
+    SELECT
+	impl.loan_date AS date, bank.bank AS bank, com.company_code AS com, impl.currency AS curr, impl.loan_amount AS amount, "Imp Loan" AS term
+	FROM `tabImport Loan` impl
+	LEFT JOIN `tabBank` bank ON bank.name= impl.bank
+	LEFT JOIN `tabCompany` com ON com.name=impl.company
+	WHERE impl.import_loan_details=0
+    
+    UNION ALL
+    
+    SELECT implp.payment_date AS date, bank.bank AS bank, com.company_code AS com, impl.currency AS curr, implp.amount AS amount, "Imp Loan Payment" AS term
+	FROM `tabImport Loan Payment` implp
+	LEFT JOIN `tabImport Loan` impl ON impl.name= implp.inv_no
+	LEFT JOIN `tabBank` bank ON bank.name= impl.bank
+	LEFT JOIN `tabCompany` com ON com.name=impl.company
+	WHERE implp.import_loan_payment_details=0
+    """
   
 
     query = f"""
-		SELECT *
-		FROM (
-			SELECT
-				cif.name AS cif_id,
-				nego.name,
-				cif.inv_no, 
-				nego.nego_date AS date,
-				"Nego" AS type,
-				cif.inv_date, 
-				cus.customer, 
-				noti.notify, 
-				bank.bank,
-				IF(cif.payment_term IN ('LC', 'DA'),
-					CONCAT(cif.payment_term, '- ', cif.term_days),
-					cif.payment_term
-				) AS p_term,
-				cif.document,
-				nego.nego_amount AS amount,
-				nego.nego_details AS details
-			FROM `tabDoc Nego` nego
-			LEFT JOIN `tabCIF Sheet` cif ON cif.name = nego.inv_no
-			LEFT JOIN `tabCustomer` cus ON cus.name = cif.customer
-			LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-			LEFT JOIN `tabBank` bank ON bank.name = cif.bank
-			{where_clause_nego}
+	SELECT *
+	FROM (
+		SELECT 
+			lcp.name,
+			lcp.date AS date,
+			bank.bank AS bank,
+			com.company_code AS com,
+			lcp.currency AS curr,
+			lcp.amount AS amount,
+			"LC Paid" AS type
+		FROM `tabLC Payment` lcp
+		LEFT JOIN `tabBank` bank ON bank.name = lcp.bank
+		LEFT JOIN `tabCompany` com ON com.name = lcp.company
+		WHERE lcp.lc_payment_details = 0
 
-			UNION ALL
-			
-			SELECT 
-				cif.name AS cif_id,
-				ref.name,
-				cif.inv_no, 
-				ref.refund_date AS date,
-				"Refund" AS type,
-				cif.inv_date, 
-				cus.customer, 
-				noti.notify, 
-				bank.bank,
-				IF(cif.payment_term IN ('LC', 'DA'),
-					CONCAT(cif.payment_term, '- ', cif.term_days),
-					cif.payment_term
-				) AS p_term,
-				cif.document,
-				ref.refund_amount AS amount,
-				ref.refund_details AS details
-			FROM `tabDoc Refund` ref
-			LEFT JOIN `tabCIF Sheet` cif ON cif.name = ref.inv_no
-			LEFT JOIN `tabCustomer` cus ON cus.name = cif.customer
-			LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-			LEFT JOIN `tabBank` bank ON bank.name = cif.bank
-			{where_clause_ref}
+		UNION ALL
 
-			UNION ALL
-			
-			SELECT 
-				cif.name AS cif_id,
-				rec.name,
-				cif.inv_no, 
-				rec.received_date AS date,
-				"Received" AS type,
-				cif.inv_date, 
-				cus.customer, 
-				noti.notify, 
-				bank.bank,
-				IF(cif.payment_term IN ('LC', 'DA'),
-					CONCAT(cif.payment_term, '- ', cif.term_days),
-					cif.payment_term
-				) AS p_term,
-				cif.document,
-				rec.received AS amount,
-				rec.rec_details AS details
-			FROM `tabDoc Received` rec
-			LEFT JOIN `tabCIF Sheet` cif ON cif.name = rec.inv_no
-			LEFT JOIN `tabCustomer` cus ON cus.name = cif.customer
-			LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-			LEFT JOIN `tabBank` bank ON bank.name = cif.bank
-			{where_clause_rec}
-		) AS all_data
-		ORDER BY date
+		SELECT 
+			ulcp.name,
+			ulcp.payment_date AS date,
+			bank.bank AS bank,
+			com.company_code AS com,
+			ulc.currency AS curr,
+			ulcp.amount AS amount,
+			"U LC Payment" AS type
+		FROM `tabUsance LC Payment` ulcp
+		LEFT JOIN `tabUsance LC` ulc ON ulc.name = ulcp.inv_no
+		LEFT JOIN `tabBank` bank ON bank.name = ulc.bank
+		LEFT JOIN `tabCompany` com ON com.name = ulc.company
+		WHERE ulcp.usance_lc_payment_details = 0
+
+		UNION ALL
+
+		SELECT 
+			impl.name,
+			impl.loan_date AS date,
+			bank.bank AS bank,
+			com.company_code AS com,
+			impl.currency AS curr,
+			impl.loan_amount AS amount,
+			"Imp Loan" AS type
+		FROM `tabImport Loan` impl
+		LEFT JOIN `tabBank` bank ON bank.name = impl.bank
+		LEFT JOIN `tabCompany` com ON com.name = impl.company
+		WHERE impl.import_loan_details = 0
+
+		UNION ALL
+
+		SELECT 
+			implp.name,
+			implp.payment_date AS date,
+			bank.bank AS bank,
+			com.company_code AS com,
+			impl.currency AS curr,
+			implp.amount AS amount,
+			"Imp Loan Payment" AS type
+		FROM `tabImport Loan Payment` implp
+		LEFT JOIN `tabImport Loan` impl ON impl.name = implp.inv_no
+		LEFT JOIN `tabBank` bank ON bank.name = impl.bank
+		LEFT JOIN `tabCompany` com ON com.name = impl.company
+		WHERE implp.import_loan_payment_details = 0
+	) t
+	ORDER BY t.date ASC;
+
 	"""
 
 
     data = frappe.db.sql(query, as_dict=1)
 
     columns = [
-        {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 125},
-        # {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
         {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
-        {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 250},
-        {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 250},
-        {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},
-        {"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 95},
-        {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 125},
+        {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 110},
+        {"label": "Company", "fieldname": "com", "fieldtype": "Data", "width": 110},
+        {"label": "Currency", "fieldname": "curr", "fieldtype": "Data", "width": 110},
         {"label": "Amount", "fieldname": "amount", "fieldtype": "Float", "width": 125},
-        {"label": "Type", "fieldname": "type", "fieldtype": "Data", "width": 125},
+        {"label": "Type", "fieldname": "type", "fieldtype": "Data", "width": 145},
     ]
 
     return columns, data

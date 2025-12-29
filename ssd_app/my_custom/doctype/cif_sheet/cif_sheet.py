@@ -33,7 +33,7 @@ def render_cif_sheet_pdf(inv_name, pdf=0):
     doc = frappe.get_doc("CIF Sheet", inv_name)
     
     # Map display names efficiently
-    doc.customer_name = frappe.db.get_value("Customer", doc.customer, "name") # Fixed 'customer_name' column error
+    doc.customer_name = frappe.db.get_value("Customer", doc.customer, "customer") # Fixed 'customer_name' column error
     doc.notify_name = frappe.db.get_value("Notify", doc.notify, "notify")
     doc.acc_com_name = frappe.db.get_value("Company", doc.accounting_company, "company_code")
     doc.category_name = frappe.db.get_value("Product Category", doc.category, "product_category")
@@ -83,7 +83,7 @@ def render_master_sheet_pdf(inv_name, pdf=0):
     doc = frappe.get_doc("CIF Sheet", inv_name)
     
     # Set display properties
-    doc.customer_name = frappe.db.get_value("Customer", doc.customer, "name")
+    doc.customer_name = frappe.db.get_value("Customer", doc.customer, "customer")
     doc.notify_name = frappe.db.get_value("Notify", doc.notify, "notify")
     doc.acc_com_name = frappe.db.get_value("Company", doc.accounting_company, "company_code")
     doc.category_name = frappe.db.get_value("Product Category", doc.category, "product_category")

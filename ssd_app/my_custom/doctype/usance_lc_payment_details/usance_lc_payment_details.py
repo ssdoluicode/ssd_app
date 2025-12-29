@@ -29,6 +29,7 @@ def get_lc_data(lc_payment_id):
 	
     bank_name = frappe.db.get_value("Bank", open.bank, "bank")
     com = frappe.db.get_value("Company", open.company, "company_code")
+    supplier = frappe.db.get_value("Supplier", open.supplier, "supplier")
 	
     # Return only the required fields
     return {
@@ -37,6 +38,8 @@ def get_lc_data(lc_payment_id):
         "com":com,
         "bank_name": bank_name,
         "currency": open.currency,
+        "supplier": supplier,
+        "inv_no": open.inv_no
     }
 
 

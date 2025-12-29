@@ -1,138 +1,244 @@
-// ------------------------
-// Parent Doctype: Comm Paid
-// ------------------------
-frappe.ui.form.on('Comm Paid', {
+// // ------------------------
+// // Parent Doctype: Comm Paid
+// // ------------------------
+// frappe.ui.form.on('Comm Paid', {
     
+//     onload(frm) {
+//         set_child_inv_no_query(frm);
+//     },
+//     onload_post_render(frm) {
+//         frm.set_value('date', frappe.datetime.get_today());
+//     },
+//     agent(frm) {
+//         set_child_inv_no_query(frm);
+//     },
+//     amount_usd(frm) {
+//         calculate_running_balance(frm);
+//     },
+//     refresh(frm) {
+//         calculate_running_balance(frm);
+//     },
+//     comm_breakup_add(frm) {
+//         calculate_running_balance(frm);
+//     },
+//     comm_breakup_remove(frm) {
+//         calculate_running_balance(frm);
+//     },
+//     validate(frm) {
+//         // Final validation: running balance must be zero before submission
+//         const total = frm.doc.amount_usd || 0;
+//         const allocated = frm.doc.comm_breakup.reduce((sum, row) => sum + flt(row.amount), 0);
+//         const remaining = flt(total) - flt(allocated);
+
+//         if (remaining !== 0) {
+//             frappe.throw(__('Total commission must be fully allocated before submission. Remaining: {0}', [remaining]));
+//         }
+//     }
+// });
+
+// // ------------------------
+// // Child Table: Comm Breakup
+// // ------------------------
+// frappe.ui.form.on('Comm Breakup', {
+//     inv_no(frm, cdt, cdn) {
+//         toggle_agent_readonly(frm);
+//         const child = locals[cdt][cdn];
+//         if (child.inv_no) {
+//             fetch_and_set_balance_as_amount(child, cdt, cdn, frm);
+//         }
+//     },
+//     amount(frm, cdt, cdn) {
+//         const child = locals[cdt][cdn];
+//         validate_child_amount_not_exceed_balance(child, cdt, cdn, frm);
+//         calculate_running_balance(frm);
+//     },
+   
+// });
+
+// // ------------------------
+// // Utility Functions
+// // ------------------------
+
+// function set_child_inv_no_query(frm) {
+//     frm.fields_dict['comm_breakup'].grid.get_field('inv_no').get_query = function(doc, cdt, cdn) {
+//         return {
+//             query: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_filter_inv_no",
+//             filters: {
+//                 agent: frm.doc.agent || ''
+//             }
+//         };
+//     };
+// }
+
+// function fetch_and_set_balance_as_amount(child, cdt, cdn, frm) {
+//     frappe.call({
+//         method: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_inv_no_balance",
+//         args: { inv_no: child.inv_no },
+//         callback: function(r) {
+//             if (r.message !== undefined) {
+//                 const balance = flt(r.message) || 0;
+//                 frappe.model.set_value(cdt, cdn, 'amount', balance);
+//                 calculate_running_balance(frm);
+//             }
+//         }
+//     });
+// }
+
+// function validate_child_amount_not_exceed_balance(child, cdt, cdn, frm) {
+//     if (child.inv_no && child.amount) {
+//         frappe.call({
+//             method: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_inv_no_balance",
+//             args: { inv_no: child.inv_no },
+//             callback: function(r) {
+//                 if (r.message !== undefined) {
+//                     const balance = flt(r.message) || 0;
+//                     if (flt(child.amount) > balance) {
+//                         frappe.model.set_value(cdt, cdn, 'amount', balance);
+//                         frappe.msgprint({
+//                             title: __("Validation Error"),
+//                             message: __("Entered amount cannot exceed the pending receivable for this invoice (Max: {0}).", [balance]),
+//                             indicator: 'red'
+//                         });
+//                     }
+//                     calculate_running_balance(frm);
+//                 }
+//             }
+//         });
+//     }
+// }
+
+// function calculate_running_balance(frm) {
+//     const total = flt(frm.doc.amount_usd) || 0;
+//     let running_balance = total;
+
+//     frm.doc.comm_breakup.forEach(row => {
+//         running_balance -= flt(row.amount);
+//         row.balance = running_balance;
+//     });
+
+//     frm.refresh_field('comm_breakup');
+
+//     // Disable adding rows if fully allocated
+//     frm.fields_dict.comm_breakup.grid.cannot_add_rows = running_balance <= 0;
+
+//     // Enable/Disable Save based on exact allocation
+//     if (running_balance !== 0) {
+//         frm.disable_save();
+//     } else {
+//         frm.enable_save();
+//     }
+// }
+
+
+// // if Data in Product in product_item then category read_only
+// function toggle_agent_readonly(frm) {
+//     const hasProduct = frm.doc.comm_breakup?.some(row => row.inv_no);
+//     frm.set_df_property('agent', 'read_only', !!hasProduct);
+// }
+
+frappe.ui.form.on('Comm Paid', {
+    setup(frm) {
+        frm.set_query('inv_no', 'comm_breakup', () => {
+            return {
+                query: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_filter_inv_no",
+                filters: { agent: frm.doc.agent }
+            };
+        });
+    },
+
     onload(frm) {
-        set_child_inv_no_query(frm);
+        // Automatically add a row if the child table is empty (New Doc only)
+        if (frm.is_new() && (!frm.doc.comm_breakup || frm.doc.comm_breakup.length === 0)) {
+            frm.add_child('comm_breakup');
+            frm.refresh_field('comm_breakup');
+        }
     },
+
     onload_post_render(frm) {
-        frm.set_value('date', frappe.datetime.get_today());
+        if (frm.is_new()) {
+            frm.set_value('date', frappe.datetime.get_today());
+        }
     },
+
     agent(frm) {
-        set_child_inv_no_query(frm);
+        if (frm.doc.comm_breakup && frm.doc.comm_breakup.length > 0) {
+            frm.clear_table('comm_breakup');
+            // Re-add an initial empty row after clearing for better UX
+            frm.add_child('comm_breakup'); 
+            frm.refresh_field('comm_breakup');
+            toggle_agent_readonly(frm);
+        }
     },
+
     amount_usd(frm) {
         calculate_running_balance(frm);
-    },
-    refresh(frm) {
-        calculate_running_balance(frm);
-    },
-    comm_breakup_add(frm) {
-        calculate_running_balance(frm);
-    },
-    comm_breakup_remove(frm) {
-        calculate_running_balance(frm);
-    },
-    validate(frm) {
-        // Final validation: running balance must be zero before submission
-        const total = frm.doc.amount_usd || 0;
-        const allocated = frm.doc.comm_breakup.reduce((sum, row) => sum + flt(row.amount), 0);
-        const remaining = flt(total) - flt(allocated);
-
-        if (remaining !== 0) {
-            frappe.throw(__('Total commission must be fully allocated before submission. Remaining: {0}', [remaining]));
-        }
     }
 });
 
-// ------------------------
-// Child Table: Comm Breakup
-// ------------------------
 frappe.ui.form.on('Comm Breakup', {
     inv_no(frm, cdt, cdn) {
+        const row = locals[cdt][cdn];
         toggle_agent_readonly(frm);
-        const child = locals[cdt][cdn];
-        if (child.inv_no) {
-            fetch_and_set_balance_as_amount(child, cdt, cdn, frm);
-        }
-    },
-    amount(frm, cdt, cdn) {
-        const child = locals[cdt][cdn];
-        validate_child_amount_not_exceed_balance(child, cdt, cdn, frm);
-        calculate_running_balance(frm);
-    },
-   
-});
+        
+        if (row.inv_no) {
+            frappe.call({
+                method: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_inv_no_balance",
+                args: { inv_no: row.inv_no },
+                callback: (r) => {
+                    const inv_balance = flt(r.message);
+                    
+                    // Calculate current running balance BEFORE this row's amount is added
+                    const total_usd = flt(frm.doc.amount_usd);
+                    const allocated_other_rows = (frm.doc.comm_breakup || [])
+                        .filter(d => d.name !== row.name)
+                        .reduce((sum, d) => sum + flt(d.amount), 0);
+                    
+                    const remaining_to_allocate = total_usd - allocated_other_rows;
 
-// ------------------------
-// Utility Functions
-// ------------------------
-
-function set_child_inv_no_query(frm) {
-    frm.fields_dict['comm_breakup'].grid.get_field('inv_no').get_query = function(doc, cdt, cdn) {
-        return {
-            query: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_filter_inv_no",
-            filters: {
-                agent: frm.doc.agent || ''
-            }
-        };
-    };
-}
-
-function fetch_and_set_balance_as_amount(child, cdt, cdn, frm) {
-    frappe.call({
-        method: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_inv_no_balance",
-        args: { inv_no: child.inv_no },
-        callback: function(r) {
-            if (r.message !== undefined) {
-                const balance = flt(r.message) || 0;
-                frappe.model.set_value(cdt, cdn, 'amount', balance);
-                calculate_running_balance(frm);
-            }
-        }
-    });
-}
-
-function validate_child_amount_not_exceed_balance(child, cdt, cdn, frm) {
-    if (child.inv_no && child.amount) {
-        frappe.call({
-            method: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_inv_no_balance",
-            args: { inv_no: child.inv_no },
-            callback: function(r) {
-                if (r.message !== undefined) {
-                    const balance = flt(r.message) || 0;
-                    if (flt(child.amount) > balance) {
-                        frappe.model.set_value(cdt, cdn, 'amount', balance);
-                        frappe.msgprint({
-                            title: __("Validation Error"),
-                            message: __("Entered amount cannot exceed the pending receivable for this invoice (Max: {0}).", [balance]),
-                            indicator: 'red'
-                        });
-                    }
+                    // Set amount as the minimum of the Invoice Balance or the Remaining Total
+                    const auto_amount = Math.min(inv_balance, Math.max(0, remaining_to_allocate));
+                    
+                    frappe.model.set_value(cdt, cdn, 'amount', auto_amount);
                     calculate_running_balance(frm);
                 }
-            }
-        });
+            });
+        }
+    },
+
+    amount(frm, cdt, cdn) {
+        calculate_running_balance(frm);
+    },
+
+    comm_breakup_remove(frm) {
+        calculate_running_balance(frm);
+        toggle_agent_readonly(frm);
     }
-}
+});
 
 function calculate_running_balance(frm) {
-    const total = flt(frm.doc.amount_usd) || 0;
-    let running_balance = total;
+    const total_usd = flt(frm.doc.amount_usd);
+    let current_allocated = 0;
 
-    frm.doc.comm_breakup.forEach(row => {
-        running_balance -= flt(row.amount);
-        row.balance = running_balance;
+    (frm.doc.comm_breakup || []).forEach(row => {
+        current_allocated += flt(row.amount);
+        row.balance = total_usd - current_allocated; // Shows remaining after this row
     });
 
-    frm.refresh_field('comm_breakup');
-
-    // Disable adding rows if fully allocated
-    frm.fields_dict.comm_breakup.grid.cannot_add_rows = running_balance <= 0;
-
-    // Enable/Disable Save based on exact allocation
-    if (running_balance !== 0) {
+    const remaining = total_usd - current_allocated;
+    
+    // UI Feedback: Set a description or indicator
+    if (remaining !== 0) {
+        // frm.set_intro(__("Remaining to allocate: {0}", [format_currency(remaining, "USD")]), 'orange');
         frm.disable_save();
     } else {
+        // frm.set_intro(__("Fully Allocated"), 'blue');
         frm.enable_save();
     }
+
+    frm.refresh_field('comm_breakup');
 }
 
-
-// if Data in Product in product_item then category read_only
 function toggle_agent_readonly(frm) {
-    const hasProduct = frm.doc.comm_breakup?.some(row => row.inv_no);
-    frm.set_df_property('agent', 'read_only', !!hasProduct);
+    const has_rows = (frm.doc.comm_breakup || []).some(row => row.inv_no);
+    frm.set_df_property('agent', 'read_only', has_rows ? 1 : 0);
 }
-

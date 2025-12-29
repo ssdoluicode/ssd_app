@@ -1,6 +1,7 @@
 // Copyright (c) 2025, SSDolui and contributors
 // For license information, please see license.txt
 
+
 // Function to check uniqueness of 'inv_no' in 'CIF Sheet' doctype
 function check_unique_inv_no(frm) {
     if (!frm.doc.inv_no) return;
@@ -179,6 +180,7 @@ frappe.ui.form.on("CIF Sheet", {
         toggle_sc_no_field(frm);
         toggle_category_readonly(frm);
         custom_print(frm);
+
     },
     onload(frm) {
         set_product_query_filter(frm);

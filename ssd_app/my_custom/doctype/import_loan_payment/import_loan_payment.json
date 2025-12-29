@@ -8,12 +8,10 @@
  "field_order": [
   "inv_no",
   "payment_date",
-  "amount",
   "column_break_iavh",
-  "currency",
-  "ex_rate",
+  "amount",
   "note",
-  "amount_usd"
+  "import_loan_payment_details"
  ],
  "fields": [
   {
@@ -39,15 +37,6 @@
    "reqd": 1
   },
   {
-   "default": "USD",
-   "fieldname": "currency",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Currency",
-   "options": "Currency",
-   "reqd": 1
-  },
-  {
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
@@ -57,25 +46,17 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "1",
-   "fieldname": "ex_rate",
-   "fieldtype": "Float",
-   "label": "Ex Rate",
-   "non_negative": 1,
-   "reqd": 1
-  },
-  {
    "default": "0",
-   "fieldname": "amount_usd",
-   "fieldtype": "Float",
-   "label": "Amount (USD)",
-   "read_only": 1
+   "fieldname": "import_loan_payment_details",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Import Loan Payment Details"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-26 17:36:32.849107",
+ "modified": "2025-12-29 23:12:25.595888",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan Payment",

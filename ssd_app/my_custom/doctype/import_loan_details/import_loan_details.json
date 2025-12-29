@@ -1,20 +1,21 @@
 {
  "actions": [],
- "allow_rename": 1,
- "creation": "2025-12-26 15:46:19.405942",
+ "autoname": "imp_loan_d-.#####",
+ "creation": "2025-12-27 00:10:50.998121",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "lc_payment_id",
-  "payment_date",
+  "import_loan_id",
+  "loan_date",
   "company",
   "bank",
   "supplier",
-  "payment_amount",
-  "column_break_ioco",
+  "currency",
+  "loan_amount",
+  "column_break_nxyw",
   "referance_inv_no",
   "inv_no",
-  "currency",
+  "interest_pct",
   "bank_charge",
   "bank_amount",
   "note",
@@ -22,16 +23,19 @@
  ],
  "fields": [
   {
-   "fieldname": "lc_payment_id",
+   "fieldname": "import_loan_id",
    "fieldtype": "Link",
-   "label": "LC Payment ID",
-   "options": "Usance LC Payment"
+   "in_list_view": 1,
+   "label": "Import Loan ID",
+   "options": "Import Loan",
+   "reqd": 1,
+   "unique": 1
   },
   {
    "default": "Today",
-   "fieldname": "payment_date",
+   "fieldname": "loan_date",
    "fieldtype": "Date",
-   "label": "Payment Date",
+   "label": "Loan Date",
    "read_only": 1
   },
   {
@@ -49,14 +53,11 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_ioco",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "payment_amount",
+   "default": "0",
+   "fieldname": "loan_amount",
    "fieldtype": "Float",
-   "label": "Payment Amount",
-   "precision": "2"
+   "label": "Loan Amount",
+   "read_only": 1
   },
   {
    "default": "USD",
@@ -67,11 +68,22 @@
    "read_only": 1
   },
   {
+   "fieldname": "interest_pct",
+   "fieldtype": "Float",
+   "label": "Interest %"
+  },
+  {
    "default": "0",
    "fieldname": "bank_charge",
    "fieldtype": "Float",
-   "label": "Bank Charge",
-   "precision": "2"
+   "label": "Bank Charge"
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_amount",
+   "fieldtype": "Float",
+   "label": "Bank Amount",
+   "read_only": 1
   },
   {
    "fieldname": "note",
@@ -79,12 +91,14 @@
    "label": "Note"
   },
   {
-   "default": "0.00",
-   "fieldname": "bank_amount",
-   "fieldtype": "Float",
-   "label": "Bank Amount",
-   "precision": "2",
-   "read_only": 1
+   "fieldname": "column_break_nxyw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "tally_entry",
+   "fieldtype": "Check",
+   "label": "Tally Entry"
   },
   {
    "default": "-",
@@ -94,35 +108,29 @@
    "read_only": 1
   },
   {
-   "fieldname": "inv_no",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Inv No",
-   "options": "Cost Sheet",
-   "reqd": 1
-  },
-  {
    "default": "-",
    "fieldname": "referance_inv_no",
    "fieldtype": "Data",
    "is_virtual": 1,
-   "label": "Referance (inv_no)",
+   "label": "Referance Inv No",
    "read_only": 1
   },
   {
-   "default": "1",
-   "fieldname": "tally_entry",
-   "fieldtype": "Check",
-   "label": "Tally Entry"
+   "fieldname": "inv_no",
+   "fieldtype": "Link",
+   "label": "Inv No",
+   "options": "Cost Sheet",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-29 00:24:46.583938",
+ "modified": "2025-12-29 00:26:50.786937",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "Usance LC Payment Details",
+ "name": "Import Loan Details",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -139,6 +147,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

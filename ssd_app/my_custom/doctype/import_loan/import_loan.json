@@ -21,7 +21,8 @@
   "note",
   "custom_title",
   "group_id",
-  "from_lc_open"
+  "from_lc_open",
+  "import_loan_details"
  ],
  "fields": [
   {
@@ -143,12 +144,19 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "From LC Open"
+  },
+  {
+   "default": "0",
+   "fieldname": "import_loan_details",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Import Loan Details"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-18 09:41:34.091376",
+ "modified": "2025-12-27 01:01:12.923051",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",
@@ -169,8 +177,10 @@
   }
  ],
  "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "custom_title",
  "track_changes": 1
 }

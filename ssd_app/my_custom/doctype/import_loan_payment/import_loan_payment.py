@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils import flt
 
 def set_currency(doc):
 	curr = frappe.db.get_value('Import Loan', doc.inv_no, 'currency')
@@ -11,6 +12,7 @@ def set_currency(doc):
 
 def final_validation(doc):
 	imp_l_amount = frappe.db.get_value("Import Loan", doc.inv_no, "loan_amount") or 0
+	amount = flt(doc.amount)
 
 	# Calculate converted to Import Loan
 	imp_l_p_data = frappe.db.sql("""
@@ -21,16 +23,16 @@ def final_validation(doc):
 	imp_l_p_amount = (imp_l_p_data[0]["total_imp_l_p"] or 0) if imp_l_p_data else 0
 
 	# Check if LC balance is exceeded
-	if doc.amount > imp_l_amount - imp_l_p_amount:
+	if amount > imp_l_amount - imp_l_p_amount:
 		msg = f"""<b>❌ Import Loan Payment Exceeds Import Loan Amount.</b><br>
 		<b>Import Loan:</b> {imp_l_amount:,.2f}<br>
 		<b>LC Paid:</b> {imp_l_p_amount:,.2f}<br>
 		<b>Imp Loan Balance:</b> {(imp_l_amount-imp_l_p_amount):,.2f}<br>
-		<b>Entered Amount:</b> {doc.amount:,.2f}
+		<b>Entered Amount:</b> {amount:,.2f}
 		"""
 		frappe.throw(msg)
 
-	if not doc.amount:
+	if not amount:
 		frappe.throw("❌ Amount cannot be empty. Please enter the amount.")
 
 
