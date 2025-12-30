@@ -8,7 +8,6 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_lj47",
-  "incomplete_for_banking",
   "inv_no",
   "inv_date",
   "category",
@@ -400,19 +399,13 @@
    "hidden": 1,
    "label": "To Country",
    "options": "Country"
-  },
-  {
-   "default": "0",
-   "fieldname": "incomplete_for_banking",
-   "fieldtype": "Check",
-   "label": "Incomplete (For Banking)"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-29 23:46:20.179156",
+ "modified": "2025-12-30 01:56:25.205049",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CIF Sheet",

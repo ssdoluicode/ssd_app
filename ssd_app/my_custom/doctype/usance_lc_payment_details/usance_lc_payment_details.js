@@ -94,5 +94,9 @@ frappe.ui.form.on("Usance LC Payment Details Inv Break", {
     supplier(frm, cdt, cdn) {
         set_amount_and_balance(frm, cdt, cdn);
         recalc_balance(frm);
+    },
+    after_save: function(frm) {
+        // Redirect to the report page after save
+        window.location.href = "/app/query-report/Import Banking Entry";
     }
 });

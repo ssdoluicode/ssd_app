@@ -72,6 +72,10 @@ frappe.ui.form.on("Import Loan Details", {
 
     bank_charge(frm) {
         calculate_bank_amount(frm);
+    },
+    after_save: function(frm) {
+        // Redirect to the report page after save
+        window.location.href = "/app/query-report/Import Banking Entry";
     }
 
 });

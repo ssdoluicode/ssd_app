@@ -68,7 +68,11 @@ frappe.ui.form.on("Import Loan Payment Details", {
     interest_days(frm) { calculate_all(frm); },
     interest_pct(frm) { calculate_all(frm); },
     bank_charge(frm) { calculate_bank_amount(frm); },
-    accrued_interest(frm) { calculate_bank_amount(frm); }
+    accrued_interest(frm) { calculate_bank_amount(frm); },
+    after_save: function(frm) {
+        // Redirect to the report page after save
+        window.location.href = "/app/query-report/Import Banking Entry";
+    }
 });
 
 // Helper to run full sequence
