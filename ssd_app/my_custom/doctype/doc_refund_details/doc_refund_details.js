@@ -144,7 +144,7 @@ function calculate_bank_amount(frm) {
 }
 
 function calculate_interest_upto_date(frm) {
-    if (frm.doc.interest_from && frm.doc.interest_days) {
+    if (frm.doc.interest_from) {
         let from_date = new Date(frm.doc.interest_from + "T00:00:00");
         let days = Number(frm.doc.interest_days) || 0;
 

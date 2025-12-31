@@ -13,9 +13,9 @@ def banking_line_data():
         "scsb_imp_lc_da_dp_3" : 500000,
         "sino_cln" : 1050000,
         "sino_imp_lc_8" :1100000,
-        "sino_da_dp_8" : 2600000,
+        "sino_da_dp_8" : 2800000,
         "sino_imp_lc_3": 400000,
-        "sino_da_dp_3" : 400000,
+        "sino_da_dp_3" : 200000,
         "line_0" :0
         }
 
