@@ -15,10 +15,12 @@ def execute(filters=None):
     
     elif entry_for == "Doc Received":
         return execute_doc_received(filters)
+    
+    elif entry_for == "Interest Payment":
+        return execute_interest_payment(filters)
 
-
-    # elif entry_for == "LC Payment":
-    #     return execute_lc_payment(filters)
+    elif entry_for == "CC Received":
+        return execute_cc_received(filters)
 
     # elif entry_for == "U LC Payment":
     #     return execute_ulc_payment(filters)
@@ -214,7 +216,7 @@ def execute_doc_received(filters):
         {"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 110},
         {"label": "Notify Party", "fieldname": "notify_party", "fieldtype": "Data", "width": 250},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 250},
-        {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 110},
+        {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
         {"label": "Rec Amount", "fieldname": "rec_amount", "fieldtype": "Float", "width": 130},
         {"label": "Interest", "fieldname": "interest", "fieldtype": "Float", "width": 110},
         {"label": "Bank Charge", "fieldname": "bank_charge", "fieldtype": "Float", "width": 130},
@@ -225,4 +227,80 @@ def execute_doc_received(filters):
 
     return  columns, data
 
+
+# ---------------------------------------
+# Interest Payment
+# ---------------------------------------
+def execute_interest_payment(filters):
+    conditions, sql_filters = build_conditions(filters, "ip.date", "cif.shipping_company")
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+    query = f"""
+        SELECT 
+        cif.inv_no AS inv_no, ip.date, com.company_code AS com, bank.bank AS bank, ip.interest
+        FROM `tabInterest Paid` ip
+        LEFT JOIN `tabCIF Sheet` cif ON cif.name=ip.cif_id
+        LEFT JOIN `tabBank` bank ON bank.name= cif.bank
+        LEFT JOIN `tabCompany` com ON com.name= cif.shipping_company
+
+        {where_clause}
+        ORDER BY ip.date ASC
+    """
+    data= frappe.db.sql(query, sql_filters, as_dict=1)
+
+    columns= [
+        {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90},
+        {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
+        {"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 110},
+        {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
+        {"label": "Interest", "fieldname": "interest", "fieldtype": "Float", "width": 110},
+    ]
+
+    return  columns, data
+
+
+# ---------------------------------------
+# Interest Payment
+# ---------------------------------------
+def execute_cc_received(filters):
+    conditions, sql_filters = build_conditions(filters, "ccr.date", "ccrd.company")
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+    query = f"""
+        SELECT 
+        cus.customer,
+        ccr.date,
+        com.company_code AS com,
+        bank.bank,
+        CAST(ccrd.amount AS DECIMAL(18,6)) AS cc_received,
+        CAST(ccrd.bank_amount AS DECIMAL(18,6)) AS bank_amount,
+        CAST(
+            IFNULL(ccrd.amount, 0) - IFNULL(ccrd.bank_amount, 0)
+            AS DECIMAL(18,6)
+        ) AS bank_charge
+    FROM `tabCC Received Details` ccrd
+    LEFT JOIN `tabCC Received` ccr
+        ON ccr.name = ccrd.cc_received_id
+    LEFT JOIN `tabBank` bank
+        ON bank.name = ccrd.bank
+    LEFT JOIN `tabCompany` com
+        ON com.name = ccrd.company
+    LEFT JOIN `tabCustomer` cus
+        ON cus.name = ccr.customer
+        {where_clause}
+        ORDER BY ccr.date ASC
+    """
+    data= frappe.db.sql(query, sql_filters, as_dict=1)
+
+    columns= [
+        {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 200},
+        {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
+        {"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 110},
+        {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
+        {"label": "CC Received", "fieldname": "cc_received", "fieldtype": "Float", "width": 110},
+        {"label": "Bank Charge", "fieldname": "bank_charge", "fieldtype": "Float", "width": 110},
+        {"label": "Bank Amount", "fieldname": "bank_amount", "fieldtype": "Float", "width": 110}
+    ]
+
+    return  columns, data
 

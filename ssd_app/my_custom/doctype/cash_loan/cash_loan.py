@@ -14,13 +14,20 @@ def bank_line_validtation(doc):
     bank_details = frappe.db.get_value("Bank", doc.bank, "bank")
     bank_details=bank_details.replace('.', '').replace('-', '').replace(' ', '_')
     bl = check_banking_line(company_code, bank_details, "c_loan")
+    frappe.msgprint(str(bl))
+    
     if bl == None:
         frappe.throw("❌ No banking Line")
-
-    elif (doc.cash_loan_amount / doc.ex_rate) > bl:
+    
+    current_cln = 0
+    if not doc.is_new():
+        current_cln = frappe.db.get_value("Cash Loan", doc.name, "cash_loan_amount_usd") or 0
+    allowed_limit = bl + current_cln
+    
+    if (doc.cash_loan_amount / doc.ex_rate) > allowed_limit:
         frappe.throw((f"""
         ❌ <b>Loan amount exceeds Bank Line Limit.</b><br>
-        <b>Banking Line Balance:</b> {bl:,.2f}<br>
+        <b>Banking Line Balance:</b> {allowed_limit:,.2f}<br>
         <b>Try to Entry:</b> {(doc.cash_loan_amount / doc.ex_rate):,.2f}<br>
     """))
 

@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "autoname": "shi_book-.#####",
+ "creation": "2026-01-01 22:05:35.059063",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "invoice_date",
+  "inv_no",
+  "company",
+  "customer",
+  "notify",
+  "column_break_inwz",
+  "product_category",
+  "fapiao",
+  "bank",
+  "payment_term",
+  "term_days"
+ ],
+ "fields": [
+  {
+   "fieldname": "inv_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Inv No",
+   "no_copy": 1,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Invoice Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "notify",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Notify",
+   "options": "Notify",
+   "reqd": 1
+  },
+  {
+   "fieldname": "product_category",
+   "fieldtype": "Link",
+   "label": "Product Category",
+   "options": "Product Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fapiao",
+   "fieldtype": "Float",
+   "label": "Fapiao",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank"
+  },
+  {
+   "fieldname": "column_break_inwz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_term",
+   "fieldtype": "Select",
+   "label": "Payment Term",
+   "options": "LC\nLC at Sight\nDP\nDA\nTT"
+  },
+  {
+   "fieldname": "term_days",
+   "fieldtype": "Int",
+   "label": "Term Days"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-01 23:25:34.197874",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "Shipping Book",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "inv_no"
+}

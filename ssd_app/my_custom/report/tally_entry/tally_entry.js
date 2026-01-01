@@ -41,6 +41,7 @@ frappe.query_reports["Tally Entry"] = {
 				"Doc Refund",
 				"Doc Received",
 				"Interest Payment",
+				"CC Received",
 				"LC Payment",
 				"U LC Payment",
 				"Import Loan",

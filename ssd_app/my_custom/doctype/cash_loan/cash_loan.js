@@ -1,8 +1,9 @@
 // Copyright (c) 2025, SSDolui and contributors
 // For license information, please see license.txt
 
-// frappe.ui.form.on("Cash Loan", {
-// 	refresh(frm) {
-
-// 	},
-// });
+frappe.ui.form.on("Cash Loan", {
+	after_save(frm) {
+        // Redirect to your report page "Import Banking"
+         window.location.href = "/app/query-report/Import Banking ";
+    }
+});
