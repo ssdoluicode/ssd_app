@@ -25,7 +25,6 @@ function fetch_cc_received_data(frm) {
                 amount: data.amount,
                 payment_term: data.payment_term
             });
-
             calculate_bank_amount(frm);
         }
     });

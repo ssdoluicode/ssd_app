@@ -1,6 +1,6 @@
 {
  "actions": [],
- "allow_rename": 1,
+ "autoname": "com_b_line-.####",
  "creation": "2026-01-02 00:26:47.820512",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -60,10 +60,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-02 01:23:05.509413",
+ "modified": "2026-01-03 04:07:04.288045",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Com Banking Line",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

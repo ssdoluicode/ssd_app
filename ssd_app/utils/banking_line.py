@@ -3,6 +3,121 @@ from datetime import date
 today = date.today() 
 
 @frappe.whitelist()
+def export_banking_data(as_on):
+    """
+    Fetch CIF Sheet + related banking data.
+    param as_on: Date (string or datetime) - filter date
+    return: list of dicts
+    """
+    query = """
+        SELECT
+        n.bank,
+        n.com,
+        n.p_term,
+        n.total_nego,
+        bbl.banking_line_name,
+        bbl.banking_line,
+        bbl.no_limit
+    FROM (
+
+        SELECT
+            cif.bank,
+            cif.shipping_company AS com,
+            cif.payment_term AS p_term,
+
+            SUM(
+                GREATEST(
+                    IFNULL(nego.nego_amt, 0)
+                - IFNULL(ref.ref_amt, 0)
+                - IFNULL(rec.rec_amt, 0),
+                    0
+                )
+            ) AS total_nego
+
+        FROM `tabCIF Sheet` cif
+
+        /* ---- NEGO ---- */
+        LEFT JOIN (
+            SELECT inv_no, SUM(nego_amount) AS nego_amt
+            FROM `tabDoc Nego`
+            WHERE nego_date <= %(as_on)s
+            GROUP BY inv_no
+        ) nego ON nego.inv_no = cif.name
+
+        /* ---- REFUND ---- */
+        LEFT JOIN (
+            SELECT inv_no, SUM(refund_amount) AS ref_amt
+            FROM `tabDoc Refund`
+            WHERE refund_date <= %(as_on)s
+            GROUP BY inv_no
+        ) ref ON ref.inv_no = cif.name
+
+        /* ---- RECEIVED ---- */
+        LEFT JOIN (
+            SELECT inv_no, SUM(received) AS rec_amt
+            FROM `tabDoc Received`
+            WHERE received_date <= %(as_on)s
+            GROUP BY inv_no
+        ) rec ON rec.inv_no = cif.name
+
+        WHERE
+            cif.inv_date <= %(as_on)s
+            AND cif.payment_term <> 'TT'
+
+        GROUP BY
+            cif.bank,
+            cif.shipping_company,
+            cif.payment_term
+
+        HAVING total_nego <> 0
+
+    ) n
+
+    /* ---------- BANKING LINE ---------- */
+    LEFT JOIN `tabCom Banking Line` cbl
+        ON cbl.bank = n.bank
+    AND cbl.company = n.com
+
+    LEFT JOIN `tabCom Banking line Breakup` cblb
+        ON cblb.parent = cbl.name
+    AND cblb.payment_term = n.p_term
+
+    LEFT JOIN `tabBank Banking Line` bbl
+        ON bbl.name = cblb.combind_banking_line
+
+    ORDER BY
+        n.bank,
+        n.com,
+        n.p_term;
+
+    """
+
+    rows = frappe.db.sql(query, {"as_on": as_on}, as_dict=True)
+    return [dict(row) for row in rows]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@frappe.whitelist()
 def banking_line_data():
 
     banking_line_summary= {
@@ -13,9 +128,9 @@ def banking_line_data():
         "scsb_imp_lc_da_dp_3" : 500000,
         "sino_cln" : 1050000,
         "sino_imp_lc_8" :1100000,
-        "sino_da_dp_8" : 2600000,
+        "sino_da_dp_8" : 2800000,
         "sino_imp_lc_3": 400000,
-        "sino_da_dp_3" : 400000,
+        "sino_da_dp_3" : 200000,
         "line_0" :0
         }
 
@@ -80,50 +195,41 @@ def import_banking_data(as_on):
     SELECT *
     FROM (
         -- LC Open
-        SELECT 
-            lc_o.name, 
-            lc_o.lc_no AS ref_no,
-            com.company_code AS com,
-            bank.bank AS bank,
+       SELECT
+            lc_o.group_id AS name,
+            'lc_open' AS ref_no,
+            MAX(com.company_code) AS com,
+            MAX(bank.bank) AS bank,
             'LC Open' AS p_term,
             0 AS document,
-            ROUND(IF(
-                lc_o.amount 
-                - IFNULL(lc_p.lc_p_amount, 0) 
-                - IFNULL(imp_loan.imp_loan_amount, 0) 
-                - IFNULL(u_lc.u_lc_amount, 0) 
-                < lc_o.amount * lc_o.tolerance / 100,
-                0,
-                lc_o.amount 
-                - IFNULL(lc_p.lc_p_amount, 0) 
-                - IFNULL(imp_loan.imp_loan_amount, 0) 
-                - IFNULL(u_lc.u_lc_amount, 0)
-            ) / lc_o.ex_rate,2
-        ) AS amount_usd
+            (SUM(lc_o.amount_usd)- IFNULL(lc_p.lc_p_amount, 0)- IFNULL(imp_ln.to_imp_ln, 0)- IFNULL(usance_lc.to_usance_lc, 0)) AS amount_usd
         FROM `tabLC Open` lc_o
-        LEFT JOIN `tabSupplier` sup 
-            ON sup.name = lc_o.supplier
-        LEFT JOIN `tabBank` bank 
-            ON bank.name = lc_o.bank
         LEFT JOIN (
-            SELECT lc_no, SUM(amount) AS lc_p_amount 
+            SELECT 
+                group_id,
+                SUM(amount_usd) AS lc_p_amount
             FROM `tabLC Payment`
-            GROUP BY lc_no
-        ) lc_p 
-            ON lc_p.lc_no = lc_o.name
-        LEFT JOIN (
-            SELECT lc_no, SUM(loan_amount) AS imp_loan_amount 
-            FROM `tabImport Loan`
-            GROUP BY lc_no
-        ) imp_loan 
-            ON imp_loan.lc_no = lc_o.name
-        LEFT JOIN (
-            SELECT lc_no, SUM(usance_lc_amount) AS u_lc_amount 
-            FROM `tabUsance LC`
-            GROUP BY lc_no
-        ) u_lc 
-            ON u_lc.lc_no = lc_o.name
-        LEFT JOIN `tabCompany` com ON lc_o.company= com.name
+            GROUP BY group_id
+        ) lc_p ON lc_p.group_id = lc_o.group_id
+        LEFT JOIN
+			(
+				SELECT group_id, company, bank, SUM(loan_amount_usd) AS to_imp_ln
+				FROM `tabImport Loan`
+				WHERE from_lc_open=1
+				GROUP BY group_id
+			) imp_ln
+		ON lc_o.group_id = imp_ln.group_id
+        LEFT JOIN
+			(
+				SELECT group_id, company, bank, SUM(usance_lc_amount_usd) AS to_usance_lc
+				FROM `tabUsance LC`
+				WHERE from_lc_open=1
+				GROUP BY group_id
+			) usance_lc
+		ON lc_o.group_id = usance_lc.group_id
+        LEFT JOIN `tabCompany` com ON com.name = lc_o.company
+        LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+        GROUP BY lc_o.group_id
 
         UNION ALL
 
@@ -138,22 +244,20 @@ def import_banking_data(as_on):
             ROUND(IFNULL(
                 imp_l.loan_amount - IFNULL(imp_l_p.imp_l_p_amount, 0), 
                 0
-            ) / lc_o.ex_rate,2
+            ) / imp_l.ex_rate,2
         ) AS amount_usd
         FROM `tabImport Loan` imp_l
-        LEFT JOIN `tabLC Open` lc_o 
-            ON imp_l.lc_no = lc_o.name
         LEFT JOIN `tabSupplier` sup 
-            ON sup.name = lc_o.supplier
+            ON sup.name = imp_l.supplier
         LEFT JOIN `tabBank` bank 
-            ON bank.name = lc_o.bank
+            ON bank.name = imp_l.bank
         LEFT JOIN (
             SELECT inv_no, SUM(amount) AS imp_l_p_amount
             FROM `tabImport Loan Payment` 
             GROUP BY inv_no
         ) imp_l_p 
             ON imp_l_p.inv_no = imp_l.name
-        LEFT JOIN `tabCompany` com ON lc_o.company= com.name
+        LEFT JOIN `tabCompany` com ON imp_l.company= com.name
             
         UNION ALL   
             
@@ -164,17 +268,17 @@ def import_banking_data(as_on):
                 bank.bank AS bank,
                 'Usance LC' AS p_term,
                 0 AS document,
-                ROUND(IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0)/ lc_o.ex_rate,2) AS amount_usd
+                ROUND(IFNULL(u_lc.usance_lc_amount - IFNULL(u_lc_p.u_lc_p_amount, 0), 0)/ u_lc.ex_rate,2) AS amount_usd
             FROM `tabUsance LC` u_lc
             LEFT JOIN `tabLC Open` lc_o ON u_lc.lc_no = lc_o.name
             LEFT JOIN `tabSupplier` sup ON sup.name = lc_o.supplier
-            LEFT JOIN `tabBank` bank ON bank.name = lc_o.bank
+            LEFT JOIN `tabBank` bank ON bank.name = u_lc.bank
             LEFT JOIN (
                 SELECT inv_no, SUM(amount) AS u_lc_p_amount
                 FROM `tabUsance LC Payment` 
                 GROUP BY inv_no
             ) u_lc_p ON u_lc_p.inv_no = u_lc.name
-            LEFT JOIN `tabCompany` com ON lc_o.company= com.name
+            LEFT JOIN `tabCompany` com ON u_lc.company= com.name
         
     UNION ALL
     
@@ -218,14 +322,12 @@ def balance_banking_line_data(as_on):
     sino_imp_lc_3=banking_line["sino_imp_lc_3"]
     sino_da_dp_3=banking_line["sino_da_dp_3"]
     
-    
-
 
     export_banking=export_banking_data(as_on)
     export_banking_result = {}
     for row in export_banking:
-        bank=row['bank'].replace('.', '').replace('-', '').replace(' ', '_')
-        com= row['com'].replace('.', '').replace('-', '').replace(' ', '_')
+        bank=row['bank'].replace('.', '').replace('-', '').replace(' ', '_') 
+        com= row['com'].replace('.', '').replace('-', '').replace(' ', '_') 
         p_term=row['p_term'].replace('.', '').replace('-', '').replace(' ', '_')
         key = f"{bank}_{com}_{p_term}"
         export_banking_result[key] = export_banking_result.get(key, 0) + row['nego']

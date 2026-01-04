@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "Banl_b_line-.####",
+ "autoname": "bank_b_line-.#####",
  "creation": "2026-01-01 23:12:50.774311",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -9,9 +9,11 @@
   "date",
   "bank",
   "banking_line_name",
+  "banking_line_details",
   "no_limit",
   "banking_line",
-  "note"
+  "note",
+  "custom_title"
  ],
  "fields": [
   {
@@ -23,11 +25,10 @@
   },
   {
    "fieldname": "banking_line_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
+   "fieldtype": "Select",
    "label": "Banking Line Name",
-   "reqd": 1,
-   "unique": 1
+   "options": "CUB : Banking Line-1\nCUB : Banking Line-2\nCUB : Banking Line-3\nCTBC : Banking Line-1\nCTBC : Banking Line-2\nCTBC : Banking Line-3\nCTBC : Banking Line-4\nSCSB : Banking Line-1\nSCSB : Banking Line-2\nSCSB : Banking Line-3\nSCSB : Banking Line-4\nSINO : Banking Line-1\nSINO : Banking Line-2\nSINO : Banking Line-3\nSINO : Banking Line-4\nSINO : Banking Line-5\nSINO : Banking Line-6\nSINO : Banking Line-7",
+   "reqd": 1
   },
   {
    "fieldname": "note",
@@ -53,12 +54,23 @@
    "fieldname": "no_limit",
    "fieldtype": "Check",
    "label": "No Limit"
+  },
+  {
+   "fieldname": "banking_line_details",
+   "fieldtype": "Data",
+   "label": "Banking Line Details"
+  },
+  {
+   "fieldname": "custom_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Custom Title"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-02 01:19:57.263551",
+ "modified": "2026-01-03 00:58:42.459213",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Bank Banking Line",
@@ -84,5 +96,5 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "banking_line_name"
+ "title_field": "custom_title"
 }

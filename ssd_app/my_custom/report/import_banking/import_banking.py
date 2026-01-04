@@ -454,9 +454,9 @@ def build_html(supplier_name, bank_name, term, rows_html, buttons_html):
 				<th style="width:13%; text-align:center;">Date</th>
 				<th style="width:12%; text-align:center;">Inv No</th>
 				<th style="width:15%; text-align:center;">Amount</th>
-				<th style="width:10%; text-align:center;">Details</th>
+				<th style="width:20%; text-align:center;">Details</th>
 				<th style="width:15%; text-align:center;">Balance</th>			
-				<th style="width:35%; text-align:center;">Note</th>
+				<th style="width:25%; font-size: clamp(10px, 2vw, 16px); text-align:center;">Note</th>
 			</tr>
 		</thead>
 		<tbody>
