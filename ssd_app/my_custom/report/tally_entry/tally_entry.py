@@ -237,7 +237,7 @@ def execute_interest_payment(filters):
 
     query = f"""
         SELECT 
-        cif.inv_no AS inv_no, ip.date, com.company_code AS com, bank.bank AS bank, ip.interest
+        cif.inv_no AS inv_no, ip.date, com.company_code AS com, bank.bank AS bank, ip.interest, (ip.interest *-1) AS bank_amount
         FROM `tabInterest Paid` ip
         LEFT JOIN `tabCIF Sheet` cif ON cif.name=ip.cif_id
         LEFT JOIN `tabBank` bank ON bank.name= cif.bank
@@ -254,6 +254,7 @@ def execute_interest_payment(filters):
         {"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 110},
         {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
         {"label": "Interest", "fieldname": "interest", "fieldtype": "Float", "width": 110},
+        {"label": "Bank Amount ", "fieldname": "bank_amount", "fieldtype": "Float", "width": 120}
     ]
 
     return  columns, data
@@ -272,7 +273,7 @@ def execute_cc_received(filters):
         ccr.date,
         com.company_code AS com,
         bank.bank,
-        CAST(ccrd.amount AS DECIMAL(18,6)) AS cc_received,
+        CAST(ccrd.amount AS DECIMAL(18,6))*-1 AS cc_received,
         CAST(ccrd.bank_amount AS DECIMAL(18,6)) AS bank_amount,
         CAST(
             IFNULL(ccrd.amount, 0) - IFNULL(ccrd.bank_amount, 0)
@@ -287,7 +288,7 @@ def execute_cc_received(filters):
         ON com.name = ccrd.company
     LEFT JOIN `tabCustomer` cus
         ON cus.name = ccr.customer
-        {where_clause}
+        {where_clause} AND ccrd.tally_entry= 1
         ORDER BY ccr.date ASC
     """
     data= frappe.db.sql(query, sql_filters, as_dict=1)

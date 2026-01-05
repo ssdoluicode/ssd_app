@@ -16,7 +16,7 @@
   "bank_amount",
   "company",
   "bank",
-  "accounting_entry",
+  "tally_entry",
   "narration",
   "note"
  ],
@@ -99,21 +99,21 @@
    "label": "Note"
   },
   {
-   "default": "1",
-   "fieldname": "accounting_entry",
-   "fieldtype": "Check",
-   "label": "Accounting Entry"
-  },
-  {
    "fieldname": "narration",
    "fieldtype": "Data",
    "label": "Narration"
+  },
+  {
+   "default": "1",
+   "fieldname": "tally_entry",
+   "fieldtype": "Check",
+   "label": "Tally Entry"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-19 15:56:04.481320",
+ "modified": "2026-01-05 10:42:35.950399",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CC Received Details",
