@@ -4,17 +4,19 @@
 import frappe
 from frappe.utils import fmt_money
 from datetime import date, timedelta
-from ssd_app.utils.auto_excel_report import generate_daily_banking
+# from ssd_app.utils.auto_excel_report import generate_daily_banking
+from ssd_app.utils.banking_line import check_banking_line
 
 
 def get_today_str():
     return date.today().strftime("%Y-%m-%d")
 
 def execute(filters=None):
-	# generate_daily_banking()
+	x=check_banking_line("bank-002", "com-001", "DA")
+	print(x)
+
 	as_on = filters.as_on
 	conditional_filter = ""
-
 	if filters.based_on == "Receivable":
 		conditional_filter = "AND (cif.document - IFNULL(rec.total_rec, 0)) > 0"
 	elif filters.based_on == "Coll":

@@ -10,6 +10,7 @@
   "column_break_oxiy",
   "bank",
   "note",
+  "bank_com_id",
   "section_break_acta",
   "banking_line_details"
  ],
@@ -55,12 +56,18 @@
   {
    "fieldname": "section_break_acta",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "bank_com_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Bank Com ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-03 04:07:04.288045",
+ "modified": "2026-01-10 22:49:30.638691",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Com Banking Line",
