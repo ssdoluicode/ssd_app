@@ -1,49 +1,38 @@
 {
  "actions": [],
- "autoname": "b_line_n-.###",
- "creation": "2026-01-11 01:43:04.935938",
+ "allow_rename": 1,
+ "creation": "2026-01-12 17:49:31.775252",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "banking_line_name",
-  "active_line",
-  "details",
-  "note"
+  "shipping_line_name",
+  "code_name"
  ],
  "fields": [
   {
-   "fieldname": "banking_line_name",
+   "fieldname": "shipping_line_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Banking Line Name",
+   "label": "Shipping Line Name",
    "reqd": 1,
    "unique": 1
   },
   {
-   "fieldname": "details",
+   "fieldname": "code_name",
    "fieldtype": "Data",
-   "label": "Details"
-  },
-  {
-   "fieldname": "note",
-   "fieldtype": "Data",
-   "label": "Note"
-  },
-  {
-   "default": "1",
-   "fieldname": "active_line",
-   "fieldtype": "Check",
-   "label": "Active Line"
+   "in_list_view": 1,
+   "label": "Code Name",
+   "reqd": 1,
+   "unique": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-12 15:58:02.989894",
+ "modified": "2026-01-12 17:51:08.694799",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "Banking Line Name",
- "naming_rule": "Expression (old style)",
+ "name": "Shipping Line",
  "owner": "Administrator",
  "permissions": [
   {
@@ -59,12 +48,9 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
- "title_field": "banking_line_name"
+ "states": []
 }

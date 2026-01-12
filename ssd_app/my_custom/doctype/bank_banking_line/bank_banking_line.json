@@ -62,7 +62,8 @@
   {
    "fieldname": "banking_line_details",
    "fieldtype": "Data",
-   "label": "Banking Line Details"
+   "label": "Banking Line Details",
+   "reqd": 1
   },
   {
    "fieldname": "custom_title",
@@ -74,7 +75,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-11 17:50:09.792977",
+ "modified": "2026-01-12 16:09:54.509633",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Bank Banking Line",

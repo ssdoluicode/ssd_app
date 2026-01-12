@@ -5,14 +5,15 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "invoice_date",
+  "bl_date",
   "inv_no",
   "company",
   "customer",
   "notify",
+  "shipping_line",
   "column_break_inwz",
-  "product_category",
-  "fapiao",
+  "invoice_amount",
+  "document",
   "bank",
   "payment_term",
   "term_days"
@@ -26,13 +27,6 @@
    "no_copy": 1,
    "reqd": 1,
    "unique": 1
-  },
-  {
-   "fieldname": "invoice_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Invoice Date",
-   "reqd": 1
   },
   {
    "fieldname": "customer",
@@ -51,23 +45,10 @@
    "reqd": 1
   },
   {
-   "fieldname": "product_category",
-   "fieldtype": "Link",
-   "label": "Product Category",
-   "options": "Product Category",
-   "reqd": 1
-  },
-  {
-   "fieldname": "fapiao",
-   "fieldtype": "Float",
-   "label": "Fapiao",
-   "non_negative": 1,
-   "reqd": 1
-  },
-  {
    "fieldname": "bank",
    "fieldtype": "Link",
    "label": "Bank",
+   "link_filters": "[[\"Bank\",\"active\",\"=\",1]]",
    "options": "Bank"
   },
   {
@@ -91,12 +72,39 @@
    "label": "Company",
    "options": "Company",
    "reqd": 1
+  },
+  {
+   "fieldname": "bl_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "BL Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "shipping_line",
+   "fieldtype": "Link",
+   "label": "Shipping Line",
+   "options": "Shipping Line"
+  },
+  {
+   "fieldname": "invoice_amount",
+   "fieldtype": "Float",
+   "label": "Invoice Amount",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "document",
+   "fieldtype": "Float",
+   "label": "Document",
+   "non_negative": 1,
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-01 23:25:34.197874",
+ "modified": "2026-01-12 17:58:59.398192",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Shipping Book",
