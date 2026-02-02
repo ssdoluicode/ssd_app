@@ -7,19 +7,22 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_lj47",
   "inv_no",
   "inv_date",
+  "column_break_cdvt",
+  "shipping_company",
+  "customer",
+  "column_break_ahmh",
+  "notify",
+  "section_break_lj47",
   "category",
   "column_break_uzqc",
-  "customer",
-  "notify",
   "accounting_company",
   "column_break_lbuh",
-  "shipping_company",
   "multiple_sc",
   "sc_no",
   "amended_from",
+  "invoice_no",
   "section_break_tzfx",
   "product_details",
   "section_break_mbkc",
@@ -56,7 +59,6 @@
   "due_date",
   "column_break_ypve",
   "bank",
-  "bank_ref_no",
   "section_break_kazq",
   "load_port",
   "from_country",
@@ -73,10 +75,11 @@
   },
   {
    "fieldname": "inv_no",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Inv No",
    "no_copy": 1,
+   "options": "Shipping Book",
    "reqd": 1,
    "unique": 1
   },
@@ -88,24 +91,26 @@
    "reqd": 1
   },
   {
+   "default": "-",
    "fieldname": "customer",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_list_view": 1,
+   "is_virtual": 1,
    "label": "Customer",
-   "options": "Customer",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "column_break_uzqc",
    "fieldtype": "Column Break"
   },
   {
+   "default": "-",
    "fieldname": "notify",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_list_view": 1,
+   "is_virtual": 1,
    "label": "Notify",
-   "options": "Notify",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "category",
@@ -272,13 +277,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "document",
-   "fieldtype": "Float",
-   "label": "Document",
-   "precision": "2",
-   "reqd": 1
-  },
-  {
    "default": "0",
    "fieldname": "cc",
    "fieldtype": "Float",
@@ -291,17 +289,19 @@
    "fieldtype": "Section Break"
   },
   {
+   "default": "-",
    "fieldname": "payment_term",
-   "fieldtype": "Select",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Payment Term",
-   "options": "LC\nLC at Sight\nDP\nDA\nTT\nTT-Doc",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "term_days",
    "fieldtype": "Int",
+   "is_virtual": 1,
    "label": "Term Days",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "column_break_ghco",
@@ -323,15 +323,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "-",
    "fieldname": "bank",
-   "fieldtype": "Link",
-   "label": "Bank",
-   "options": "Bank"
-  },
-  {
-   "fieldname": "bank_ref_no",
    "fieldtype": "Data",
-   "label": "Bank Ref No"
+   "is_virtual": 1,
+   "label": "Bank"
   },
   {
    "fieldname": "section_break_kazq",
@@ -374,11 +370,12 @@
    "reqd": 1
   },
   {
+   "default": "-",
    "fieldname": "shipping_company",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Shipping Company",
-   "options": "Company",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "expenses",
@@ -399,13 +396,35 @@
    "hidden": 1,
    "label": "To Country",
    "options": "Country"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Invoice No"
+  },
+  {
+   "default": "0",
+   "fieldname": "document",
+   "fieldtype": "Float",
+   "label": "Document",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cdvt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ahmh",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-30 01:56:25.205049",
+ "modified": "2026-01-28 01:12:42.779581",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CIF Sheet",

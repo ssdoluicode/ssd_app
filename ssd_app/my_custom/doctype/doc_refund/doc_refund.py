@@ -52,10 +52,10 @@ def protect_delete(doc):
         frappe.throw("❌ Cannot delete: Doc Already Received part or full")
 
 
-def put_value_from_cif(doc):
+def put_value_from_shi(doc):
     if doc.is_new():
         fields = ["customer", "bank", "notify", "payment_term"]
-        data = frappe.db.get_value("CIF Sheet", doc.inv_no, fields, as_dict=True)
+        data = frappe.db.get_value("Shipping Book", doc.inv_no, fields, as_dict=True)
 
         if data:
             for field in fields:
@@ -65,10 +65,10 @@ def put_value_from_cif(doc):
 
 
 def set_calculated_fields(doc):
-    invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
+    invoice = frappe.db.get_value("Shipping Book", doc.inv_no, "inv_no")
     doc.custom_title = f"{doc.name} ({invoice})".strip()
     doc.invoice_no = invoice
-    doc.cif_id = doc.inv_no
+    doc.shipping_id = doc.inv_no
 
 # ----------------------------
 # 📄 DocType Class
@@ -78,7 +78,7 @@ class DocRefund(Document):
         final_validation(self)
 
     def before_save(self):
-        put_value_from_cif(self)
+        put_value_from_shi(self)
         set_calculated_fields(self)
 
     def on_trash(self):
@@ -90,12 +90,12 @@ class DocRefund(Document):
 @frappe.whitelist()
 def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
     return frappe.db.sql("""
-        SELECT cif.name, cif.inv_no
+        SELECT shi.name, shi.inv_no
         FROM (
             SELECT inv_no, SUM(nego_amount) AS total_nego
             FROM `tabDoc Nego` GROUP BY inv_no
         ) AS nego
-        LEFT JOIN `tabCIF Sheet` AS cif ON cif.name = nego.inv_no
+        LEFT JOIN `tabShipping Book` AS shi ON shi.name = nego.inv_no
         LEFT JOIN (
             SELECT inv_no, SUM(received) AS total_rec
             FROM `tabDoc Received` GROUP BY inv_no
@@ -105,7 +105,7 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
             FROM `tabDoc Refund` GROUP BY inv_no
         ) AS ref ON ref.inv_no = nego.inv_no
         WHERE (COALESCE(nego.total_nego, 0) - COALESCE(ref.total_ref, 0)) > COALESCE(rec.total_rec, 0)
-          AND (cif.name LIKE %(txt)s OR cif.inv_no LIKE %(txt)s)
+          AND (shi.name LIKE %(txt)s OR shi.inv_no LIKE %(txt)s)
         LIMIT %(start)s, %(page_len)s
     """, {
         "txt": f"%{txt}%",
@@ -114,13 +114,13 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
     })
 
 # ----------------------------
-# 🧠 Get CIF data with computed nego amount
+# 🧠 Get shi data with computed nego amount
 # ----------------------------
 @frappe.whitelist()
-def get_cif_data(inv_no):
-    cif = frappe.db.get_value(
-        "CIF Sheet", inv_no,
-        ["inv_date", "category", "notify", "customer", "bank", "payment_term", "term_days", "document"],
+def get_shi_data(inv_no):
+    shi = frappe.db.get_value(
+        "Shipping Book", inv_no,
+        ["bl_date", "notify", "customer", "bank", "payment_term", "term_days", "document"],
         as_dict=True
     ) or {}
 
@@ -128,6 +128,9 @@ def get_cif_data(inv_no):
     total_nego     = get_total("Doc Nego", "nego_amount", inv_no)
     total_ref      = get_total("Doc Refund", "refund_amount", inv_no)
 
-    cif["nego_amount"] = total_nego - total_received - total_ref
-
-    return cif
+    shi["notify_name"]= frappe.db.get_value("Notify", shi.notify, "code")
+    shi["customer_name"]= frappe.db.get_value("Customer", shi.customer, "customer")
+    shi["bank_name"]= frappe.db.get_value("Bank", shi.bank, "bank")
+    shi["nego_amount"] = total_nego - total_received - total_ref
+    shi["payment_term_name"]= frappe.db.get_value("Payment Term", shi.payment_term, "term_name")
+    return shi

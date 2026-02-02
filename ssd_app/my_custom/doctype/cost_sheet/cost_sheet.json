@@ -64,42 +64,47 @@
  ],
  "fields": [
   {
+   "default": "-",
    "fieldname": "customer",
-   "fieldtype": "Link",
-   "label": "Customer",
-   "options": "Customer"
+   "fieldtype": "Data",
+   "label": "Customer"
   },
   {
    "fieldname": "column_break_htkm",
    "fieldtype": "Column Break"
   },
   {
+   "default": "-",
    "fieldname": "notify",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Notify",
-   "options": "Notify"
+   "read_only": 1
   },
   {
+   "default": "-",
    "fieldname": "category",
-   "fieldtype": "Link",
-   "label": "Category",
-   "options": "Product Category"
+   "fieldtype": "Data",
+   "is_virtual": 1,
+   "label": "Category"
   },
   {
+   "default": "-",
    "fieldname": "accounting_company",
-   "fieldtype": "Link",
-   "label": "Accounting Company",
-   "options": "Company"
+   "fieldtype": "Data",
+   "is_virtual": 1,
+   "label": "Accounting Company"
   },
   {
    "fieldname": "column_break_trkv",
    "fieldtype": "Column Break"
   },
   {
+   "default": "-",
    "fieldname": "shipping_company",
-   "fieldtype": "Link",
-   "label": "Shipping Company",
-   "options": "Company"
+   "fieldtype": "Data",
+   "is_virtual": 1,
+   "label": "Shipping Company"
   },
   {
    "default": "0",
@@ -184,9 +189,12 @@
    "unique": 1
   },
   {
+   "default": "Today",
    "fieldname": "inv_date",
    "fieldtype": "Data",
-   "label": "Inv Date"
+   "is_virtual": 1,
+   "label": "Inv Date",
+   "read_only": 1
   },
   {
    "fieldname": "custom_title",
@@ -353,7 +361,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-25 15:43:29.950299",
+ "modified": "2026-01-31 00:16:01.685670",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Sheet",
@@ -374,6 +382,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

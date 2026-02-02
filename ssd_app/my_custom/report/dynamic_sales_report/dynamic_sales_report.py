@@ -6,12 +6,12 @@ today_str = date.today().strftime("%Y-%m-%d")
 
 
 filter_data_dict = {
-        "Customer": {"dc": "tabCustomer", "as":"cus", "field": "code", "l_field": "customer"},
-        "Notify": {"dc": "tabNotify", "as":"noti", "field": "code", "l_field": "notify"},
-        "Category": {"dc": "tabProduct Category", "as":"pc", "field": "product_category", "l_field": "category"},
-        "From Country": {"dc": "tabCountry", "as":"fc", "field": "country_name", "l_field": "from_country"},
-        "To Country": {"dc": "tabCountry", "as":"tc", "field": "country_name", "l_field": "to_country"},
-        "Company": {"dc": "tabCompany", "as":"com", "field": "company_code", "l_field": "accounting_company"}
+        "Customer": {"dc": "tabCustomer", "jdc":"sb", "as":"cus", "field": "code", "l_field": "customer"},
+        "Notify": {"dc": "tabNotify","jdc":"sb", "as":"noti", "field": "code", "l_field": "notify"},
+        "Category": {"dc": "tabProduct Category", "jdc":"cif", "as":"pc", "field": "product_category", "l_field": "category"},
+        "From Country": {"dc": "tabCountry", "jdc":"cif", "as":"fc", "field": "country_name", "l_field": "from_country"},
+        "To Country": {"dc": "tabCountry", "jdc":"cif", "as":"tc", "field": "country_name", "l_field": "to_country"},
+        "Company": {"dc": "tabCompany", "jdc":"cif", "as":"com", "field": "company_code", "l_field": "accounting_company"}
     }
 
 def execute(filters=None):
@@ -32,6 +32,7 @@ def execute(filters=None):
     filter_field = filter_data_dict[group_by]["field"]
     filter_dc = filter_data_dict[group_by]["dc"]
     filter_l_field = filter_data_dict[group_by]["l_field"]
+    join_dc = filter_data_dict[group_by]["jdc"]
 
     # Build month list
     months = []
@@ -78,7 +79,8 @@ def execute(filters=None):
             MONTH(cif.inv_date) AS month,
             SUM(cif.sales) AS amount
         FROM `tabCIF Sheet` cif
-        LEFT JOIN `{filter_dc}` jdc ON cif.{filter_l_field} = jdc.name
+        LEFT JOIN `tabShipping Book` sb ON sb.name=cif.inv_no
+        LEFT JOIN `{filter_dc}` jdc ON {join_dc}.{filter_l_field} = jdc.name
         WHERE cif.inv_date BETWEEN %(from_date)s AND %(to_date)s
         GROUP BY jdc.{filter_field}, YEAR(cif.inv_date), MONTH(cif.inv_date)
         ORDER BY jdc.{filter_field} ASC
@@ -140,7 +142,7 @@ def show_inv_wise(group_by, head, month_year):
     data = frappe.db.sql(f"""
         SELECT 
             cif.name, 
-            cif.inv_no, 
+            cif.invoice_no AS inv_no, 
             cif.inv_date, 
             pc.product_category AS Category, 
             cus.code AS Customer, 
@@ -150,8 +152,9 @@ def show_inv_wise(group_by, head, month_year):
             cif.cc 
         FROM `tabCIF Sheet` cif 
         LEFT JOIN `tabProduct Category` pc ON pc.name = cif.category
-        LEFT JOIN `tabCustomer` cus ON cus.name = cif.customer
-        LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
+        LEFT JOIN `tabShipping Book` sb ON sb.name=cif.inv_no
+        LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
+        LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
         LEFT JOIN `tabCountry` fc ON fc.name = cif.from_country
         LEFT JOIN `tabCountry` tc ON tc.name = cif.to_country
         LEFT JOIN `tabCompany` com ON com.name = cif.accounting_company

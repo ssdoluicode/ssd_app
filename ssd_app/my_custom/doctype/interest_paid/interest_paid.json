@@ -18,8 +18,8 @@
   "interest_upto_date",
   "note",
   "invoice_no",
-  "cif_id",
-  "custom_title"
+  "custom_title",
+  "shipping_id"
  ],
  "fields": [
   {
@@ -97,22 +97,22 @@
    "label": "Round Off"
   },
   {
-   "fieldname": "cif_id",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "CIF ID"
-  },
-  {
    "fieldname": "custom_title",
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Custom Title"
+  },
+  {
+   "fieldname": "shipping_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Shipping ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-16 11:55:48.012757",
+ "modified": "2026-01-26 00:26:17.959185",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Interest Paid",
@@ -133,6 +133,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

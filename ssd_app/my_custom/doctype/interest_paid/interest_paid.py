@@ -6,14 +6,14 @@ from frappe.model.document import Document
 
 
 def set_calculated_fields(doc):
-    invoice, cif_id = frappe.db.get_value(
+    invoice, shi_id = frappe.db.get_value(
         "Doc Nego",
         doc.inv_no,
         ["invoice_no", "inv_no"]
     )
     doc.invoice_no = invoice
-    doc.cif_id = cif_id
     doc.custom_title = f"{doc.name} ({invoice})"
+    doc.shiping_id = shi_id
 
 class InterestPaid(Document):
     def before_save(self):

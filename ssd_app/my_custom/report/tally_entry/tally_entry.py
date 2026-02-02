@@ -64,29 +64,31 @@ def build_conditions(filters, date_field, company_field):
 # Doc Nego
 # ---------------------------------------
 def execute_doc_nego(filters):
-    conditions, sql_filters = build_conditions(filters, "dnd.nego_date", "cif.shipping_company")
+    conditions, sql_filters = build_conditions(filters, "dn.nego_date", "shi.company")
     where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 
     query = f"""
         SELECT 
             dnd.invoice_no AS inv_no,
-            dnd.nego_date AS date,
+            dn.nego_date AS date,
             com.company_code AS com,
             noti.code AS notify_party,
-            dnd.payment_term AS payment_term,
+            pt.term_name AS payment_term,
             bank.bank AS bank,
-            CAST(IFNULL(dnd.nego_amount, 0) AS DECIMAL(18,2)) AS nego_amount,
+            CAST(IFNULL(dn.nego_amount * -1, 0) AS DECIMAL(18,2)) AS nego_amount,
             CAST(IFNULL(dnd.interest, 0) AS DECIMAL(18,2)) AS interest,
-            CAST(IFNULL(dnd.nego_amount,0) - IFNULL(dnd.interest,0) - IFNULL(dnd.bank_amount,0) AS DECIMAL(18,2)) AS bank_charge,
+            CAST(IFNULL(dn.nego_amount,0) - IFNULL(dnd.interest,0) - IFNULL(dnd.bank_amount,0) AS DECIMAL(18,2)) AS bank_charge,
             CAST(IFNULL(dnd.bank_amount, 0) AS DECIMAL(18,2)) AS bank_amount,
             "" AS ref_no
         FROM `tabDoc Nego Details` dnd
-        LEFT JOIN `tabCIF Sheet` cif ON cif.name = dnd.cif_id
-        LEFT JOIN `tabBank` bank ON bank.name = cif.bank
-        LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-        LEFT JOIN `tabCompany` com ON com.name = cif.shipping_company
+        LEFT JOIN `tabDoc Nego` dn ON dn.name = dnd.inv_no
+        LEFT JOIN `tabShipping Book` shi ON shi.name = dn.inv_no
+        LEFT JOIN `tabBank` bank ON bank.name = shi.bank
+        LEFT JOIN `tabNotify` noti ON noti.name = shi.notify
+        LEFT JOIN `tabCompany` com ON com.name =shi.company
+        LEFT JOIN `tabPayment Term` pt ON pt.name =shi.payment_term
         {where_clause}
-        ORDER BY dnd.nego_date ASC
+        ORDER BY dn.nego_date ASC
     """
     data= frappe.db.sql(query, sql_filters, as_dict=1)
 

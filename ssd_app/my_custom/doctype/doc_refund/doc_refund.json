@@ -24,7 +24,7 @@
   "invoice_no",
   "custom_title",
   "refund_details",
-  "cif_id"
+  "shipping_id"
  ],
  "fields": [
   {
@@ -47,7 +47,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Inv No",
-   "options": "CIF Sheet",
+   "options": "Shipping Book",
    "reqd": 1
   },
   {
@@ -55,22 +55,28 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "-",
    "fieldname": "customer",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Customer",
-   "options": "Customer"
+   "read_only": 1
   },
   {
+   "default": "-",
    "fieldname": "bank",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Bank",
-   "options": "Bank"
+   "read_only": 1
   },
   {
+   "default": "-",
    "fieldname": "notify",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Notify",
-   "options": "Notify"
+   "read_only": 1
   },
   {
    "fieldname": "nego_amount",
@@ -79,9 +85,12 @@
    "precision": "2"
   },
   {
+   "default": "-",
    "fieldname": "payment_term",
    "fieldtype": "Data",
-   "label": "Payment Term"
+   "is_virtual": 1,
+   "label": "Payment Term",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_sumz",
@@ -135,9 +144,9 @@
    "label": "Custom Title"
   },
   {
-   "fieldname": "cif_id",
+   "fieldname": "shipping_id",
    "fieldtype": "Data",
-   "label": "CIF ID",
+   "label": "Shipping ID",
    "read_only": 1
   }
  ],
@@ -145,7 +154,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-01 01:59:37.013334",
+ "modified": "2026-01-29 00:44:41.919418",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Refund",

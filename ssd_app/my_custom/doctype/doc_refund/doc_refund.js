@@ -8,13 +8,13 @@ function inv_no_filter(frm) {
 }
 
 // 🧠 Function to fetch CIF data based on selected inv_no
-function get_cif_data(frm) {
+function get_shi_data(frm) {
     if (!frm.doc.inv_no) return;
 
 
     if (frm.is_new() && !frappe.quick_entry){
         frappe.call({
-            method: "ssd_app.my_custom.doctype.doc_refund.doc_refund.get_cif_data",
+            method: "ssd_app.my_custom.doctype.doc_refund.doc_refund.get_shi_data",
             args: { inv_no: frm.doc.inv_no },
             callback: function (r) {
                 const data = r.message;
@@ -25,10 +25,10 @@ function get_cif_data(frm) {
                     });
 
                 frm.set_value({
-                    notify: data.notify,
-                    customer: data.customer,
-                    bank: data.bank,
-                    payment_term: `${data.payment_term}- ${data.term_days}`,
+                    notify: data.notify_name,
+                    customer: data.customer_name,
+                    bank: data.bank_name,
+                    payment_term: `${data.payment_term_name}- ${data.term_days}`,
                     nego_amount:data.nego_amount,
                     refund_date: frappe.datetime.get_today(),
                     refund_amount:data.nego_amount,
@@ -56,10 +56,10 @@ function get_cif_data(frm) {
 frappe.ui.form.on("Doc Refund", {
 	onload(frm) {
         inv_no_filter(frm);  // ✅ Register custom filter
-        get_cif_data(frm);   // ✅ Fetch CIF details
+        get_shi_data(frm);   // ✅ Fetch CIF details
 
     },
     inv_no(frm) {
-        get_cif_data(frm);   // ✅ Fetch CIF details
+        get_shi_data(frm);   // ✅ Fetch CIF details
     },
 });

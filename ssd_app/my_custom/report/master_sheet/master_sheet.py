@@ -18,7 +18,7 @@ def execute(filters=None):
 
     query = f"""
     SELECT 
-    cif.name, cif.inv_no, cif.inv_date, com.company_code AS company, 
+    cif.name, cif.invoice_no AS inv_no, cif.inv_date, com.company_code AS company, 
     pcat.product_category AS category, cus.customer AS customer, 
     noti.notify AS notify, cost.supplier, 
     cif.gross_sales, cif.handling_charges, cif.sales, cif.document, cif.cc, 
@@ -31,11 +31,12 @@ def execute(filters=None):
     cif.from_country AS f_country, lport.port AS l_port, 
     cif.to_country AS t_country, dport.port AS d_port
 FROM `tabCIF Sheet` cif
+LEFT JOIN `tabShipping Book` sb ON sb.name= cif.inv_no
 LEFT JOIN `tabCompany` com ON cif.accounting_company = com.name
 LEFT JOIN `tabProduct Category` pcat ON cif.category = pcat.name
-LEFT JOIN `tabCustomer` cus ON cif.customer = cus.name
-LEFT JOIN `tabNotify` noti ON cif.notify = noti.name
-LEFT JOIN `tabBank` bank ON cif.bank = bank.name
+LEFT JOIN `tabCustomer` cus ON sb.customer = cus.name
+LEFT JOIN `tabNotify` noti ON sb.notify = noti.name
+LEFT JOIN `tabBank` bank ON sb.bank = bank.name
 LEFT JOIN `tabPort` lport ON cif.load_port = lport.name
 LEFT JOIN `tabPort` dport ON cif.destination_port = dport.name
 LEFT JOIN (

@@ -17,10 +17,11 @@
  "fields": [
   {
    "fieldname": "payment_term",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Payment Term",
-   "options": "LC\nLC at Sight\nDP\nDA\nLC Open\nUsance LC\nImp Loan\nCash Loan",
+   "link_filters": "[[\"Payment Term\",\"active\",\"=\",1],[\"Payment Term\",\"use_banking_line\",\"=\",1]]",
+   "options": "Payment Term",
    "reqd": 1
   },
   {
@@ -38,8 +39,9 @@
   },
   {
    "fieldname": "banking_line",
-   "fieldtype": "Float",
-   "label": "Banking Line"
+   "fieldtype": "Link",
+   "label": "Banking Line",
+   "options": "Banking Line Sub Limit"
   },
   {
    "fieldname": "note",
@@ -61,7 +63,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-01-11 23:12:36.229418",
+ "modified": "2026-01-27 21:38:51.676432",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Com Banking Line Breakup",

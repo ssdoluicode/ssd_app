@@ -5,21 +5,26 @@ import frappe
 from frappe.utils import fmt_money
 from datetime import date, timedelta
 # from ssd_app.utils.auto_excel_report import generate_daily_banking
-# from ssd_app.utils.banking_line import check_banking_line
+
 
 
 def get_today_str():
     return date.today().strftime("%Y-%m-%d")
 
 def execute(filters=None):
+	
+
+	# print(line)
+	# x= check_banking_line("bank-002", "com-001", "p_term-002")
+	# print(x)
 
 	as_on = filters.as_on
 	conditional_filter = ""
 	if filters.based_on == "Receivable":
-		conditional_filter = "AND (cif.document - IFNULL(rec.total_rec, 0)) > 0"
+		conditional_filter = "AND (shi.document - IFNULL(rec.total_rec, 0)) > 0"
 	elif filters.based_on == "Coll":
 		conditional_filter = """AND IFNULL( ROUND(
-			(cif.document - IFNULL(nego.total_nego, 0))
+			(shi.document - IFNULL(nego.total_nego, 0))
 			+ LEAST(IFNULL(nego.total_nego, 0) - IFNULL(rec.total_rec, 0), 0), 2), 0) > 0"""
 	elif filters.based_on == "Nego":
 		# conditional_filter = """AND IFNULL( ROUND(
@@ -34,7 +39,7 @@ def execute(filters=None):
 
 	columns = [
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
-		{"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
+		{"label": "Inv Date", "fieldname": "bl_date", "fieldtype": "Date", "width": 110},
 		{"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 120},
 		{"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 130},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
@@ -51,18 +56,19 @@ def execute(filters=None):
 
 	data = frappe.db.sql(f"""
 		SELECT
-			cif.name,
+			cif.name AS cif_id,
+			shi.name,
 			IFNULL(nego.nego_name, "") AS nego_name,
-			cif.inv_no,
-			cif.inv_date,
+			shi.inv_no,
+			shi.bl_date,
 			cus.code AS customer,
 			noti.code AS notify,
 			bank.bank,
-			IF(cif.payment_term IN ('LC', 'DA'),
-				CONCAT(cif.payment_term, '- ', cif.term_days),
-				cif.payment_term) AS p_term,
-			ROUND(cif.document, 2) AS document,
-			cif.due_date,
+			IF(pt.term_name IN ('LC', 'DA'),
+				CONCAT(pt.term_name, '- ', shi.term_days),
+				pt.term_name) AS p_term,
+			ROUND(shi.document, 2) AS document,
+			shi.bl_date AS due_date,
 			IFNULL(nego.total_nego, 0) AS total_nego,
 			CASE
 				WHEN GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0) > 0
@@ -73,34 +79,36 @@ def execute(filters=None):
 			nego.due_date_confirm,
 			IFNULL(ref.total_ref, 0) AS total_ref,
 			IFNULL(rec.total_rec, 0) AS total_rec,
-			ROUND(cif.document - IFNULL(rec.total_rec, 0), 2) AS receivable,
+			ROUND(shi.document - IFNULL(rec.total_rec, 0), 2) AS receivable,
 			IFNULL(ROUND(
-				(cif.document - IFNULL(nego.total_nego, 0))
+				(shi.document - IFNULL(nego.total_nego, 0))
 				+ LEAST(IFNULL(nego.total_nego, 0) - IFNULL(rec.total_rec, 0), 0), 2), 0) AS coll,
 			IFNULL(ROUND(
 				GREATEST(IFNULL(ref.total_ref, 0)
 				+ LEAST((IFNULL(nego.total_nego, 0)-IFNULL(ref.total_ref, 0)) - IFNULL(rec.total_rec, 0), 0), 0), 2), 0) AS ref,
 			GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0) AS nego
-		FROM `tabCIF Sheet` cif
+		FROM `tabShipping Book` shi
 		LEFT JOIN (
 			SELECT inv_no, SUM(nego_amount) AS total_nego, MIN(bank_due_date) AS bank_due_date, MIN(due_date_confirm) AS due_date_confirm, MIN(name) AS nego_name
 			FROM `tabDoc Nego` WHERE nego_date <= %(as_on)s GROUP BY inv_no
-		) nego ON cif.name = nego.inv_no
+		) nego ON shi.name = nego.inv_no
 		LEFT JOIN (
 			SELECT inv_no, SUM(refund_amount) AS total_ref
 			FROM `tabDoc Refund` WHERE refund_date <= %(as_on)s GROUP BY inv_no
-		) ref ON cif.name = ref.inv_no
+		) ref ON shi.name = ref.inv_no
 		LEFT JOIN (
 			SELECT inv_no, SUM(received) AS total_rec
 			FROM `tabDoc Received` WHERE received_date <= %(as_on)s GROUP BY inv_no
-		) rec ON cif.name = rec.inv_no
-		LEFT JOIN `tabCustomer` cus ON cif.customer = cus.name
-		LEFT JOIN `tabNotify` noti ON cif.notify = noti.name
-		LEFT JOIN `tabBank` bank ON cif.bank = bank.name
-		WHERE cif.payment_term != 'TT'
+		) rec ON shi.name = rec.inv_no
+		LEFT JOIN `tabCustomer` cus ON shi.customer = cus.name
+		LEFT JOIN `tabNotify` noti ON shi.notify = noti.name
+		LEFT JOIN `tabBank` bank ON shi.bank = bank.name
+		LEFT JOIN `tabPayment Term` pt ON shi.payment_term = pt.name
+		LEFT JOIN `tabCIF Sheet` cif ON shi.name = cif.inv_no
+		WHERE pt.term_type= "Export" AND full_tt=0
 			{conditional_filter}
-			AND cif.inv_date <= %(as_on)s
-		ORDER BY cif.inv_no ASC
+			AND shi.bl_date <= %(as_on)s
+		ORDER BY shi.inv_no ASC
 	""", {"as_on": as_on}, as_dict=1)
 
 	return columns, data
@@ -110,11 +118,14 @@ def get_doc_flow(inv_name):
 	if not inv_name:
 		return "Invalid Invoice Number"
 
-	doc = frappe.get_doc("CIF Sheet", inv_name)
+	doc = frappe.get_doc("Shipping Book", inv_name)
+
 	customer = frappe.get_value("Customer", doc.customer, "code")
 	notify = frappe.get_value("Notify", doc.notify, "code")
 	bank = frappe.get_value("Bank", doc.bank, "bank")
-	category = frappe.get_value("Product Category", doc.category, "product_category")
+	payment_term=frappe.get_value("Payment Term", doc.payment_term, "term_name")
+	# category = frappe.get_value("Product Category", doc.category, "product_category")
+	category= "bb"
 
 	doc_amount = doc.document or 0
 
@@ -128,7 +139,7 @@ def get_doc_flow(inv_name):
 	""", (inv_name, inv_name, inv_name), as_dict=1)
 
 	# Start with sales
-	combined = [{"name": doc.name, "Type": "Sales", "Date": doc.inv_date, "Amount": doc_amount, "Note": ""}] + entries
+	combined = [{"name": doc.name, "Type": "Sales", "Date": doc.bl_date, "Amount": doc_amount, "Note": ""}] + entries
 	combined.sort(key=lambda x: x["Date"] or date.today())
 
 	# Running totals
@@ -197,8 +208,8 @@ def get_doc_flow(inv_name):
 	<div style="bmargin-bottom: 12px; background-color: #f9f9f9; padding: 8px 12px;  border-radius: 6px; 
 	box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
     <table style="width:100%; font-size:13px; margin-bottom:0;">
-			<tr><td><b>Invoice Date:</b> {doc.inv_date}</td><td><b>Customer:</b> {customer}</td><td><b>Notify:</b> {notify}</td></tr>
-			<tr><td><b>Bank:</b> {bank}</td><td><b>Payment Term:</b> {doc.payment_term}{' - '+str(doc.term_days) if doc.payment_term in ['LC','DA'] else ''}</td><td><b>Category:</b> {category}</td></tr>
+			<tr><td><b>Invoice Date:</b> {doc.bl_date}</td><td><b>Customer:</b> {customer}</td><td><b>Notify:</b> {notify}</td></tr>
+			<tr><td><b>Bank:</b> {bank}</td><td><b>Payment Term:</b> {payment_term}{' - '+str(doc.term_days) if payment_term in ['LC','DA'] else ''}</td><td><b>Category:</b> {category}</td></tr>
 		</table>
 	</div>
 	<table class="table table-bordered" style="font-size:14px; border:1px solid #ddd;">

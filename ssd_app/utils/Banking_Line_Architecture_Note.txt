@@ -1,0 +1,80 @@
+Developer Note – Banking Line Architecture (Frappe)
+
+This Banking Line architecture is designed to ensure data safety, historical accuracy,
+and clear separation of responsibilities across banks, companies, and payment terms.
+
+--------------------------------------------------
+DocType Structure Overview
+--------------------------------------------------
+
+1. Banking Line Name
+Purpose:
+- Acts as a master reference for banking line identities.
+- Stores only the banking line name.
+
+Usage:
+- Used as a Link field (banking_line_name) in Bank Banking Line.
+- Ensures consistent naming and avoids duplication.
+
+--------------------------------------------------
+
+2. Bank Banking Line
+Purpose:
+- Stores bank-wise banking line definitions.
+- A single bank can have multiple banking lines.
+
+Key Fields:
+- bank (Link to Bank)
+- banking_line_name (Link to Banking Line Name)
+- amount
+- no_limit (1 = unlimited, 0 = limited)
+
+Rules:
+- Editing is not allowed.
+- Deletion is allowed only if not used in Com Banking Line.
+
+--------------------------------------------------
+
+3. Com Banking Line
+Purpose:
+- Stores company-specific usage of bank banking lines.
+- Supports multiple companies and historical configurations.
+
+Design Notes:
+- Not used as a link in other DocTypes.
+- Works as a time-based configuration ledger for 'as on date' logic.
+
+Safety Rules:
+- Cannot be edited.
+- Can be deleted only within 1 hour of creation.
+
+--------------------------------------------------
+
+4. Com Banking Line Details (Breakup)
+Purpose:
+- Defines which Payment Term uses which Bank Banking Line.
+
+Key Fields:
+- payment_term (Link to Payment Term)
+- bank_banking_line (Link to Bank Banking Line)
+
+--------------------------------------------------
+As On Date Logic
+--------------------------------------------------
+
+This architecture supports historical evaluation.
+
+Example:
+Entry-1: 01-01-2024 -> Bank-1 + Com-1 + Term-1 -> Line-1
+Entry-2: 01-01-2025 -> Bank-1 + Com-1 + Term-1 -> Line-2
+
+If as_on = 01-08-2024 -> Entry-1 applies
+If as_on = 01-08-2025 -> Entry-2 applies
+
+--------------------------------------------------
+Final Developer Note
+--------------------------------------------------
+
+This system favors immutability over convenience.
+If banking rules change, create a new record instead of modifying old data.
+This guarantees audit-proof historical accuracy.

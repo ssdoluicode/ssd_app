@@ -16,15 +16,15 @@ def execute(filters=None):
 
 	data = frappe.db.sql(f"""
 		SELECT 
-			cif.inv_no AS inv_no, 
+			sb.inv_no AS inv_no, 
             dr.received_date AS date,
 			cus.customer AS customer, 
 			bank.bank AS bank, 
 			dr.received AS received 
 		FROM `tabDoc Received` dr
-		LEFT JOIN `tabCIF Sheet` cif ON cif.name = dr.inv_no
-		LEFT JOIN `tabBank` bank ON bank.name = dr.bank
-		LEFT JOIN `tabCustomer` cus ON cus.name = dr.customer
+		LEFT JOIN `tabShipping Book` sb ON sb.name = dr.inv_no
+		LEFT JOIN `tabBank` bank ON bank.name = sb.bank
+		LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
 		WHERE DATE(dr.creation) = %s OR DATE(dr.received_date) = %s
 	""", (today(),today()), as_dict=1)
 	return columns, data

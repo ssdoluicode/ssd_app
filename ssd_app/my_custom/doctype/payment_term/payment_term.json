@@ -9,7 +9,9 @@
   "term_details",
   "term_type",
   "use_banking_line",
-  "active"
+  "active",
+  "full_tt",
+  "note"
  ],
  "fields": [
   {
@@ -21,6 +23,7 @@
    "unique": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "term_details",
    "fieldtype": "Data",
    "label": "Term Details"
@@ -34,6 +37,7 @@
    "reqd": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "default": "1",
    "fieldname": "use_banking_line",
    "fieldtype": "Check",
@@ -44,12 +48,23 @@
    "fieldname": "active",
    "fieldtype": "Check",
    "label": "Active"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "default": "0",
+   "fieldname": "full_tt",
+   "fieldtype": "Check",
+   "label": "Full TT"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-11 01:51:47.388158",
+ "modified": "2026-01-18 02:17:50.142322",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Payment Term",
@@ -72,7 +87,9 @@
  "quick_entry": 1,
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "term_name"
 }

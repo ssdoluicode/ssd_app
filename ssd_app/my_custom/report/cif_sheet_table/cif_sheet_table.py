@@ -22,8 +22,8 @@ def get_cif_data(filters):
 
     data= frappe.db.sql(f"""
         SELECT
-    cif.inv_no,
-    cif.name,
+    cif.invoice_no AS inv_no,
+    sb.name,
     cif.inv_date,
     com.company_code AS a_com,
     cat.product_category,
@@ -46,7 +46,7 @@ def get_cif_data(filters):
     ELSE COALESCE(sup.supplier, '--Multi--')
     END AS supplier,
     bank.bank,
-    IF(cif.payment_term IN ('LC', 'DA'),
+    IF(sb.payment_term IN ('LC', 'DA'),
        CONCAT(cif.payment_term, '- ', cif.term_days),
        cif.payment_term) AS p_term,
     cif.from_date,
@@ -61,11 +61,12 @@ def get_cif_data(filters):
 
     FROM `tabCIF Sheet` cif
 
+    LEFT JOIN `tabShipping Book` sb ON sb.name = cif.inv_no
     LEFT JOIN `tabCompany` com ON cif.accounting_company = com.name
-    LEFT JOIN `tabCustomer` cus ON cif.customer = cus.name
+    LEFT JOIN `tabCustomer` cus ON sb.customer = cus.name
     LEFT JOIN `tabProduct Category` cat ON cif.category = cat.name
-    LEFT JOIN `tabNotify` noti ON cif.notify = noti.name
-    LEFT JOIN `tabBank` bank ON cif.bank = bank.name
+    LEFT JOIN `tabNotify` noti ON sb.notify = noti.name
+    LEFT JOIN `tabBank` bank ON sb.bank = bank.name
     LEFT JOIN `tabPort` l_port ON cif.load_port= l_port.name
     LEFT JOIN `tabPort` d_port ON cif.destination_port= d_port.name
     LEFT JOIN `tabCity` city ON noti.city=city.name
@@ -81,7 +82,7 @@ def get_cif_data(filters):
         SELECT inv_no, SUM(received) AS total_rec
         FROM `tabDoc Received`
         GROUP BY inv_no
-    ) t_rec ON cif.name = t_rec.inv_no
+    ) t_rec ON sb.name = t_rec.inv_no
     {conditional_filter}
     ORDER BY cif.creation DESC ;
     """, as_dict=1)

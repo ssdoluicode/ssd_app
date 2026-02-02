@@ -1,112 +1,103 @@
+
 import frappe
 from frappe.model.document import Document
 from frappe import _
-
+from frappe.utils import flt # Added flt for safer math
 
 def set_calculated_fields(doc):
-    invoice = frappe.db.get_value("CIF Sheet", doc.inv_no, "inv_no")
-    doc.custom_title = f"{doc.name} ({invoice})".strip()
+    # Fetching inv_no from Shipping Book
+    invoice = frappe.db.get_value("Shipping Book", doc.inv_no, "inv_no")
+    doc.custom_title = f"{doc.name} ({invoice or ''})".strip()
     doc.invoice_no = invoice
-    doc.cif_id= doc.inv_no
-
-def update_cif_bank_if_missing(doc):
-    # Only update bank if it's missing
-    bank = frappe.db.get_value("CIF Sheet", doc.inv_no, "bank")
-    if bank:
-        doc.bank=bank
-    else:
-        if(doc.bank):
-            frappe.db.set_value("CIF Sheet", doc.inv_no, "bank", doc.bank)
-        else:
-            frappe.throw('Bank name not put in CIF Sheet, Please insert Bank name')
-
-
+    doc.shipping_id = doc.inv_no
 
 def final_validation(doc):
     if not doc.inv_no:
-            return
+        return
 
-    # Fetch CIF document value
-    cif_document = frappe.db.get_value("CIF Sheet", doc.inv_no, "document") or 0
+    # Fetch document value safely
+    shi_document = flt(frappe.db.get_value("Shipping Book", doc.inv_no, "document"))
 
-    # Total received from other Doc Received entries (excluding current one)
-    total_received = frappe.db.sql("""
-        SELECT IFNULL(SUM(received), 0)
+    # Total received from other entries
+    total_received = flt(frappe.db.sql("""
+        SELECT SUM(received)
         FROM `tabDoc Received`
         WHERE inv_no = %s AND name != %s
-    """, (doc.inv_no, doc.name))[0][0] or 0
+    """, (doc.inv_no, doc.name))[0][0])
 
-    # Add current form's value
-    total_with_current = round(total_received + (doc.received or 0), 2)
-    receivable = round(cif_document - total_received, 2)
+    # Current validation math
+    this_entry = flt(doc.received)
+    total_with_current = round(total_received + this_entry, 2)
+    receivable = round(shi_document - total_received, 2)
 
-    if total_with_current > round(cif_document, 2):
+    if total_with_current > round(shi_document, 2):
         frappe.throw(_(f"""
             ❌ <b>Received amount exceeds the receivable limit.</b>
-            <br><b>CIF Document Amount:</b> {cif_document:,.2f}
+            <br><b>Document Amount:</b> {shi_document:,.2f}
             <br><b>Total Already Received:</b> {total_received:,.2f}
             <br><b>Receivable:</b> {receivable:,.2f}
-            <br><b>This Entry:</b> {doc.received:,.2f}
+            <br><b>This Entry:</b> {this_entry:,.2f}
         """))
-
-def put_value_from_cif(doc):
-    if doc.is_new():
-        fields = ["inv_date", "category", "customer", "bank", "notify", "payment_term", "term_days", "document"]
-        data = frappe.db.get_value("CIF Sheet", doc.inv_no, fields, as_dict=True)
-
-        if data:
-            for field in fields:
-                if not getattr(doc, field):  # only set if value is missing
-                    setattr(doc, field, data.get(field))
-
 
 class DocReceived(Document):
     def validate(self):
         final_validation(self)
-        update_cif_bank_if_missing(self)
     
     def before_save(self):
-        put_value_from_cif(self)
         set_calculated_fields(self)
 
-
 @frappe.whitelist()
-def get_cif_data(inv_no):
-    cif = frappe.db.get_value(
-        "CIF Sheet", inv_no,
-        ["inv_date", "category", "notify", "customer",
-         "bank", "payment_term", "term_days", "document"],
+def get_shi_data(inv_no):
+    # Fetching as dict means we MUST use shi["key"] or shi.get("key")
+    shi = frappe.db.get_value(
+        "Shipping Book", inv_no,
+        ["bl_date", "notify", "customer", "bank", "payment_term", "term_days", "document"],
         as_dict=True
-    ) or {}
+    )
 
-    total_received = frappe.db.sql("""
-        SELECT IFNULL(SUM(received), 0)
+    if not shi:
+        return {}
+
+    total_received = flt(frappe.db.sql("""
+        SELECT SUM(received)
         FROM `tabDoc Received`
         WHERE inv_no = %s
-    """, (inv_no,))[0][0] or 0
+    """, (inv_no,))[0][0])
 
-    cif["total_received"] = round(total_received, 2)
-    cif["receivable"] = round(cif["document"] - total_received, 2)
+    shi["total_received"] = round(total_received, 2)
+    doc_total = flt(shi.get("document", 0))
+    shi["receivable"] = round(doc_total - total_received, 2)
 
-    return cif
-
-
+    # Corrected dictionary access and safe database fetching
+    if shi.get("notify"):
+        shi["notify_name"] = frappe.db.get_value("Notify", shi["notify"], "code")
+    
+    if shi.get("customer"):
+        shi["customer_name"] = frappe.db.get_value("Customer", shi["customer"], "customer")
+    
+    if shi.get("bank"):
+        shi["bank_name"] = frappe.db.get_value("Bank", shi["bank"], "bank")
+        
+    if shi.get("payment_term"):
+        shi["payment_term_name"] = frappe.db.get_value("Payment Term", shi["payment_term"], "term_name")
+        
+    return shi
 
 @frappe.whitelist()
 def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
+    # Standardized query to avoid issues with hardcoded 'TT' if needed
     return frappe.db.sql(f"""
-        SELECT cif.name, cif.inv_no
-        FROM `tabCIF Sheet` AS cif
+        SELECT shi.name, shi.inv_no
+        FROM `tabShipping Book` AS shi
         LEFT JOIN (
             SELECT inv_no, SUM(received) AS total_received
             FROM `tabDoc Received`
             GROUP BY inv_no
-        ) AS dr ON dr.inv_no = cif.name
-        WHERE cif.document > 0 
-        AND cif.payment_term != 'TT'
-        AND cif.inv_no LIKE %s
-        AND ROUND(cif.document - IFNULL(dr.total_received, 0), 2) > 0
-        ORDER BY cif.inv_no ASC
+        ) AS dr ON dr.inv_no = shi.name
+        WHERE shi.document > 0 
+        AND shi.payment_term != 'TT'
+        AND (shi.inv_no LIKE %s OR shi.name LIKE %s)
+        AND ROUND(shi.document - IFNULL(dr.total_received, 0), 2) > 0
+        ORDER BY shi.inv_no ASC
         LIMIT %s, %s
-    """, (f"%{txt}%", start, page_len))
-
+    """, (f"%{txt}%", f"%{txt}%", start, page_len))

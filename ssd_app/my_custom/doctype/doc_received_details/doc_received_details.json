@@ -8,29 +8,33 @@
  "field_order": [
   "inv_no",
   "received_date",
+  "column_break_zzcw",
   "bank",
-  "received_amount",
   "interest_on",
+  "column_break_nvkf",
+  "received_amount",
   "interest_from",
+  "section_break_hxld",
   "interest_days",
-  "column_break_kcmj",
   "interest_pct",
   "interest",
   "bank_charge",
+  "foreign_charges",
+  "column_break_kcmj",
   "commission",
   "postage",
   "cable_charges",
   "short_payment",
-  "column_break_pomb",
   "discrepancy_charges",
-  "foreign_charges",
+  "column_break_pomb",
   "bank_liability",
   "bank_amount",
   "interest_upto_date",
   "note",
   "invoice_no",
   "cif_id",
-  "custom_title"
+  "custom_title",
+  "shipping_id"
  ],
  "fields": [
   {
@@ -45,6 +49,7 @@
    "default": "Today",
    "fieldname": "received_date",
    "fieldtype": "Date",
+   "is_virtual": 1,
    "label": "Received Date",
    "read_only": 1
   },
@@ -52,18 +57,23 @@
    "default": "0",
    "fieldname": "received_amount",
    "fieldtype": "Float",
+   "is_virtual": 1,
    "label": "Received Amount",
    "read_only": 1
   },
   {
+   "default": "0",
    "fieldname": "interest_on",
    "fieldtype": "Float",
-   "label": "Interest On"
+   "label": "Interest On",
+   "read_only": 1
   },
   {
+   "default": "Today",
    "fieldname": "interest_from",
    "fieldtype": "Date",
-   "label": "Interest From"
+   "label": "Interest From",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -132,7 +142,7 @@
   },
   {
    "fieldname": "note",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "label": "Note"
   },
   {
@@ -145,6 +155,7 @@
    "default": "-",
    "fieldname": "bank",
    "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Bank",
    "read_only": 1
   },
@@ -192,12 +203,30 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Custom Title"
+  },
+  {
+   "fieldname": "shipping_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Shipping ID"
+  },
+  {
+   "fieldname": "section_break_hxld",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_zzcw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_nvkf",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-17 14:21:58.060565",
+ "modified": "2026-01-28 01:54:51.546715",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Received Details",

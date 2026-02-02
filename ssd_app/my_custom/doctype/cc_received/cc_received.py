@@ -38,10 +38,24 @@ def cc_balance_breakup(customer, as_on):
     Calculates balance per reference without using Pandas.
     """
     # 1. Get CC from CIF Sheets
-    inv_data = frappe.get_all("CIF Sheet", 
-        filters={"customer": customer, "inv_date": ["<=", as_on], "cc": ["!=", 0]},
-        fields=["inv_no as ref_no", "cc as amount"]
-    )
+    # inv_data = frappe.get_all("CIF Sheet", 
+    #     filters={"customer": customer, "inv_date": ["<=", as_on], "cc": ["!=", 0]},
+    #     fields=["invoice_no as ref_no", "cc as amount"]
+    # )
+    inv_data = frappe.db.sql("""
+            SELECT
+                cif.invoice_no AS ref_no,
+                cif.cc AS amount
+            FROM
+                `tabCIF Sheet` cif
+            LEFT JOIN
+                `tabShipping Book` sb
+                ON cif.inv_no = sb.name
+            WHERE
+                sb.customer = %s
+                AND cif.inv_date <= %s
+                AND cif.cc != 0
+        """, (customer, as_on), as_dict=True)
 
     # 2. Get already received CC from Breakup table
     received_entries = frappe.db.sql("""

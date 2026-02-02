@@ -1,38 +1,44 @@
 {
  "actions": [],
- "autoname": "shi_line-.###",
- "creation": "2026-01-12 17:49:31.775252",
+ "autoname": "b_line_sub_lim.-####",
+ "creation": "2026-01-27 21:18:12.171055",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "shipping_line_name",
-  "code_name"
+  "sub_limit_name",
+  "sub_limit_amount",
+  "note"
  ],
  "fields": [
   {
-   "fieldname": "shipping_line_name",
+   "fieldname": "sub_limit_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Shipping Line Name",
+   "label": "Sub Limit Name",
    "reqd": 1,
    "unique": 1
   },
   {
-   "fieldname": "code_name",
+   "fieldname": "note",
    "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "fieldname": "sub_limit_amount",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Code Name",
-   "reqd": 1,
-   "unique": 1
+   "label": "Sub Limit Amount",
+   "non_negative": 1,
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-13 22:56:56.827002",
+ "modified": "2026-01-27 21:45:36.350790",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "Shipping Line",
+ "name": "Banking Line Sub Limit",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
@@ -51,8 +57,9 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "code_name"
+ "title_field": "sub_limit_name"
 }

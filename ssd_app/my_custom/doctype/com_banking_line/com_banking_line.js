@@ -64,34 +64,37 @@ var banking_utils = {
     // VALIDATION (SAVE BLOCKING)
     // individual_limit = 1 → banking_line must be > 0
     // ---------------------------------------
+
     validate_banking_line: function (frm) {
 
-        // 🔑 CRITICAL: sync grid → frm.doc
+        // 🔑 Ensure grid data is synced
         frm.refresh_field("banking_line_details");
 
         let invalid_rows = [];
 
         (frm.doc.banking_line_details || []).forEach((row, idx) => {
-            
+
             if (row.individual_limit == 1) {
-                if (!row.banking_line || flt(row.banking_line) <= 0) {
+                // ✅ Link field validation
+                if (!row.banking_line) {
                     invalid_rows.push(idx + 1);
                 }
             }
-            
+
         });
 
         if (invalid_rows.length) {
             frappe.throw({
                 title: __("Validation Error"),
                 message: __(
-                    "Banking Line must be greater than 0 for rows: {0}",
+                    "Banking Line is mandatory for rows: {0}",
                     [invalid_rows.join(", ")]
                 ),
                 indicator: "red"
             });
         }
     }
+
 };
 
 

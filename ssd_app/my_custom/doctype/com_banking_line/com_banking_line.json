@@ -19,7 +19,8 @@
    "fieldname": "date",
    "fieldtype": "Date",
    "label": "Date",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "company",
@@ -27,7 +28,8 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "bank",
@@ -35,7 +37,8 @@
    "in_list_view": 1,
    "label": "Bank",
    "options": "Bank",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "banking_line_details",
@@ -67,7 +70,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-10 22:49:30.638691",
+ "modified": "2026-01-27 02:58:10.669658",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Com Banking Line",

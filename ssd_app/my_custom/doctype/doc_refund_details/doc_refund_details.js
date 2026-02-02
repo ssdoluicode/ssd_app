@@ -23,57 +23,35 @@ function get_ref_data(frm) {
     if (!frm.doc.inv_no) return;
 
     // Only run this when creating a new document (to fetch default values)
-    if (frm.is_new() && !frappe.quick_entry) {
-        frappe.call({
-            method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_cif_summary",
-            args: { 
-                id_name:"ref",
-                id: frm.doc.inv_no
-            },
-            callback: function (r) {
-                const data = r.message;
-                if (!data) return;
+    
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_doc_int_summary",
+        args: { 
+            id_name:"ref",
+            id: frm.doc.inv_no
+        },
+        callback: function (r) {
+            const data = r.message;
+            if (!data) return;
 
-                // --- 1. Set values fetched from the server ---
-                console.log(data);
-                frm.set_value({
-                    refund_amount: data.ref_amount,
-                    refund_date: data.ref_date,
-                    bank: data.bank_name,
-                    interest_on: data.b_liab || 0, 
-                    interest_from: data.int_upto,
-                    interest_pct :data.int_pct
-                });
+            // --- 1. Set values fetched from the server ---
+            frm.set_value({
+                refund_amount: data.ref_amount,
+                refund_date: data.ref_date,
+                bank: data.bank_name,
+                interest_on: data.b_liab || 0, 
+                interest_from: data.int_upto,
+                interest_pct :data.int_pct
+            });
 
-                // --- 2. ASYNCHRONOUS DEPENDENCY: Recalculate all dependencies ---
-                calculate_interest_days(frm);
-                calculate_interest(frm);
-                calculate_bank_amount(frm); // Call bank amount calculation
-
-                // --- 3. Control Read-Only Fields ---
-                // const fields_to_control = [
-                //     "interest_on",
-                //     "interest_from",
-                //     "interest_days",
-                //     "interest_pct"
-                // ];
-                
-                // // Check liability remaining
-                // if (data.remaining_liability == 0) {
-                  
-                //     fields_to_control.forEach(field => {
-                //         frm.set_df_property(field, 'read_only', true);
-                //     });
-                    
-                // } else {
-                //     fields_to_control.forEach(field => {
-                //         frm.set_df_property(field, 'read_only', false);
-                //     });
-     
-                // }
-            }
-        });
-    }else{
+            // --- 2. ASYNCHRONOUS DEPENDENCY: Recalculate all dependencies ---
+            calculate_interest_days(frm);
+            calculate_interest(frm);
+            calculate_bank_amount(frm); // Call bank amount calculation
+        }
+    });
+  
+    if (!frm.is_new()) {
         frm.set_df_property('inv_no', "read_only", true);
     }
 }

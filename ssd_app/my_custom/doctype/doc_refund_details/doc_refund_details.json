@@ -8,22 +8,25 @@
  "field_order": [
   "inv_no",
   "refund_date",
+  "column_break_mesk",
   "refund_amount",
-  "bank",
   "interest_from",
+  "column_break_zuik",
+  "bank",
   "interest_on",
+  "section_break_qwha",
   "interest_days",
-  "column_break_hamz",
   "interest_pct",
   "round_off",
   "interest",
+  "column_break_hamz",
   "bank_charges",
   "bank_amount",
   "interest_upto_date",
   "note",
   "invoice_no",
-  "cif_id",
-  "custom_title"
+  "custom_title",
+  "shipping_id"
  ],
  "fields": [
   {
@@ -38,6 +41,7 @@
    "default": "Today",
    "fieldname": "refund_date",
    "fieldtype": "Date",
+   "is_virtual": 1,
    "label": "Refund Date",
    "read_only": 1
   },
@@ -45,6 +49,7 @@
    "default": "0",
    "fieldname": "refund_amount",
    "fieldtype": "Float",
+   "is_virtual": 1,
    "label": "Refund Amount",
    "read_only": 1
   },
@@ -52,12 +57,13 @@
    "default": "-",
    "fieldname": "bank",
    "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Bank",
    "read_only": 1
   },
   {
    "fieldname": "note",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "label": "Note"
   },
   {
@@ -71,20 +77,18 @@
    "label": "Invoice No"
   },
   {
-   "fieldname": "cif_id",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "CIF ID"
-  },
-  {
+   "default": "Today",
    "fieldname": "interest_from",
    "fieldtype": "Date",
+   "is_virtual": 1,
    "label": "Interest From",
    "read_only": 1
   },
   {
+   "default": "0",
    "fieldname": "interest_on",
    "fieldtype": "Float",
+   "is_virtual": 1,
    "label": "Interest On",
    "non_negative": 1,
    "read_only": 1
@@ -140,12 +144,30 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Custom Title"
+  },
+  {
+   "fieldname": "column_break_mesk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zuik",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_qwha",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "shipping_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Shipping ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-31 11:36:52.524884",
+ "modified": "2026-01-26 00:26:00.900302",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Refund Details",
@@ -166,6 +188,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

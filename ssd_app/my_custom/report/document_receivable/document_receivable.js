@@ -10,7 +10,7 @@ frappe.query_reports["Document Receivable"] = {
                 style += " text-decoration-line: underline;";
                 style += " text-decoration-style: double;";
                 style += " text-decoration-color: red; cursor:pointer;";
-                clickable = `onclick="changeBankDueDate('${data.nego_name}', '${data.inv_no}', '${data.bank_due_date}'); return false;"`;
+                clickable = `onclick="changeBankDueDate('${data.nego_name}', '${data.invoice_no}', '${data.bank_due_date}'); return false;"`;
                 if (data.days_to_due < 5) {
                     style += " color: red;";
                 }
@@ -28,8 +28,8 @@ frappe.query_reports["Document Receivable"] = {
         if (column.fieldname === "document" && data?.name) {
             return `<a style="color:blue;"  href="#" onclick="showDocFlow('${data.name}', '${data.inv_no}'); return false;">${Number(data.document).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</a>`;
         }
-        if (column.fieldname === "inv_no" && data?.name) {
-            return `<a style="color:blue;" href="#" onclick="showCIFDetails('${data.name}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
+        if (column.fieldname === "inv_no" && data?.cif_id) {
+            return `<a style="color:blue;" href="#" onclick="showCIFDetails('${data.cif_id}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
         }
 
         return value;
@@ -37,22 +37,18 @@ frappe.query_reports["Document Receivable"] = {
 
     onload: function (report) {
         // for adjust width of serial no
-        const style = document.createElement('style');
-        style.textContent = `
-            .dt-scrollable .dt-cell__content:first-child,
-            .dt-scrollable .dt-header__cell:first-child {
-                min-width: 50px !important;
-            }
-        `;
-        document.head.appendChild(style);
+        // const style = document.createElement('style');
+        // style.textContent = `
+        //     .dt-scrollable .dt-cell__content:first-child,
+        //     .dt-scrollable .dt-header__cell:first-child {
+        //         min-width: 50px !important;
+        //     }
+        // `;
+        // document.head.appendChild(style);
 
         report.page.add_inner_button("Import Banking", function () {
             frappe.set_route("query-report", "Import Banking");
         });
-        // report.page.add_inner_button("Export Banking Used", function () {
-        //     let filters = report.get_values();
-        //     exportBankingLine(filters.as_on);
-        // });
          report.page.add_inner_button("Used Banking Line", function () {
             let filters = report.get_values();
             usedBankingLine(filters.as_on);
@@ -63,9 +59,6 @@ frappe.query_reports["Document Receivable"] = {
         report.page.add_inner_button("Banking Line", function () {
             bankingLine();
         });
-    
-
-       
     },
 
     filters: [
@@ -126,7 +119,7 @@ function exportBankingLine(as_on) {
 } 
 
 
-window.changeBankDueDate = function(nego_name, inv_no, current_date) {
+window.changeBankDueDate = function(nego_name, invoice_no, current_date) {
 
     // First, fetch the current note from DB
     frappe.call({
@@ -140,7 +133,7 @@ window.changeBankDueDate = function(nego_name, inv_no, current_date) {
 
             // Now open the dialog with note pre-filled
             let d = new frappe.ui.Dialog({
-                title: `Update Bank Due Date Inv No: ${inv_no}`,
+                title: `Update Bank Due Date Inv No: ${invoice_no}`,
                 fields: [
                     {
                         label: "Current Due Date",
@@ -189,7 +182,6 @@ window.changeBankDueDate = function(nego_name, inv_no, current_date) {
                     });
                 }
             });
-
             d.show();
         }
     });

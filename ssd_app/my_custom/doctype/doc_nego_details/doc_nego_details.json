@@ -8,17 +8,20 @@
  "field_order": [
   "inv_no",
   "nego_date",
+  "column_break_ahvg",
   "nego_amount",
   "bank",
+  "column_break_upss",
   "payment_term",
+  "section_break_xjui",
   "interest_days",
-  "column_break_gjov",
   "interest_pct",
   "interest",
+  "postage_charges",
+  "column_break_gjov",
   "min_comm",
   "commission_pct",
   "commission",
-  "postage_charges",
   "other_charges",
   "column_break_qgsy",
   "round_off",
@@ -26,8 +29,8 @@
   "interest_upto_date",
   "note",
   "invoice_no",
-  "cif_id",
-  "custom_title"
+  "custom_title",
+  "shipping_id"
  ],
  "fields": [
   {
@@ -43,6 +46,7 @@
    "default": "0",
    "fieldname": "nego_amount",
    "fieldtype": "Float",
+   "is_virtual": 1,
    "label": "Nego Amount",
    "read_only": 1
   },
@@ -113,7 +117,7 @@
   },
   {
    "fieldname": "note",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "label": "Note"
   },
   {
@@ -124,6 +128,7 @@
    "default": "Today",
    "fieldname": "nego_date",
    "fieldtype": "Date",
+   "is_virtual": 1,
    "label": "Nego Date",
    "read_only": 1
   },
@@ -131,6 +136,7 @@
    "default": "-",
    "fieldname": "bank",
    "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Bank",
    "read_only": 1
   },
@@ -138,6 +144,7 @@
    "default": " -",
    "fieldname": "payment_term",
    "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Payment Term",
    "read_only": 1
   },
@@ -160,22 +167,35 @@
    "label": "Min Comm"
   },
   {
-   "fieldname": "cif_id",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "CIF ID"
-  },
-  {
    "fieldname": "custom_title",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Custom Title",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ahvg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_upss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_xjui",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "shipping_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Shipping ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-16 11:48:51.828489",
+ "modified": "2026-01-26 00:24:50.764669",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego Details",
@@ -196,6 +216,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

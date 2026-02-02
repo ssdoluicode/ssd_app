@@ -22,14 +22,16 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Date",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "banking_line_name",
    "fieldtype": "Link",
    "label": "Banking Line Name",
    "options": "Banking Line Name",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "note",
@@ -40,6 +42,7 @@
    "fieldname": "bank",
    "fieldtype": "Link",
    "label": "Bank",
+   "link_filters": "[[\"Bank\",\"active\",\"=\",1]]",
    "options": "Bank",
    "reqd": 1,
    "set_only_once": 1
@@ -63,7 +66,8 @@
    "fieldname": "banking_line_details",
    "fieldtype": "Data",
    "label": "Banking Line Details",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "custom_title",
@@ -75,7 +79,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-12 16:09:54.509633",
+ "modified": "2026-01-24 23:41:58.191165",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Bank Banking Line",

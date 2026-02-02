@@ -26,7 +26,7 @@ function get_nego_data(frm) {
     // Run ONLY in New Form
     if (frm.is_new() && !frappe.quick_entry) {
         frappe.call({
-            method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_cif_summary",
+            method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_doc_int_summary",
             args: {
                 id_name:"nego",
                 id: frm.doc.inv_no,

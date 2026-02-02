@@ -41,7 +41,7 @@ function calculate_interest_days(frm) {
     let days = 0; // Default days to 0
     
     // Check if both required dates exist
-    if (frm.doc.received_date && frm.doc.interest_from) {
+    if (frm.doc.received_date && frm.doc.interest_from && frm.doc.interest_on) {
         // End Date (later) is received_date, Start Date (earlier) is interest_from
         days = calculateDaysDifference(frm.doc.received_date, frm.doc.interest_from);  
     }
@@ -118,67 +118,45 @@ function get_rec_data(frm) {
     if (!frm.doc.inv_no) return;
 
     // Only run this when creating a new document (to fetch default values)
-    if (frm.is_new() && !frappe.quick_entry) {
-        frappe.call({
-            method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_cif_summary",
-            args: { 
-                id_name:"rec",
-                id: frm.doc.inv_no
-            },
-            callback: function (r) {
-                const data = r.message;
-                console.log(data.rec_amount);
-                if (!data) return;
 
-                // --- 1. Set values fetched from the server ---
-                frm.set_value({
-                    received_amount: data.rec_amount,
-                    bank_liability: data.b_liab || 0,
-                    received_date: data.rec_date,
-                    bank: data.bank_name,
-                    interest_on: data.b_liab || 0, 
-                    interest_from: data.int_upto,
-                    interest_pct :data.int_pct
-                });
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_doc_int_summary",
+        args: { 
+            id_name:"rec",
+            id: frm.doc.inv_no
+        },
+        callback: function (r) {
+            const data = r.message;
+            console.log(data.rec_amount);
+            if (!data) return;
 
-                // --- 2. ASYNCHRONOUS DEPENDENCY: Recalculate all dependencies ---
-                calculate_interest_days(frm);
-                calculate_interest(frm);
-                calculate_bank_amount(frm); // Call bank amount calculation
+            // --- 1. Set values fetched from the server ---
+            frm.set_value({
+                received_amount: data.rec_amount,
+                bank_liability: data.b_liab || 0,
+                received_date: data.rec_date,
+                bank: data.bank_name,
+                interest_on: data.b_liab || 0, 
+                interest_from: data.int_upto,
+                interest_pct :data.int_pct
+            });
 
-                // --- 3. Control Read-Only Fields ---
-                const fields_to_control = [
-                    "interest_on",
-                    "interest_from",
-                    "interest_days",
-                    "interest_pct",
-                    "interest",
-                    'bank_liability'
-                ];
-                
-                // Check liability remaining
-                if (! data.b_liab) {
-                  
-                    fields_to_control.forEach(field => {
-                        frm.set_df_property(field, 'read_only', true);
-                    });
-                    
-                } else {
-                    fields_to_control.forEach(field => {
-                        frm.set_df_property(field, 'read_only', false);
-                    });
-     
-                }
-            }
-        });
-    }else{
+            // --- 2. ASYNCHRONOUS DEPENDENCY: Recalculate all dependencies ---
+            calculate_interest_days(frm);
+            calculate_interest(frm);
+            calculate_bank_amount(frm); // Call bank amount calculation
+
+        }
+    });
+    
+    if (!frm.is_new()){
         frm.set_df_property('inv_no', "read_only", true);
     }
 }
 
 
 function calculate_interest_upto_date(frm) {
-    if (frm.doc.interest_from && frm.doc.interest_days) {
+    if (frm.doc.interest_from) {
         let from_date = new Date(frm.doc.interest_from + "T00:00:00");
         let days = Number(frm.doc.interest_days) || 0;
 

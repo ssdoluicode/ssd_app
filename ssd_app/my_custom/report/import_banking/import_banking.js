@@ -174,7 +174,7 @@ window.changeDueDate = function(name, dc_name, current_due_date, inv_no) {
     frappe.call({
         method: "frappe.client.get",
         args: {
-            doctype: name_dict[dc_name],
+            doctype: "Import Loan",
             name: name
         },
         callback: function(r) {

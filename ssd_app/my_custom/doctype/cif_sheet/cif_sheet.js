@@ -1,8 +1,52 @@
 // Copyright (c) 2025, SSDolui and contributors
 // For license information, please see license.txt
+function inv_no_filter(frm) {
+    frm.set_query('inv_no', () => ({
+        query: 'ssd_app.my_custom.doctype.cif_sheet.cif_sheet.get_available_inv_no'
+    }));
+}
+
+function check_unique_inv_no(frm){
+    if (!frm.doc.inv_no) return;
+        frappe.db.get_value('CIF Sheet', { inv_no: frm.doc.inv_no }, 'name')
+        .then(r => {
+            if (r && r.message && r.message.name && r.message.name !== frm.doc.name) {
+                frappe.msgprint({
+                    title: __(`Duplicate Entry: ${frm.doc.inv_no}`),
+                    message: __('Invoice Number must be unique. This one already exists.'),
+                    indicator: 'red'
+                });
+                frm.set_value('inv_no', '');
+            }
+        });
+}
+
+function get_shipping_book_data(frm) {
+    if (!frm.doc.inv_no) return;
+
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.cif_sheet.cif_sheet.get_shipping_book_data",
+        args: { inv_no: frm.doc.inv_no },
+        callback({ message: data }) {
+            if (!data) return;
+
+            frm.set_value({
+                customer: data.customer,
+                notify: data.notify,
+                shipping_company: data.shipping_company,
+                inv_date: data.bl_date,
+                document: data.document,
+                payment_term:data.payment_term,
+                bank: data.bank,
+                term_days: data.term_days
+            });
+            }
+        });
+    }
 
 frappe.ui.form.on("CIF Sheet", {
     setup(frm) {
+        inv_no_filter(frm);
         // Filter products by category (Standardized)
         frm.set_query("product", "product_details", () => {
             return { filters: { category: frm.doc.category || "blank" } };
@@ -60,18 +104,9 @@ frappe.ui.form.on("CIF Sheet", {
     },
 
     inv_no(frm) {
-        if (!frm.doc.inv_no) return;
-        frappe.db.get_value('CIF Sheet', { inv_no: frm.doc.inv_no }, 'name')
-        .then(r => {
-            if (r && r.message && r.message.name && r.message.name !== frm.doc.name) {
-                frappe.msgprint({
-                    title: __(`Duplicate Entry: ${frm.doc.inv_no}`),
-                    message: __('Invoice Number must be unique. This one already exists.'),
-                    indicator: 'red'
-                });
-                frm.set_value('inv_no', '');
-            }
-        });
+        check_unique_inv_no(frm);
+        get_shipping_book_data(frm);
+        
     },
 
     inv_date(frm) {
@@ -92,11 +127,11 @@ frappe.ui.form.on("CIF Sheet", {
 
     document(frm) {
         frm.trigger('calculate_all');
-        frm.trigger('apply_payment_term_logic');
+        // frm.trigger('apply_payment_term_logic');
     },
 
     payment_term(frm) {
-        frm.trigger('apply_payment_term_logic');
+        // frm.trigger('apply_payment_term_logic');
         frm.trigger('calculate_all');
     },
 

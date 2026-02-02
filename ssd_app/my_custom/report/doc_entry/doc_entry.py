@@ -50,79 +50,79 @@ def execute(filters=None):
 		SELECT *
 		FROM (
 			SELECT
-				cif.name AS cif_id,
+				sb.name AS cif_id,
 				nego.name,
-				cif.inv_no, 
+				sb.inv_no, 
 				nego.nego_date AS date,
 				"Nego" AS type,
-				cif.inv_date, 
 				cus.customer, 
 				noti.notify, 
 				bank.bank,
-				IF(cif.payment_term IN ('LC', 'DA'),
-					CONCAT(cif.payment_term, '- ', cif.term_days),
-					cif.payment_term
+				IF(pt.term_name IN ('LC', 'DA'),
+					CONCAT(pt.term_name, '- ', sb.term_days),
+					pt.term_name
 				) AS p_term,
-				cif.document,
+				sb.document,
 				nego.nego_amount AS amount,
 				nego.nego_details AS details
 			FROM `tabDoc Nego` nego
-			LEFT JOIN `tabCIF Sheet` cif ON cif.name = nego.inv_no
-			LEFT JOIN `tabCustomer` cus ON cus.name = cif.customer
-			LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-			LEFT JOIN `tabBank` bank ON bank.name = cif.bank
+            LEFT JOIN `tabShipping Book` sb ON sb.name = nego.shipping_id
+            LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
+			LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
+			LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
+			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
 			{where_clause_nego}
 
 			UNION ALL
 			
 			SELECT 
-				cif.name AS cif_id,
+				sb.name AS cif_id,
 				ref.name,
-				cif.inv_no, 
+				sb.inv_no, 
 				ref.refund_date AS date,
 				"Refund" AS type,
-				cif.inv_date, 
 				cus.customer, 
 				noti.notify, 
 				bank.bank,
-				IF(cif.payment_term IN ('LC', 'DA'),
-					CONCAT(cif.payment_term, '- ', cif.term_days),
-					cif.payment_term
+				IF(sb.payment_term IN ('LC', 'DA'),
+					CONCAT(pt.term_name, '- ', sb.term_days),
+					pt.term_name
 				) AS p_term,
-				cif.document,
+				sb.document,
 				ref.refund_amount AS amount,
 				ref.refund_details AS details
 			FROM `tabDoc Refund` ref
-			LEFT JOIN `tabCIF Sheet` cif ON cif.name = ref.inv_no
-			LEFT JOIN `tabCustomer` cus ON cus.name = cif.customer
-			LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-			LEFT JOIN `tabBank` bank ON bank.name = cif.bank
+            LEFT JOIN `tabShipping Book` sb ON sb.name = ref.shipping_id
+            LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
+			LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
+			LEFT JOIN `tabNotify` noti ON noti.name =sb.notify
+			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
 			{where_clause_ref}
 
 			UNION ALL
 			
 			SELECT 
-				cif.name AS cif_id,
+				sb.name AS cif_id,
 				rec.name,
-				cif.inv_no, 
+				sb.inv_no, 
 				rec.received_date AS date,
 				"Received" AS type,
-				cif.inv_date, 
 				cus.customer, 
 				noti.notify, 
 				bank.bank,
-				IF(cif.payment_term IN ('LC', 'DA'),
-					CONCAT(cif.payment_term, '- ', cif.term_days),
-					cif.payment_term
+				IF(pt.term_name IN ('LC', 'DA'),
+					CONCAT(pt.term_name, '- ', sb.term_days),
+					pt.term_name
 				) AS p_term,
-				cif.document,
+				sb.document,
 				rec.received AS amount,
 				rec.rec_details AS details
 			FROM `tabDoc Received` rec
-			LEFT JOIN `tabCIF Sheet` cif ON cif.name = rec.inv_no
-			LEFT JOIN `tabCustomer` cus ON cus.name = cif.customer
-			LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-			LEFT JOIN `tabBank` bank ON bank.name = cif.bank
+            LEFT JOIN `tabShipping Book` sb ON sb.name = rec.shipping_id
+            LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
+			LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
+			LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
+			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
 			{where_clause_rec}
 		) AS all_data
 		ORDER BY date
@@ -133,7 +133,6 @@ def execute(filters=None):
 
     columns = [
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 125},
-        # {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
         {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 250},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 250},

@@ -7,6 +7,28 @@ from frappe.utils.pdf import get_pdf
 from frappe.utils import now_datetime, flt
 from frappe import _
 
+
+@frappe.whitelist()
+def get_shipping_book_data(inv_no):
+
+    shi_b = frappe.get_doc("Shipping Book", inv_no)
+    customer_name= frappe.db.get_value("Customer", shi_b.customer, "customer")
+    notify_name=frappe.db.get_value("Notify", shi_b.notify, "Notify")
+    com_name=frappe.db.get_value("Company", shi_b.company, "company_code")
+    payment_term_name=frappe.db.get_value("Payment Term", shi_b.payment_term, "term_name")
+    bank_name=frappe.db.get_value("Bank", shi_b.bank, "bank")
+    data = {
+        "customer": customer_name,
+        "notify": notify_name,
+        "shipping_company": com_name,
+        "bl_date": shi_b.bl_date,
+        "document": shi_b.document,
+        "payment_term": payment_term_name,
+        "bank": bank_name,
+        "term_days" : shi_b.term_days
+    }
+    return data
+
 class CIFSheet(Document):
     def before_save(self):
         self.set_countries()
@@ -21,6 +43,12 @@ class CIFSheet(Document):
         if self.final_destination:
             self.to_country = frappe.db.get_value("City", self.final_destination, "country")
 
+
+    def set_invoice_no(self):
+        """Fetches country data for ports and destinations"""
+        self.invoice_no = frappe.db.get_value("Shipping Book", self.inv_no, "inv_no")
+        
+
     def validate_unique_expenses(self):
         seen = set()
         for row in self.expenses:
@@ -28,19 +56,44 @@ class CIFSheet(Document):
                 frappe.throw(_('Expenses must be unique: {0}').format(row.expenses))
             seen.add(row.expenses)
 
+
+@frappe.whitelist()
+def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
+    used_inv = frappe.get_all("CIF Sheet", pluck="inv_no")
+
+    if used_inv:
+        placeholders = ', '.join(['%s'] * len(used_inv))
+        condition = f"WHERE name NOT IN ({placeholders}) AND inv_no LIKE %s"
+        values = used_inv + [f"%{txt}%"]
+    else:
+        condition = "WHERE inv_no LIKE %s"
+        values = [f"%{txt}%"]
+
+    values += [page_len, start]
+
+    return frappe.db.sql(f"""
+        SELECT name, inv_no
+        FROM `tabShipping Book`
+        {condition}
+        ORDER BY inv_no ASC
+        LIMIT %s OFFSET %s
+    """, tuple(values))
+
+
 @frappe.whitelist()
 def render_cif_sheet_pdf(inv_name, pdf=0):
     doc = frappe.get_doc("CIF Sheet", inv_name)
+    sb= frappe.get_doc("Shipping Book", doc.inv_no)
     
     # Map display names efficiently
-    doc.customer_name = frappe.db.get_value("Customer", doc.customer, "customer") # Fixed 'customer_name' column error
-    doc.notify_name = frappe.db.get_value("Notify", doc.notify, "notify")
+    doc.customer_name = frappe.db.get_value("Customer", sb.customer, "customer") # Fixed 'customer_name' column error
+    doc.notify_name = frappe.db.get_value("Notify", sb.notify, "notify")
     doc.acc_com_name = frappe.db.get_value("Company", doc.accounting_company, "company_code")
     doc.category_name = frappe.db.get_value("Product Category", doc.category, "product_category")
     doc.bank_name = frappe.db.get_value("Bank", doc.bank, "bank")
     doc.load_port_name = frappe.db.get_value("Port", doc.load_port, "port")
     doc.f_country_name = frappe.db.get_value("Port", doc.load_port, "country")
-    doc.notify_city = frappe.db.get_value("Notify", doc.notify, "city")
+    doc.notify_city = frappe.db.get_value("Notify", sb.notify, "city")
     doc.t_country_name = frappe.db.get_value("City", doc.notify_city, "country")
     doc.destination_port_name = frappe.db.get_value("Port", doc.destination_port, "port")
 
@@ -81,16 +134,17 @@ def render_cif_sheet_pdf(inv_name, pdf=0):
 def render_master_sheet_pdf(inv_name, pdf=0):
     cost_name = frappe.db.get_value("Cost Sheet", {"inv_no": inv_name}, "name")
     doc = frappe.get_doc("CIF Sheet", inv_name)
+    sb= frappe.get_doc("Shipping Book", doc.inv_no)
     
     # Set display properties
-    doc.customer_name = frappe.db.get_value("Customer", doc.customer, "customer")
-    doc.notify_name = frappe.db.get_value("Notify", doc.notify, "notify")
+    doc.customer_name = frappe.db.get_value("Customer", sb.customer, "customer")
+    doc.notify_name = frappe.db.get_value("Notify", sb.notify, "notify")
     doc.acc_com_name = frappe.db.get_value("Company", doc.accounting_company, "company_code")
     doc.category_name = frappe.db.get_value("Product Category", doc.category, "product_category")
-    doc.bank_name = frappe.db.get_value("Bank", doc.bank, "bank")
+    doc.bank_name = frappe.db.get_value("Bank", sb.bank, "bank")
     doc.load_port_name = frappe.db.get_value("Port", doc.load_port, "port")
     doc.f_country_name = frappe.db.get_value("Port", doc.load_port, "country")
-    doc.notify_city = frappe.db.get_value("Notify", doc.notify, "city")
+    doc.notify_city = frappe.db.get_value("Notify", sb.notify, "city")
     doc.t_country_name = frappe.db.get_value("City", doc.notify_city, "country")
     doc.destination_port_name = frappe.db.get_value("Port", doc.destination_port, "port")
     

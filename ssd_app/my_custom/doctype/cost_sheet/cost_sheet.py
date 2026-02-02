@@ -11,14 +11,20 @@ from frappe import _
 @frappe.whitelist()
 def get_cif_data(inv_no):
     cif = frappe.get_doc("CIF Sheet", inv_no)
+    sb= frappe.get_doc("Shipping Book", cif.inv_no)
+    cus_name= frappe.db.get_value("Customer", sb.customer, "customer")
+    noti_name= frappe.db.get_value("Notify", sb.notify, "notify")
+    category_name= frappe.db.get_value("Product Category", cif.category, "product_category")
+    acc_com= frappe.db.get_value("Company", cif.accounting_company, "company_code")
+    shi_com= frappe.db.get_value("Company", sb.company, "company_code")
     data = {
         "inv_no": cif.inv_no,
         "inv_date": cif.inv_date,
-        "customer": cif.customer,
-        "category": cif.category,
-        "notify": cif.notify,
-        "accounting_company": cif.accounting_company,
-        "shipping_company": cif.shipping_company,
+        "customer": cus_name,
+        "category": category_name,
+        "notify": noti_name,
+        "accounting_company": acc_com,
+        "shipping_company": shi_com,
         "handling_charges":cif.handling_charges,
         "insurance":cif.insurance,
         "sales":cif.sales,
@@ -60,7 +66,7 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
 
     if used_inv:
         placeholders = ', '.join(['%s'] * len(used_inv))
-        condition = f"WHERE name NOT IN ({placeholders}) AND inv_no LIKE %s"
+        condition = f"WHERE name NOT IN ({placeholders}) AND invoice_no LIKE %s"
         values = used_inv + [f"%{txt}%"]
     else:
         condition = "WHERE inv_no LIKE %s"
@@ -69,10 +75,10 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
     values += [page_len, start]
 
     return frappe.db.sql(f"""
-        SELECT name, inv_no
+        SELECT name, invoice_no
         FROM `tabCIF Sheet`
         {condition}
-        ORDER BY inv_no ASC
+        ORDER BY invoice_no ASC
         LIMIT %s OFFSET %s
     """, tuple(values))
 

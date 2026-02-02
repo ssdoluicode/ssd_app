@@ -26,10 +26,11 @@ def get_cc_vs_rec(as_on):
                 COALESCE(cif_cc.total_cc, 0) AS total_cc,
                 COALESCE(cc_rec.total_rec, 0) AS total_rec
             FROM
-                (SELECT customer, SUM(cc) AS total_cc
-                 FROM `tabCIF Sheet`
-                 WHERE cc != 0 AND inv_date <= %(as_on)s
-                 GROUP BY customer) AS cif_cc
+                (SELECT sb.customer, SUM(cif.cc) AS total_cc
+                FROM `tabCIF Sheet` cif
+                LEFT JOIN `tabShipping Book` sb ON sb.name=cif.inv_no
+                WHERE cc != 0 AND inv_date <= %(as_on)s
+                GROUP BY sb.customer) AS cif_cc
             LEFT JOIN
                 (SELECT customer, SUM(amount_usd) AS total_rec
                  FROM `tabCC Received`
@@ -44,10 +45,21 @@ def get_cc_vs_rec(as_on):
                 COALESCE(cif_cc.total_cc, 0) AS total_cc,
                 COALESCE(cc_rec.total_rec, 0) AS total_rec
             FROM
-                (SELECT customer, SUM(cc) AS total_cc
-                 FROM `tabCIF Sheet`
-                 WHERE cc != 0 AND inv_date <= %(as_on)s
-                 GROUP BY customer) AS cif_cc
+                (
+                SELECT 
+                    sb.customer,
+                    SUM(cif.cc) AS total_cc
+                FROM 
+                    `tabCIF Sheet` cif
+                INNER JOIN 
+                    `tabShipping Book` sb
+                    ON sb.name = cif.inv_no
+                WHERE 
+                    cif.cc != 0
+                    AND cif.inv_date <= %(as_on)s
+                GROUP BY 
+                    sb.customer
+            ) AS cif_cc
             RIGHT JOIN
                 (SELECT customer, SUM(amount_usd) AS total_rec
                  FROM `tabCC Received`

@@ -7,24 +7,22 @@ function inv_no_filter(frm) {
 // 🧠 Fetch negotiation data based on selected inv_no
 function get_nego_data(frm) {
     if (!frm.doc.inv_no) return;
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.doc_nego_details.doc_nego_details.get_nego_data",
+        args: { name: frm.doc.inv_no },
+        callback: function (r) {
+            const data = r.message;
+            if (!data) return;
 
-    if (frm.is_new() && !frappe.quick_entry) {
-        frappe.call({
-            method: "ssd_app.my_custom.doctype.doc_nego_details.doc_nego_details.get_nego_data",
-            args: { name: frm.doc.inv_no },
-            callback: function (r) {
-                const data = r.message;
-                if (!data) return;
-
-                frm.set_value({
-                    nego_amount: data.nego_amount,
-                    nego_date: data.nego_date,
-					bank:data.bank_name,
-					payment_term: data.payment_term
-                });
-            }
-        });
-    }
+            frm.set_value({
+                nego_amount: data.nego_amount,
+                nego_date: data.nego_date,
+                bank:data.bank_name,
+                payment_term: data.payment_term
+            });
+        }
+    });
+    
 }
 
 // 💰 Calculate interest and due date
@@ -34,8 +32,10 @@ function calculate_int(frm) {
         interest = flt(interest, 2); // ✅ safely round to 2 decimals
         frm.set_value('interest', interest);
     }
+}
 
-    // 📅 Calculate interest upto date
+// 📅 Calculate interest upto date
+function calculate_interest_upto_date(frm) {
     if (frm.doc.nego_date) {
         let nego_date = frappe.datetime.str_to_obj(frm.doc.nego_date);
         let due_date = frappe.datetime.add_days(nego_date, frm.doc.interest_days);
@@ -138,6 +138,9 @@ frappe.ui.form.on("Doc Nego Details", {
     nego_date(frm) {
         // ✅ Recalculate interest due date when base date changes
         calculate_int(frm);
+    },
+    before_save(frm){
+        calculate_interest_upto_date(frm);
     },
     after_save: function(frm) {
         // Redirect to the report page after save

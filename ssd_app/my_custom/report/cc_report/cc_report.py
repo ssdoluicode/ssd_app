@@ -20,60 +20,76 @@ SELECT
         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
     ) AS balance
 FROM (
-    -- Opening balance
+    /* =========================
+       Opening Balance
+       ========================= */
     SELECT 
-        "" AS name,
+        '' AS name,
         %(from_date)s AS date,
-        "" AS inv_no,
+        '' AS inv_no,
         %(customer)s AS customer,
-        "" AS notify,
+        '' AS notify,
         NULL AS sales,
         NULL AS document,
         SUM(amount) AS cc,
         'Opening Balance' AS note,
         'opening' AS dev_note
     FROM (
-        SELECT customer, SUM(cc) AS amount
-        FROM `tabCIF Sheet`
-        WHERE cc != 0
-          AND customer = %(customer)s
-          AND inv_date < %(from_date)s
-        GROUP BY customer
+        -- CIF opening
+        SELECT 
+            sb.customer,
+            SUM(cif.cc) AS amount
+        FROM `tabCIF Sheet` cif
+        INNER JOIN `tabShipping Book` sb
+            ON sb.name = cif.inv_no
+        WHERE cif.cc != 0
+          AND sb.customer = %(customer)s
+          AND cif.inv_date < %(from_date)s
+        GROUP BY sb.customer
 
         UNION ALL
 
-        SELECT customer, SUM(amount_usd) * -1 AS amount
+        -- CC Received opening
+        SELECT 
+            customer,
+            SUM(amount_usd) * -1 AS amount
         FROM `tabCC Received`
         WHERE customer = %(customer)s
           AND date < %(from_date)s
         GROUP BY customer
-    ) AS opening
+    ) opening
     GROUP BY customer
 
     UNION ALL
 
-    -- CIF Sheet
+    /* =========================
+       CIF Sheet Entries
+       ========================= */
     SELECT
         cif.name,
         cif.inv_date AS date,
-        cif.inv_no,
-        cif.customer,
+        sb.inv_no AS inv_no,
+        sb.customer,
         noti.notify,
         cif.sales,
-        cif.document,
+        sb.document,
         cif.cc,
         '' AS note,
         'cif' AS dev_note
     FROM `tabCIF Sheet` cif
-    LEFT JOIN `tabNotify` noti ON cif.notify = noti.name
+    LEFT JOIN `tabShipping Book` sb
+        ON sb.name = cif.inv_no
+    LEFT JOIN tabNotify noti ON sb.notify = noti.name
     WHERE cif.cc != 0
-      AND (%(customer)s IS NULL OR cif.customer = %(customer)s)
+      AND (%(customer)s IS NULL OR sb.customer = %(customer)s)
       AND (%(as_on)s IS NULL OR cif.inv_date <= %(as_on)s)
       AND (%(from_date)s IS NULL OR cif.inv_date >= %(from_date)s)
 
     UNION ALL
 
-    -- CC Received
+    /* =========================
+       CC Received Entries
+       ========================= */
     SELECT
         rec.name,
         rec.date,
@@ -90,7 +106,8 @@ FROM (
       AND (%(as_on)s IS NULL OR rec.date <= %(as_on)s)
       AND (%(from_date)s IS NULL OR rec.date >= %(from_date)s)
 ) t
-ORDER BY t.date, t.inv_no
+ORDER BY t.date, t.inv_no;
+
 """
 
 

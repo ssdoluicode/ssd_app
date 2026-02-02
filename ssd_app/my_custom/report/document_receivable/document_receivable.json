@@ -16,10 +16,10 @@
    "wildcard_filter": 0
   }
  ],
- "idx": 0,
+ "idx": 1,
  "is_standard": "Yes",
- "letterhead": null,
- "modified": "2025-06-20 11:14:58.731052",
+ "letter_head": null,
+ "modified": "2026-01-23 00:40:19.062232",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Document Receivable",

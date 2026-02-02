@@ -10,7 +10,6 @@
   "amended_from",
   "inv_no",
   "inv_date",
-  "category",
   "column_break_xjqv",
   "notify",
   "customer",
@@ -28,7 +27,7 @@
   "invoice_no",
   "custom_title",
   "rec_details",
-  "cif_id"
+  "shipping_id"
  ],
  "fields": [
   {
@@ -50,21 +49,17 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Inv No",
-   "options": "CIF Sheet",
+   "options": "Shipping Book",
    "reqd": 1,
    "set_only_once": 1
   },
   {
+   "default": "Today",
    "fieldname": "inv_date",
    "fieldtype": "Date",
+   "is_virtual": 1,
    "label": "Inv Date",
-   "set_only_once": 1
-  },
-  {
-   "fieldname": "category",
-   "fieldtype": "Link",
-   "label": "Category",
-   "options": "Product Category",
+   "read_only": 1,
    "set_only_once": 1
   },
   {
@@ -72,24 +67,30 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "-",
    "fieldname": "notify",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Notify",
-   "options": "Notify",
+   "read_only": 1,
    "set_only_once": 1
   },
   {
+   "default": "-",
    "fieldname": "customer",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Customer",
-   "options": "Customer",
+   "read_only": 1,
    "set_only_once": 1
   },
   {
+   "default": "-",
    "fieldname": "bank",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Bank",
-   "options": "Bank",
+   "read_only": 1,
    "set_only_once": 1
   },
   {
@@ -97,15 +98,22 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "-",
    "fieldname": "payment_term",
    "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Payment Term",
+   "read_only": 1,
    "set_only_once": 1
   },
   {
+   "default": "0",
    "fieldname": "term_days",
    "fieldtype": "Int",
+   "is_virtual": 1,
    "label": "Term Days",
+   "non_negative": 1,
+   "read_only": 1,
    "set_only_once": 1
   },
   {
@@ -166,17 +174,17 @@
    "label": "Rec Details"
   },
   {
-   "fieldname": "cif_id",
+   "fieldname": "shipping_id",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "CIF ID"
+   "label": "Shipping ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-01-07 15:41:36.884830",
+ "modified": "2026-01-19 23:02:05.853598",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Received",

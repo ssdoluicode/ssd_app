@@ -5,8 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "bl_date",
   "inv_no",
+  "bl_date",
   "company",
   "customer",
   "notify",
@@ -14,9 +14,11 @@
   "column_break_inwz",
   "invoice_amount",
   "document",
-  "bank",
   "payment_term",
-  "term_days"
+  "term_days",
+  "bank",
+  "bank_ref_no",
+  "note"
  ],
  "fields": [
   {
@@ -57,14 +59,15 @@
   },
   {
    "fieldname": "payment_term",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Payment Term",
-   "options": "LC\nLC at Sight\nDP\nDA\nTT"
+   "options": "Payment Term"
   },
   {
    "fieldname": "term_days",
    "fieldtype": "Int",
-   "label": "Term Days"
+   "label": "Term Days",
+   "non_negative": 1
   },
   {
    "fieldname": "company",
@@ -94,6 +97,16 @@
    "reqd": 1
   },
   {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "fieldname": "bank_ref_no",
+   "fieldtype": "Data",
+   "label": "Bank Ref No"
+  },
+  {
    "fieldname": "document",
    "fieldtype": "Float",
    "label": "Document",
@@ -104,7 +117,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-12 17:58:59.398192",
+ "modified": "2026-01-19 23:07:00.499307",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Shipping Book",
