@@ -21,7 +21,7 @@ def drop_db_columns(doctype, fieldnames):
 
 def execute():
     delete_map = {
-        "CIF Sheet":["customer", "notify", "Shipping Company", "Payment Term", "Term Days", "Bank"],
+        "CIF Sheet":["customer", "notify", "shipping_company", "payment_term", "term_days", "bank"],
         "Doc Nego Details": ["nego_date", "nego_amount", "bank", "payment_term", "cif_id"],
         "Doc Refund Details" : ["refund_date", "refund_amount", "interest_from", "bank", "interest_on", "cif_id"],
         "Doc Received Details" : ["received_date", "bank", "received_amount", "cif_id"],

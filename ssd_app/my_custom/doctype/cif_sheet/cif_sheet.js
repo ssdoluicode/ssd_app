@@ -61,6 +61,7 @@ frappe.ui.form.on("CIF Sheet", {
     },
 
     onload(frm) {
+        get_shipping_book_data(frm);
         frm.trigger('calculate_all');
         frm.trigger('check_and_lock_fields');
     },

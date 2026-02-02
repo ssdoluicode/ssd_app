@@ -252,6 +252,9 @@ function protect_add_detete_row(frm){
 
 // Hooks
 frappe.ui.form.on("Cost Sheet", {
+    onload(frm){
+        get_cif_data(frm);
+    },
     setup: inv_no_filter,
     onload_post_render: run_all_calculations,
     inv_no: get_cif_data,

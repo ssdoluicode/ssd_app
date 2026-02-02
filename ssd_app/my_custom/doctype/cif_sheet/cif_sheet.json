@@ -81,6 +81,7 @@
    "no_copy": 1,
    "options": "Shipping Book",
    "reqd": 1,
+   "set_only_once": 1,
    "unique": 1
   },
   {
@@ -424,7 +425,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-01-28 01:12:42.779581",
+ "modified": "2026-02-03 02:31:40.464481",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "CIF Sheet",
@@ -451,6 +452,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "inv_no",
+ "title_field": "invoice_no",
  "track_changes": 1
 }
