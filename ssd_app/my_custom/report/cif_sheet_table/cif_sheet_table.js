@@ -54,8 +54,8 @@ frappe.query_reports["CIF Sheet Table"] = {
         }
 
         // 🔗 Clickable inv_no with modal
-        if (column.fieldname === "inv_no" && data && data.name) {
-            return `<a href="#" onclick="showCIFDetails('${data.name}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
+        if (column.fieldname === "inv_no" && data && data.cif_id) {
+            return `<a href="#" onclick="showCIFDetails('${data.cif_id}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
         }
 
         return value;

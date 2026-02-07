@@ -23,6 +23,7 @@ def get_cif_data(filters):
     data= frappe.db.sql(f"""
         SELECT
     cif.invoice_no AS inv_no,
+    cif.name AS cif_id,                        
     sb.name,
     cif.inv_date,
     com.company_code AS a_com,
