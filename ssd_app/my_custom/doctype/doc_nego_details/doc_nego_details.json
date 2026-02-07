@@ -27,6 +27,7 @@
   "round_off",
   "bank_amount",
   "interest_upto_date",
+  "tally_entry",
   "note",
   "invoice_no",
   "custom_title",
@@ -190,12 +191,18 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Shipping ID"
+  },
+  {
+   "default": "1",
+   "fieldname": "tally_entry",
+   "fieldtype": "Check",
+   "label": "Tally Entry"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-26 00:24:50.764669",
+ "modified": "2026-02-05 22:55:11.444432",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Nego Details",

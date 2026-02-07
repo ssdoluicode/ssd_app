@@ -23,6 +23,7 @@
   "bank_charges",
   "bank_amount",
   "interest_upto_date",
+  "tally_entry",
   "note",
   "invoice_no",
   "custom_title",
@@ -162,12 +163,18 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Shipping ID"
+  },
+  {
+   "default": "1",
+   "fieldname": "tally_entry",
+   "fieldtype": "Check",
+   "label": "Tally Entry"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-26 00:26:00.900302",
+ "modified": "2026-02-05 23:05:13.378640",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Refund Details",

@@ -38,8 +38,11 @@ function get_shipping_book_data(frm) {
                 document: data.document,
                 payment_term:data.payment_term,
                 bank: data.bank,
-                term_days: data.term_days
+                term_days: data.term_days,
             });
+            if (frm.is_new()) {
+                frm.set_value("final_destination", data.final_destination);
+            }
             }
         });
     }
@@ -63,7 +66,6 @@ frappe.ui.form.on("CIF Sheet", {
     onload(frm) {
         get_shipping_book_data(frm);
         frm.trigger('calculate_all');
-        frm.trigger('check_and_lock_fields');
     },
 
 
@@ -116,13 +118,13 @@ frappe.ui.form.on("CIF Sheet", {
         }
     },
 
-    notify(frm) {
-        if (frm.doc.notify) {
-            frappe.db.get_value("Notify", frm.doc.notify, "city").then(r => {
-                if (r.message) frm.set_value("final_destination", r.message.city);
-            });
-        }
-    },
+    // notify(frm) {
+    //     if (frm.doc.notify) {
+    //         frappe.db.get_value("Notify", frm.doc.notify, "city").then(r => {
+    //             if (r.message) frm.set_value("final_destination", r.message.city);
+    //         });
+    //     }
+    // },
 
     multiple_sc: frm => frm.trigger('handle_ui_logic'),
 
@@ -223,18 +225,6 @@ frappe.ui.form.on("CIF Sheet", {
         }
     },
 
-    check_and_lock_fields(frm) {
-        if (frm.is_new() || !frm.doc.name || !frm.doc.inv_no) return;
-        frappe.call({
-            method: "ssd_app.my_custom.doctype.cif_sheet.cif_sheet.check_related_docs",
-            args: { inv_id: frm.doc.name }
-        }).then(r => {
-            if (r.message === true) {
-                frm.set_df_property("document", "read_only", 1);
-                frm.set_df_property("bank", "read_only", 1);
-            }
-        });
-    },
 
     after_save(frm) {
         showCIFDetails(frm.doc.name, frm.doc.inv_no);

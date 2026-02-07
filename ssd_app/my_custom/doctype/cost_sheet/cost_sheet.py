@@ -66,10 +66,10 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
 
     if used_inv:
         placeholders = ', '.join(['%s'] * len(used_inv))
-        condition = f"WHERE name NOT IN ({placeholders}) AND inv_no LIKE %s"
+        condition = f"WHERE name NOT IN ({placeholders}) AND invoice_no LIKE %s"
         values = used_inv + [f"%{txt}%"]
     else:
-        condition = "WHERE inv_no LIKE %s"
+        condition = "WHERE invoice_no LIKE %s"
         values = [f"%{txt}%"]
 
     values += [page_len, start]

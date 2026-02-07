@@ -17,6 +17,7 @@ def get_shipping_book_data(inv_no):
     com_name=frappe.db.get_value("Company", shi_b.company, "company_code")
     payment_term_name=frappe.db.get_value("Payment Term", shi_b.payment_term, "term_name")
     bank_name=frappe.db.get_value("Bank", shi_b.bank, "bank")
+    final_destination= frappe.db.get_value("Notify", shi_b.notify, "city")
     data = {
         "customer": customer_name,
         "notify": notify_name,
@@ -25,30 +26,26 @@ def get_shipping_book_data(inv_no):
         "document": shi_b.document,
         "payment_term": payment_term_name,
         "bank": bank_name,
-        "term_days" : shi_b.term_days
-    }
+        "term_days" : shi_b.term_days,
+        "final_destination":final_destination
+        }
     return data
 
 class CIFSheet(Document):
     def before_save(self):
-        self.set_countries()
+        self.set_field_value()
 
     def validate(self):
         self.validate_unique_expenses()
 
-    def set_countries(self):
-        """Fetches country data for ports and destinations"""
+    def set_field_value(self):
+        self.invoice_no = frappe.db.get_value("Shipping Book", self.inv_no, "inv_no")
         if self.load_port:
             self.from_country = frappe.db.get_value("Port", self.load_port, "country")
         if self.final_destination:
             self.to_country = frappe.db.get_value("City", self.final_destination, "country")
 
-
-    def set_invoice_no(self):
-        """Fetches country data for ports and destinations"""
-        self.invoice_no = frappe.db.get_value("Shipping Book", self.inv_no, "inv_no")
         
-
     def validate_unique_expenses(self):
         seen = set()
         for row in self.expenses:
@@ -90,12 +87,14 @@ def render_cif_sheet_pdf(inv_name, pdf=0):
     doc.notify_name = frappe.db.get_value("Notify", sb.notify, "notify")
     doc.acc_com_name = frappe.db.get_value("Company", doc.accounting_company, "company_code")
     doc.category_name = frappe.db.get_value("Product Category", doc.category, "product_category")
-    doc.bank_name = frappe.db.get_value("Bank", doc.bank, "bank")
+    doc.bank_name = frappe.db.get_value("Bank", sb.bank, "bank")
     doc.load_port_name = frappe.db.get_value("Port", doc.load_port, "port")
     doc.f_country_name = frappe.db.get_value("Port", doc.load_port, "country")
     doc.notify_city = frappe.db.get_value("Notify", sb.notify, "city")
     doc.t_country_name = frappe.db.get_value("City", doc.notify_city, "country")
     doc.destination_port_name = frappe.db.get_value("Port", doc.destination_port, "port")
+    doc.payment_term= frappe.db.get_value("Payment Term",sb.payment_term, "term_name")
+    doc.term_days= sb.term_days
 
     product = frappe.db.sql("""
         SELECT p.parent, pg.product_group, pro.product, p.sc_no, p.qty, u.unit, p.rate, p.currency, p.ex_rate, 
@@ -147,6 +146,8 @@ def render_master_sheet_pdf(inv_name, pdf=0):
     doc.notify_city = frappe.db.get_value("Notify", sb.notify, "city")
     doc.t_country_name = frappe.db.get_value("City", doc.notify_city, "country")
     doc.destination_port_name = frappe.db.get_value("Port", doc.destination_port, "port")
+    doc.payment_term= frappe.db.get_value("Payment Term",sb.payment_term, "term_name")
+    doc.term_days= sb.term_days
     
     if cost_name:
         cost_sheet = frappe.db.get_value("Cost Sheet", cost_name, ["purchase", "commission", "comm_rate", "agent", "cost", "profit", "profit_pct"], as_dict=1)
@@ -210,8 +211,3 @@ def render_master_sheet_pdf(inv_name, pdf=0):
         frappe.local.response.type = "pdf"
     else:
         return html
-
-@frappe.whitelist()
-def check_related_docs(inv_id):
-    return bool(frappe.db.exists("Doc Received", {"inv_no": inv_id}) or 
-                frappe.db.exists("Doc Nego", {"inv_no": inv_id}))

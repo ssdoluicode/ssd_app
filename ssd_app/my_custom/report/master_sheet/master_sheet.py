@@ -27,11 +27,12 @@ def execute(filters=None):
     cost.local_exp,
     cost.other_exp,
     cost.commission, cost.cost, cost.profit, cost.profit_pct,
-    IF(cif.payment_term IN ('LC', 'DA'), CONCAT(cif.payment_term, '- ', cif.term_days), cif.payment_term) AS p_term,
+    IF(pt.term_name IN ('LC', 'DA'), CONCAT(pt.term_name, '- ', sb.term_days), pt.term_name) AS p_term,
     cif.from_country AS f_country, lport.port AS l_port, 
     cif.to_country AS t_country, dport.port AS d_port
 FROM `tabCIF Sheet` cif
 LEFT JOIN `tabShipping Book` sb ON sb.name= cif.inv_no
+LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
 LEFT JOIN `tabCompany` com ON cif.accounting_company = com.name
 LEFT JOIN `tabProduct Category` pcat ON cif.category = pcat.name
 LEFT JOIN `tabCustomer` cus ON sb.customer = cus.name

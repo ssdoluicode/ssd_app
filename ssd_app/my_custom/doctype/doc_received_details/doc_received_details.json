@@ -30,6 +30,7 @@
   "bank_liability",
   "bank_amount",
   "interest_upto_date",
+  "tally_entry",
   "note",
   "invoice_no",
   "cif_id",
@@ -221,12 +222,18 @@
   {
    "fieldname": "column_break_nvkf",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "tally_entry",
+   "fieldtype": "Check",
+   "label": "Tally Entry"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-28 01:54:51.546715",
+ "modified": "2026-02-05 23:17:49.291171",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Received Details",

@@ -123,64 +123,93 @@ function get_cif_data(frm) {
                 sales: data.sales
             });
 
-            frm.clear_table("product_details");
-            (data.product_details || []).forEach(row => {
-                frm.add_child("product_details", {
-                    product: row.product,
-                    qty: row.qty,
-                    unit: row.unit,
-                    id_code: row.name,
-                    po_no: row.sc_no,
-                    ...(data.handling_charges && {
-                        rate: row.rate,
-                        currency: row.currency,
-                        ex_rate: row.ex_rate,
-                        charges: row.charges,
-                        charges_amount: row.charges_amount,
-                        round_off_usd: row.round_off_usd
-                    })
-                });
-            });
+            const saved_product_list = (frm.doc.product_details || []).map(row => ({
+                product: row.product,
+                qty: row.qty,
+                unit: row.unit
+            }));
 
-            frm.clear_table("expenses");
-            (data.expenses || []).forEach(row => {
-                if (data.handling_charges) {
-                    frm.add_child("expenses", {
-                        expenses: row.expenses,
-                        amount: row.amount,
-                        currency: row.currency,
-                        ex_rate: row.ex_rate
+            const cif_product_list = (data.product_details || []).map(row => ({
+                product: row.product,
+                qty: row.qty,
+                unit: row.unit,
+            }));
+            const is_same =
+            JSON.stringify(saved_product_list) ===
+            JSON.stringify(cif_product_list);
+
+            if (!is_same && !frm.is_new()){
+                frm.clear_table("product_details");
+                (data.product_details || []).forEach(row => {
+                    frm.add_child("product_details", {
+                        product: row.product,
+                        qty: row.qty,
+                        unit: row.unit,
+                        id_code: row.name,
+                        po_no: row.sc_no,
+                        ...(data.handling_charges && {
+                            rate: row.rate,
+                            currency: row.currency,
+                            ex_rate: row.ex_rate,
+                            charges: row.charges,
+                            charges_amount: row.charges_amount,
+                            round_off_usd: row.round_off_usd
+                        })
                     });
-                }
-            });
-            
-            if (data.insurance) {
-                frm.add_child("expenses", {
-                    expenses: "Insurance",
-                    amount: data.insurance,
-                    currency: "USD",
-                    ex_rate: 1
                 });
             }
+        
 
-            frm.refresh_fields();
-            run_all_calculations(frm);
-           frappe.after_ajax(() => {
-            setTimeout(() => {
-                const fields_to_lock = ['inv_date','notify','customer','category','accounting_company','shipping_company'];
-                fields_to_lock.forEach(field => {
-                    frm.set_df_property(field, 'read_only', 1);
+            if (frm.is_new()){
+                frm.clear_table("product_details");
+                (data.product_details || []).forEach(row => {
+                    frm.add_child("product_details", {
+                        product: row.product,
+                        qty: row.qty,
+                        unit: row.unit,
+                        id_code: row.name,
+                        po_no: row.sc_no,
+                        ...(data.handling_charges && {
+                            rate: row.rate,
+                            currency: row.currency,
+                            ex_rate: row.ex_rate,
+                            charges: row.charges,
+                            charges_amount: row.charges_amount,
+                            round_off_usd: row.round_off_usd
+                        })
+                    });
+                run_all_calculations(frm);
                 });
 
-                frm.refresh_fields(); // Refresh all at once
-            }, 150); // Optimal delay for Link title resolution
-        });
-
+                frm.clear_table("expenses");
+                (data.expenses || []).forEach(row => {
+                    if (data.handling_charges) {
+                        frm.add_child("expenses", {
+                            expenses: row.expenses,
+                            amount: row.amount,
+                            currency: row.currency,
+                            ex_rate: row.ex_rate
+                        });
+                    }
+                });
+                
+                if (data.insurance) {
+                    frm.add_child("expenses", {
+                        expenses: "Insurance",
+                        amount: data.insurance,
+                        currency: "USD",
+                        ex_rate: 1
+                    });
+                }
+            }
+            frm.refresh_fields();
+            run_all_calculations(frm);
+           
         }
         
-    });
-    
+    });  
 }
+
 
 
 // Custom filter

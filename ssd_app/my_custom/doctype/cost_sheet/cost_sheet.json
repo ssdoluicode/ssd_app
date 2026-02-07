@@ -322,17 +322,20 @@
    "read_only": 1
   },
   {
+   "default": "0",
    "fieldname": "profit_pct",
    "fieldtype": "Percent",
    "label": "Profit Pct",
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
   },
   {
    "default": "0.00",
    "fieldname": "profit",
    "fieldtype": "Float",
    "label": "Profit",
-   "precision": "2"
+   "precision": "2",
+   "read_only": 1
   },
   {
    "fieldname": "expensess_section",
@@ -361,7 +364,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-31 00:16:01.685670",
+ "modified": "2026-02-07 15:04:26.040449",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Sheet",

@@ -88,6 +88,7 @@ def execute_doc_nego(filters):
         LEFT JOIN `tabCompany` com ON com.name =shi.company
         LEFT JOIN `tabPayment Term` pt ON pt.name =shi.payment_term
         {where_clause}
+        AND dnd.tally_entry=1
         ORDER BY dn.nego_date ASC
     """
     data= frappe.db.sql(query, sql_filters, as_dict=1)
@@ -140,8 +141,8 @@ def execute_doc_refund(filters):
         LEFT JOIN `tabCompany` com ON com.name = cif.shipping_company
         LEFT JOIN `tabBank` bank ON bank.name = cif.bank
         LEFT JOIN `tabNotify` noti ON noti.name = cif.notify
-
         {where_clause}
+        AND drd.tally_entry=1
         ORDER BY drd.refund_date ASC
     """
     data= frappe.db.sql(query, sql_filters, as_dict=1)
@@ -206,8 +207,8 @@ def execute_doc_received(filters):
         LEFT JOIN `tabBank` bank ON bank.name = cif.bank
         LEFT JOIN `tabCompany` com ON com.name = cif.shipping_company
         LEFT JOIN `tabCompany` a_com ON a_com.name = cif.accounting_company
-
         {where_clause}
+        AND drd.tally_entry=1
         ORDER BY drd.received_date ASC
     """
     data= frappe.db.sql(query, sql_filters, as_dict=1)
@@ -244,8 +245,8 @@ def execute_interest_payment(filters):
         LEFT JOIN `tabCIF Sheet` cif ON cif.name=ip.cif_id
         LEFT JOIN `tabBank` bank ON bank.name= cif.bank
         LEFT JOIN `tabCompany` com ON com.name= cif.shipping_company
-
         {where_clause}
+        AND ip.tally_entry=1
         ORDER BY ip.date ASC
     """
     data= frappe.db.sql(query, sql_filters, as_dict=1)
@@ -290,7 +291,8 @@ def execute_cc_received(filters):
         ON com.name = ccrd.company
     LEFT JOIN `tabCustomer` cus
         ON cus.name = ccr.customer
-        {where_clause} AND ccrd.tally_entry= 1
+        {where_clause} 
+        AND ccrd.tally_entry= 1
         ORDER BY ccr.date ASC
     """
     data= frappe.db.sql(query, sql_filters, as_dict=1)

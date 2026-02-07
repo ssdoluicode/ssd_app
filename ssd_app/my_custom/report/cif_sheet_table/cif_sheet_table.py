@@ -47,13 +47,13 @@ def get_cif_data(filters):
     END AS supplier,
     bank.bank,
     IF(sb.payment_term IN ('LC', 'DA'),
-       CONCAT(cif.payment_term, '- ', cif.term_days),
-       cif.payment_term) AS p_term,
+       CONCAT(sb.payment_term, '- ', sb.term_days),
+       sb.payment_term) AS p_term,
     cif.from_date,
     cif.due_date,
     cif.bank_ref_no,
     CASE
-        WHEN cif.payment_term = 'TT' THEN ''
+        WHEN sb.payment_term = 'TT' THEN ''
         WHEN COALESCE(t_rec.total_rec, 0) = 0 THEN 'Unpaid'
         WHEN COALESCE(t_rec.total_rec, 0) >= cif.document THEN 'Paid'
         ELSE 'Part'

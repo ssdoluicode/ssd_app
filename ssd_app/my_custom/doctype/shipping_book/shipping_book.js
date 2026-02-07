@@ -34,6 +34,20 @@ function apply_payment_term_filter(frm) {
     });
 }
 
+function check_and_lock_fields(frm) {
+    if (frm.is_new() || !frm.doc.name || !frm.doc.inv_no) return;
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.shipping_book.shipping_book.check_related_docs",
+        args: { inv_id: frm.doc.name }
+    }).then(r => {
+        if (r.message === true) {
+            frm.set_df_property("document", "read_only", 1);
+            frm.set_df_property("bank", "read_only", 1);
+            frm.set_df_property("payment_term", "read_only", 1);
+        }
+    });
+}
+
 function toggle_field(frm) {
     if (frm.doc.document == 0 || !frm.doc.document) {
         // Hide & make not mandatory
@@ -60,6 +74,9 @@ function toggle_field(frm) {
 
 
 frappe.ui.form.on("Shipping Book", {
+    onload(frm){
+        check_and_lock_fields(frm);
+    },
 	inv_no(frm) {
         validate_inv_no(frm);
     },
