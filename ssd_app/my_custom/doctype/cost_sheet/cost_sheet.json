@@ -67,6 +67,7 @@
    "default": "-",
    "fieldname": "customer",
    "fieldtype": "Data",
+   "is_virtual": 1,
    "label": "Customer"
   },
   {
@@ -192,9 +193,9 @@
    "default": "Today",
    "fieldname": "inv_date",
    "fieldtype": "Data",
-   "is_virtual": 1,
    "label": "Inv Date",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "custom_title",
@@ -317,6 +318,7 @@
    "default": "0",
    "fieldname": "sales",
    "fieldtype": "Float",
+   "is_virtual": 1,
    "label": "Sales",
    "precision": "2",
    "read_only": 1
@@ -325,6 +327,7 @@
    "default": "0",
    "fieldname": "profit_pct",
    "fieldtype": "Percent",
+   "is_virtual": 1,
    "label": "Profit Pct",
    "precision": "2",
    "read_only": 1
@@ -333,6 +336,7 @@
    "default": "0.00",
    "fieldname": "profit",
    "fieldtype": "Float",
+   "is_virtual": 1,
    "label": "Profit",
    "precision": "2",
    "read_only": 1
@@ -364,7 +368,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-07 15:04:26.040449",
+ "modified": "2026-02-09 02:41:50.067103",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Sheet",

@@ -127,8 +127,13 @@ def render_master_sheet_pdf(inv_name, pdf=0):
     agent_id = frappe.db.get_value("Cost Sheet", cost_name, "agent") or ""
     doc.comm_agent = frappe.db.get_value("Comm Agent", agent_id, "agent_name") or ""
     doc.cost = frappe.db.get_value("Cost Sheet", cost_name, "cost") or 0
-    doc.profit = frappe.db.get_value("Cost Sheet", cost_name, "profit") or 0
-    doc.profit_pct = frappe.db.get_value("Cost Sheet", cost_name, "profit_pct") or 0
+    # doc.profit = frappe.db.get_value("Cost Sheet", cost_name, "profit") or 0
+    # doc.profit_pct = frappe.db.get_value("Cost Sheet", cost_name, "profit_pct") or 0
+
+    profit= doc.sales- doc.cost
+    profit_pct= round(profit/doc.sales,2)
+    doc.profit=profit
+    doc.profit_pct= profit_pct
   
     product =  frappe.db.sql("""
         SELECT p.parent, pg.product_group, pro.product, p.sc_no, p.qty, u.unit, p.rate AS s_rate, p.ex_rate AS s_ex_rate, 

@@ -13,6 +13,7 @@ ssd_app.patches.doc_details_entry_update
 
 # for delete doctype fields
 ssd_app.patches.delete_fields
+ssd_app.patches.delete_fields_cost_sheet
 
 
 

@@ -93,10 +93,10 @@ def set_calculated_fields(doc):
     invoice = frappe.db.get_value(
         "CIF Sheet",
         {"name": doc.inv_no},
-        ["inv_no", "load_port", "destination_port", "final_destination"],
+        ["invoice_no", "load_port", "destination_port", "final_destination"],
         as_dict=True
     )
-    doc.custom_title =invoice.inv_no
+    doc.custom_title =invoice.invoice_no
     doc.load_port= invoice.load_port
     doc.destination_port= invoice.destination_port
     doc.final_destination= invoice.final_destination
@@ -116,17 +116,23 @@ class CostSheet(Document):
 def render_cost_sheet_pdf(inv_name, pdf=0):
     cost_id = frappe.db.get_value("Cost Sheet", {"inv_no": inv_name}, "name")
     doc = frappe.get_doc("Cost Sheet", cost_id)
-    cif_doc= frappe.get_doc("CIF Sheet", doc.inv_no, "load_port")
-    doc.customer_name=frappe.db.get_value("Customer", doc.customer, "customer")
-    doc.notify_name=frappe.db.get_value("Notify", doc.notify, "notify")
-    doc.acc_com_name = frappe.db.get_value("Company", doc.accounting_company, "company_code")
-    doc.category_name=frappe.db.get_value("Product Category", doc.category, "product_category")
+    cif_doc= frappe.get_doc("CIF Sheet", doc.inv_no)
+    sb= frappe.get_doc("Shipping Book", cif_doc.inv_no)
+    doc.customer_name=frappe.db.get_value("Customer", sb.customer, "customer")
+    doc.notify_name=frappe.db.get_value("Notify", sb.notify, "notify")
+    doc.acc_com_name = frappe.db.get_value("Company", cif_doc.accounting_company, "company_code")
+    doc.category_name=frappe.db.get_value("Product Category", cif_doc.category, "product_category")
     doc.load_port_name=frappe.db.get_value("Port", cif_doc.load_port, "port")
     doc.f_country_name=frappe.db.get_value("Port", cif_doc.load_port, "country")
-    doc.notify_city=frappe.db.get_value("Notify", doc.notify, "city")
+    doc.notify_city=frappe.db.get_value("Notify", sb.notify, "city")
     doc.t_country_name=frappe.db.get_value("City", doc.notify_city, "country")
     doc.destination_port_name=frappe.db.get_value("Port", cif_doc.destination_port, "port")
     doc.agent_name=frappe.db.get_value("Comm Agent", doc.agent, "agent_name")
+    doc.sales= cif_doc.sales
+    profit= cif_doc.sales- doc.cost
+    profit_pct= round(profit/cif_doc.sales,2)
+    doc.profit=profit
+    doc.profit_pct= profit_pct
 
     product =  frappe.db.sql("""
         SELECT p.parent, pg.product_group, pro.product, p.po_no, p.qty, u.unit, p.rate, p.currency, p.ex_rate, 

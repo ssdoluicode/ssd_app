@@ -34,14 +34,16 @@ function get_shipping_book_data(frm) {
                 customer: data.customer,
                 notify: data.notify,
                 shipping_company: data.shipping_company,
-                inv_date: data.bl_date,
                 document: data.document,
                 payment_term:data.payment_term,
                 bank: data.bank,
                 term_days: data.term_days,
             });
             if (frm.is_new()) {
-                frm.set_value("final_destination", data.final_destination);
+                frm.set_value({
+                    inv_date: data.bl_date,
+                    final_destination:data.final_destination
+                });
             }
             }
         });

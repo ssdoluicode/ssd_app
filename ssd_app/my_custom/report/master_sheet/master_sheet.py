@@ -26,7 +26,17 @@ def execute(filters=None):
     cost.freight,
     cost.local_exp,
     cost.other_exp,
-    cost.commission, cost.cost, cost.profit, cost.profit_pct,
+    cost.commission, 
+    cost.cost, 
+    IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0) AS profit,
+    IFNULL(
+        ROUND(
+            (IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0))
+            / NULLIF(cif.sales, 0) * 100,
+            2
+        ),
+        0
+    ) AS profit_pct,
     IF(pt.term_name IN ('LC', 'DA'), CONCAT(pt.term_name, '- ', sb.term_days), pt.term_name) AS p_term,
     cif.from_country AS f_country, lport.port AS l_port, 
     cif.to_country AS t_country, dport.port AS d_port
@@ -41,36 +51,33 @@ LEFT JOIN `tabBank` bank ON sb.bank = bank.name
 LEFT JOIN `tabPort` lport ON cif.load_port = lport.name
 LEFT JOIN `tabPort` dport ON cif.destination_port = dport.name
 LEFT JOIN (
-    SELECT 
-        cost_s.inv_no, 
-        cost_s.name, 
-        cost_s.purchase,
-        cost_s.commission, 
-        cost_s.cost, 
-        cost_s.profit, 
-        cost_s.profit_pct, 
-        IFNULL(sup.supplier, '## Misc Supplier') AS supplier,
-        IFNULL(exp.freight, 0) AS freight,
-        IFNULL(exp.local_exp, 0) AS local_exp,
-        IFNULL(exp.other_exp, 0) AS other_exp
-    FROM 
-        `tabCost Sheet` cost_s 
-    LEFT JOIN 
-        `tabSupplier` sup 
-        ON sup.name = cost_s.supplier 
-    LEFT JOIN (
-        SELECT 
-            parent AS cost_id,
-            SUM(CASE WHEN expenses = 'Freight' THEN amount_usd ELSE 0 END) AS freight,
-            SUM(CASE WHEN expenses = 'Local Exp' THEN amount_usd ELSE 0 END) AS local_exp,
-            SUM(CASE WHEN expenses IN ('Inland Charges', 'Switch B/L Charges', 'Others') THEN amount_usd ELSE 0 END) AS other_exp
-        FROM 
-            `tabExpenses Cost`
-        GROUP BY 
-            parent
-    ) exp 
-        ON exp.cost_id = cost_s.name
-) cost ON cif.name = cost.inv_no
+            SELECT 
+                cost_s.inv_no, 
+                cost_s.name, 
+                cost_s.purchase,
+                cost_s.commission, 
+                cost_s.cost, 
+                IFNULL(sup.supplier, '## Misc Supplier') AS supplier,
+                IFNULL(exp.freight, 0) AS freight,
+                IFNULL(exp.local_exp, 0) AS local_exp,
+                IFNULL(exp.other_exp, 0) AS other_exp
+            FROM 
+                `tabCost Sheet` cost_s 
+            LEFT JOIN 
+                `tabSupplier` sup 
+                ON sup.name = cost_s.supplier 
+            LEFT JOIN (
+                        SELECT 
+                            parent AS cost_id,
+                            SUM(CASE WHEN expenses = 'Freight' THEN amount_usd ELSE 0 END) AS freight,
+                            SUM(CASE WHEN expenses = 'Local Exp' THEN amount_usd ELSE 0 END) AS local_exp,
+                            SUM(CASE WHEN expenses IN ('Inland Charges', 'Switch B/L Charges', 'Others') THEN amount_usd ELSE 0 END) AS other_exp
+                        FROM 
+                            `tabExpenses Cost`
+                        GROUP BY 
+                            parent
+                    ) exp ON exp.cost_id = cost_s.name
+        ) cost ON cif.name = cost.inv_no
 
     WHERE 1=1 {conditions} {limit_clause}
     """

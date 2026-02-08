@@ -150,14 +150,17 @@ def render_master_sheet_pdf(inv_name, pdf=0):
     doc.term_days= sb.term_days
     
     if cost_name:
-        cost_sheet = frappe.db.get_value("Cost Sheet", cost_name, ["purchase", "commission", "comm_rate", "agent", "cost", "profit", "profit_pct"], as_dict=1)
+        cost_sheet = frappe.db.get_value("Cost Sheet", cost_name, ["purchase", "commission", "comm_rate", "agent", "cost"], as_dict=1)
         doc.purchase = cost_sheet.purchase or 0
         doc.comm = cost_sheet.commission or 0
         doc.comm_rate = cost_sheet.comm_rate or 0
         doc.comm_agent = frappe.db.get_value("Comm Agent", cost_sheet.agent, "agent_name") if cost_sheet.agent else ""
-        doc.cost = cost_sheet.cost or 0
-        doc.profit = cost_sheet.profit or 0
-        doc.profit_pct = cost_sheet.profit_pct or 0
+        cost = cost_sheet.cost or 0
+        doc.cost= cost
+        profit= doc.sales- cost or 0
+        profit_pct= round(profit/doc.sales,2)
+        doc.profit=profit
+        doc.profit_pct= profit_pct
 
     product = frappe.db.sql("""
         SELECT p.parent, pg.product_group, pro.product, p.sc_no, p.qty, u.unit, p.rate AS s_rate, p.ex_rate AS s_ex_rate, 

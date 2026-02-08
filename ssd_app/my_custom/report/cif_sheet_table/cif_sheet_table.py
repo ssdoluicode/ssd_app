@@ -23,6 +23,7 @@ def get_cif_data(filters):
     data= frappe.db.sql(f"""
         SELECT
     cif.invoice_no AS inv_no,
+    cif.name AS cif_id,                        
     sb.name,
     cif.inv_date,
     com.company_code AS a_com,
@@ -40,22 +41,22 @@ def get_cif_data(filters):
     d_port.port AS destination_port,
     l_port.country AS from_country,
     city.country AS to_country,
-                    
+    t_rec.total_rec,      
     CASE
     WHEN cost.inv_no IS NULL THEN ''
     ELSE COALESCE(sup.supplier, '--Multi--')
     END AS supplier,
     bank.bank,
-    IF(sb.payment_term IN ('LC', 'DA'),
-       CONCAT(sb.payment_term, '- ', sb.term_days),
-       sb.payment_term) AS p_term,
+    IF(pt.term_name IN ('LC', 'DA'),
+       CONCAT(pt.term_name, '- ', sb.term_days),
+       pt.term_name) AS p_term,
     cif.from_date,
     cif.due_date,
     cif.bank_ref_no,
     CASE
-        WHEN sb.payment_term = 'TT' THEN ''
-        WHEN COALESCE(t_rec.total_rec, 0) = 0 THEN 'Unpaid'
-        WHEN COALESCE(t_rec.total_rec, 0) >= cif.document THEN 'Paid'
+        WHEN pt.full_tt = 1 THEN ''
+        WHEN COALESCE(t_rec.total_rec, 0) = 0 THEN 'Not'
+        WHEN COALESCE(t_rec.total_rec, 0) >= cif.document THEN 'Rec'
         ELSE 'Part'
     END AS status
 
@@ -70,6 +71,7 @@ def get_cif_data(filters):
     LEFT JOIN `tabPort` l_port ON cif.load_port= l_port.name
     LEFT JOIN `tabPort` d_port ON cif.destination_port= d_port.name
     LEFT JOIN `tabCity` city ON noti.city=city.name
+    LEFT JOIN `tabPayment Term` pt ON pt.name=sb.payment_term
 
     LEFT JOIN (
         SELECT inv_no, MIN(supplier) AS supplier
