@@ -141,10 +141,14 @@ function get_rec_data(frm) {
                 interest_pct :data.int_pct
             });
 
-            // --- 2. ASYNCHRONOUS DEPENDENCY: Recalculate all dependencies ---
-            calculate_interest_days(frm);
-            calculate_interest(frm);
-            calculate_bank_amount(frm); // Call bank amount calculation
+            if (frm.is_new){
+                frm.set_value(interest_pct, data.int_pct || 0);
+                calculate_interest_days(frm);
+                calculate_interest(frm);
+                calculate_bank_amount(frm); // Call bank amount calculation
+
+            }
+
 
         }
     });
@@ -193,11 +197,7 @@ frappe.ui.form.on("Doc Received Details", {
     },
 
     // --- Hooks for Interest Calculation Dependencies ---
-    interest_from(frm) {
-        calculate_interest_days(frm);
-        calculate_interest(frm);
-        calculate_interest_upto_date(frm);
-    },
+  
     interest_on(frm) {
         calculate_interest(frm);
     },
@@ -207,11 +207,6 @@ frappe.ui.form.on("Doc Received Details", {
     },
     interest_pct(frm) {
         calculate_interest(frm);
-    },
-    received_date(frm) {
-        calculate_interest_days(frm);
-        calculate_interest(frm);
-        calculate_bank_amount(frm); 
     },
     
     // --- Hooks for Bank Amount Calculation Dependencies ---
