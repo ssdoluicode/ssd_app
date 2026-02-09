@@ -7,20 +7,4 @@
     }
 }
 
-/* Highlight report row on hover - GLOBAL */
-/* .dt-row:hover {
-    background-color: #f0f7ff !important;
-    cursor: pointer;
-} */
 
-
-
-/* Highlight query report row on hover */
-.dt-scrollable .dt-row:hover {
-    background-color: #f0f7ff !important;
-}
-
-/* Optional: cursor only for data rows */
-.dt-scrollable .dt-row:hover .dt-cell__content {
-    cursor: pointer;
-}

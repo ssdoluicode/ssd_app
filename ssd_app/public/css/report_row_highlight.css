@@ -1,0 +1,14 @@
+.datatable .dt-row:hover .dt-cell {
+    background-color: #f1f5f9 !important;
+}
+
+.datatable .dt-row.report-row-selected .dt-cell {
+    background-color: #e3f2fd !important;
+}
+
+.datatable .dt-cell {
+    transition: background-color 0.12s ease-in-out;
+}
+
+
+

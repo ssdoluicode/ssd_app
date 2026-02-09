@@ -36,35 +36,68 @@ frappe.query_reports["Cost Sheet Table"] = {
     formatter: function(value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
 
-        // // 🎯 Status column – 2 color pie (Received vs Outstanding)
-        // if (column.fieldname ===  "status" && value) {
+        if (column.fieldname === "comm_status" && data) {
 
-        //     const total = flt(data.document || 0);
-        //     const received = flt(data.total_rec || 0);
+            const commission = flt(data.commission || 0);
+            const comm_paid = flt(data.comm_paid || 0);
+            const document = flt(data.document || 0);
+            const doc_rec = flt(data.doc_rec || 0);
+            if (commission === 0) {
+                return "";
+            }
 
-        //     let percent = 0;
-        //     if (total > 0) {
-        //         percent = Math.min(100, Math.round((received / total) * 100));
-        //     }
+            let label = "";
+            let color = "";
+            let icon = "";
+            let title = "";
 
-        //     return `
-        //         <a href="#"
-        //         onclick="showDocFlow('${data.name}'); return false;"
-        //         title="Received ${percent}%"
-        //         style="display:inline-block; cursor:pointer;">
-        //             <div style="
-        //                 width:14px;
-        //                 height:14px;
-        //                 border-radius:50%;
-        //                 background: conic-gradient(
-        //                     #16a34a ${percent}%,
-        //                     #dc2626 ${percent}% 100%
-        //                 );
-        //             ">
-        //             </div>
-        //         </a>
-        //     `;
-        // }
+            // ✅ PAID
+            if (comm_paid === commission) {
+                label = "Paid";
+                color = "#16a34a";        // green
+                icon = "check-circle";
+                title = "Commission fully paid";
+
+            // 🟡 CAN PAY
+            } else if (comm_paid === 0 && document === doc_rec) {
+                label = "Can Pay";
+                color = "#f59e0b";
+                icon = "circle";
+                title = "Documents received, payment allowed";
+            
+            // 🟡 CAN PAY
+            } else if (0<comm_paid<commission  && document === doc_rec) {
+                label = "Partly Paid";
+                color = "#f59e0b";
+                icon = "circle";
+                title = `Partly (paid ${comm_paid})`;
+
+
+            // 🔴 HOLD
+            } else if (comm_paid === 0 && document > doc_rec) {
+                label = "Hold";
+                color = "#dc2626";        // red
+                icon = "ban";
+                title = "Documents pending, commission on hold";
+
+            } else {
+                return "-";
+            }
+
+            return `
+                <span title="${title}"
+                    style="
+                        display:inline-flex;
+                        align-items:center;
+                        gap:6px;
+                        font-weight:600;
+                        color:${color};
+                    ">
+                    <i class="fa fa-${icon}"></i>
+                    ${label}
+                </span>
+            `;
+        }
 
         // 🔗 Clickable inv_no with modal
         if (column.fieldname === "inv_no" && data && data.cif_id) {
@@ -83,3 +116,6 @@ frappe.query_reports["Cost Sheet Table"] = {
         }    
     ],
 };
+
+
+

@@ -34,8 +34,8 @@ website_context = {
 # include js, css files in header of desk.html
 # app_include_css = "/assets/ssd_app/css/ssd_app.css"
 # app_include_js = "/assets/ssd_app/js/ssd_app.js"
-app_include_js = "/assets/ssd_app/js/dialog_box.js"
-app_include_css = "/assets/ssd_app/css/custom.css"
+app_include_js = ["/assets/ssd_app/js/dialog_box.js", "/assets/ssd_app/js/report_row_highlight.js"]
+app_include_css = ["/assets/ssd_app/css/custom.css", "/assets/ssd_app/css/report_row_highlight.css"]
 
 
 # include js, css files in header of web template

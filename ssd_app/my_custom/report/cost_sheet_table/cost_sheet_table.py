@@ -30,8 +30,11 @@ def get_cif_data(filters):
     cus.code AS customer,
     noti.code AS notify,
     cost.commission,
+    ca.agent_name AS agent,
     cost.purchase,
     cif.sales,
+    cif.document,
+    d_rec.doc_rec,     
     cost.cost,
     IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0) AS profit,
     IFNULL(exp.freight, 0) AS freight,
@@ -53,6 +56,12 @@ def get_cif_data(filters):
     LEFT JOIN `tabPort` d_port ON cost.destination_port= d_port.name
     LEFT JOIN `tabCity` city ON noti.city=city.name
     LEFT JOIN `tabSupplier` sup ON cost.supplier = sup.name
+    LEFT JOIN `tabComm Agent` ca ON ca.name= cost.agent
+    LEFT JOIN (
+        SELECT inv_no, SUM(received) AS doc_rec
+        FROM `tabDoc Received`
+        GROUP BY inv_no
+    ) d_rec ON sb.name = d_rec.inv_no
     LEFT JOIN (
         SELECT cb.inv_no, SUM(cb.amount) AS comm_paid from `tabComm Breakup` cb
         GROUP BY cb.inv_no
@@ -85,7 +94,7 @@ def execute(filters=None):
         {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date"},
         {"label": "Com", "fieldname": "a_com", "fieldtype": "Data","width": 100},
         {"label": "Category", "fieldname": "product_category", "fieldtype": "Data", "width": 150},
-        {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 180},
+        {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 150},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 180},
         {"label": "Purchase", "fieldname": "purchase", "fieldtype": "Float", "width": 110},
         {"label": "Freight", "fieldname": "freight", "fieldtype": "Float", "width": 100},
@@ -94,6 +103,8 @@ def execute(filters=None):
         {"label": "Cost", "fieldname": "cost", "fieldtype": "Float", "width": 120},
         {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 120},
         {"label": "Profit", "fieldname": "profit", "fieldtype": "Float", "width": 90},
+        {"label": "Comm Status", "fieldname": "comm_status", "fieldtype": "Data"},
+        {"label": "Agent", "fieldname": "agent", "fieldtype": "Data", "width": 90},
         {"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 180},
         {"label": "Comm Paid", "fieldname": "comm_paid", "fieldtype": "Float"}
     ]
