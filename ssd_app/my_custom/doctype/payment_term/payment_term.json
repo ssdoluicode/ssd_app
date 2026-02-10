@@ -8,9 +8,10 @@
   "term_name",
   "term_details",
   "term_type",
-  "use_banking_line",
   "active",
+  "use_banking_line",
   "full_tt",
+  "direct_to_supplier",
   "note"
  ],
  "fields": [
@@ -59,12 +60,18 @@
    "fieldname": "full_tt",
    "fieldtype": "Check",
    "label": "Full TT"
+  },
+  {
+   "default": "0",
+   "fieldname": "direct_to_supplier",
+   "fieldtype": "Check",
+   "label": "Direct To Supplier"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-18 02:17:50.142322",
+ "modified": "2026-02-10 09:33:43.818596",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Payment Term",

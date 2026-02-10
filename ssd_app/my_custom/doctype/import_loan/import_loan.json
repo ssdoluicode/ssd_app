@@ -4,19 +4,160 @@
  "creation": "2026-02-02 02:08:48.601047",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": [
+  "field_order": [
+  "loan_date",
+  "company",
+  "bank",
+  "loan_amount",
+  "currency",
+  "ex_rate",
+  "column_break_rhpt",
+  "loan_amount_usd",
+  "inv_no",
+  "supplier",
+  "term_days",
+  "due_date",
+  "due_date_confirm",
+  "note",
+  "custom_title",
+  "group_id",
+  "from_lc_open",
+  "import_loan_details",
   "section_break_0ka6"
  ],
  "fields": [
   {
-   "fieldname": "section_break_0ka6",
-   "fieldtype": "Section Break"
+   "default": "Today",
+   "fieldname": "loan_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Loan Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_amount",
+   "fieldtype": "Float",
+   "label": "Loan Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "fieldname": "inv_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Inv No",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_rhpt",
+   "fieldtype": "Column Break",
+   "hidden": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "term_days",
+   "fieldtype": "Int",
+   "label": "Term Days",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "custom_title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Custom Title",
+   "unique": 1
+  },
+  {
+   "default": "USD",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "due_date_confirm",
+   "fieldtype": "Check",
+   "label": "Due Date Confirm"
+  },
+  {
+   "default": "1",
+   "fieldname": "ex_rate",
+   "fieldtype": "Float",
+   "label": "Ex Rate",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "loan_amount_usd",
+   "fieldtype": "Float",
+   "label": "Loan Amount (USD)",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "group_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Group ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "from_lc_open",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "From LC Open"
+  },
+  {
+   "default": "0",
+   "fieldname": "import_loan_details",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Import Loan Details"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-02 02:08:48.601047",
+ "modified": "2026-02-10 12:18:16.084078",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Import Loan",

@@ -105,7 +105,7 @@ def execute(filters=None):
 		LEFT JOIN `tabBank` bank ON shi.bank = bank.name
 		LEFT JOIN `tabPayment Term` pt ON shi.payment_term = pt.name
 		LEFT JOIN `tabCIF Sheet` cif ON shi.name = cif.inv_no
-		WHERE pt.term_type= "Export" AND full_tt=0
+		WHERE pt.term_type= "Export" AND pt.full_tt=0 AND pt.direct_to_supplier=0
 			{conditional_filter}
 			AND shi.bl_date <= %(as_on)s
 		ORDER BY shi.inv_no ASC

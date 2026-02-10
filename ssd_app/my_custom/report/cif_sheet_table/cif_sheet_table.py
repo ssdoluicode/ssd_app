@@ -41,7 +41,10 @@ def get_cif_data(filters):
     d_port.port AS destination_port,
     l_port.country AS from_country,
     city.country AS to_country,
-    t_rec.total_rec,      
+    CASE
+        WHEN pt.direct_to_supplier = 1 THEN cif.document
+        ELSE COALESCE(t_rec.total_rec, 0)
+    END AS total_rec,      
     CASE
     WHEN cost.inv_no IS NULL THEN ''
     ELSE COALESCE(sup.supplier, '--Multi--')
@@ -96,8 +99,8 @@ def execute(filters=None):
         # {"label": "Inv ID", "fieldname": "name", "fieldtype": "Data", "width": 80},
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90},
         {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
-        {"label": "Acc Com", "fieldname": "a_com", "fieldtype": "Data", "width": 90},
-        {"label": "Category", "fieldname": "product_category", "fieldtype": "Data", "width": 110},
+        {"label": "Company", "fieldname": "a_com", "fieldtype": "Data", "width": 100},
+        {"label": "Category", "fieldname": "product_category", "fieldtype": "Data", "width": 160},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 120},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 150},
         {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 100},

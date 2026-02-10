@@ -49,27 +49,34 @@ function check_and_lock_fields(frm) {
 }
 
 function toggle_field(frm) {
-    if (frm.doc.document == 0 || !frm.doc.document) {
+    frappe.db.get_value(
+        "Payment Term",
+        frm.doc.payment_term,
+        "use_banking_line"
+    ).then(r =>{
+         const use_banking = r.message?.use_banking_line;
+
         // Hide & make not mandatory
-        frm.set_df_property("bank", "hidden", 1);
-        frm.set_df_property("bank", "reqd", 0);
-        frm.set_value("bank", null); // optional: clear value
-        frm.set_df_property("term_days", "hidden", 1);
-        frm.set_df_property("term_days", "reqd", 0);
-        frm.set_value("term_days", null); // optional: clear value
-        frm.set_df_property("bank_ref_no", "hidden", 1);
-        frm.set_df_property("bank_ref_no", "reqd", 0);
-        frm.set_value("bank_ref_no", null); // optional: clear value
-        frm.set_df_property("payment_term", "reqd", 0);
-    } else {
-        // Show & make mandatory
-        frm.set_df_property("bank", "hidden", 0);
-        frm.set_df_property("bank", "reqd", 1);
-        frm.set_df_property("term_days", "hidden", 0);
-        frm.set_df_property("term_days", "reqd", 1);
-        frm.set_df_property("bank_ref_no", "hidden", 0);
-        frm.set_df_property("payment_term", "reqd", 1);
-    }
+        if (use_banking === 0){
+            // frm.set_df_property("bank", "hidden", 1);
+            frm.set_df_property("bank", "reqd", 0);
+            frm.set_value("bank", null); // optional: clear value
+            // frm.set_df_property("term_days", "hidden", 1);
+            frm.set_df_property("term_days", "reqd", 0);
+            frm.set_value("term_days", null); // optional: clear value
+            // frm.set_df_property("bank_ref_no", "hidden", 1);
+            frm.set_df_property("payment_term", "reqd", 0);
+        }else{
+            // frm.set_df_property("bank", "hidden", 0);
+            frm.set_df_property("bank", "reqd", 1);
+            // frm.set_df_property("term_days", "hidden", 0);
+            frm.set_df_property("term_days", "reqd", 1);
+            // frm.set_df_property("bank_ref_no", "hidden", 0);
+            frm.set_df_property("payment_term", "reqd", 1);
+
+        }            
+
+    });
 }
 
 
@@ -88,6 +95,8 @@ frappe.ui.form.on("Shipping Book", {
     document(frm) {
         frm.set_value("payment_term", null); // clear invalid value
         apply_payment_term_filter(frm);
-        toggle_field(frm)
+    },
+    payment_term(frm){
+        toggle_field(frm);
     }
 });

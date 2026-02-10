@@ -289,7 +289,7 @@ frappe.ui.form.on("Cost Sheet", {
     inv_no: get_cif_data,
     validate(frm){
         checkDuplicateExpensesOnValidation(frm);
-        put_po_no_sup_in_child_row(frm);
+        // put_po_no_sup_in_child_row(frm);
     },
     refresh(frm) {
         toggle_po_no_field(frm);

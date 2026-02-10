@@ -102,12 +102,27 @@ def set_calculated_fields(doc):
     doc.final_destination= invoice.final_destination
 
 
+#Sync parent-level PO No and Supplier into each child table rows.
+def set_po_and_supplier_in_child(doc):
+    if doc.docstatus == 1:
+        return   # do nothing after submit
+
+    if not doc.multiple_po:
+        for row in doc.product_details:
+            row.po_no = doc.po_no
+
+    if not doc.multiple_supplier:
+        for row in doc.product_details:
+            row.supplier = doc.supplier
+
+
 
 class CostSheet(Document):
     def validate(self):
         validate_unique_expenses(self)
     def before_save(self):
         set_calculated_fields(self)
+        set_po_and_supplier_in_child(self)
     
 
 

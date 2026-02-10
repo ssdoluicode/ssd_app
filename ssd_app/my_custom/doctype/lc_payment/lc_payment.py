@@ -4,7 +4,7 @@
 
 import frappe
 from frappe.model.document import Document
-from ssd_app.utils.banking import check_banking_line
+# from ssd_app.utils.banking import check_banking_line
 
 
 def final_validation(doc):

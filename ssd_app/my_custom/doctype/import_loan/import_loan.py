@@ -36,11 +36,11 @@ def bank_line_validtation(doc):
     from_lc_open= int((doc.from_lc_open))
     if from_lc_open ==1:
         lc_term_name= frappe.db.get_value("Payment Term", {"term_name":"LC Open"}, "name")
-        lc_bl_data=check_banking_line_n(doc.bank, doc.company,lc_term_name)
+        lc_bl_data=check_banking_line(doc.bank, doc.company,lc_term_name)
         lc_open_line = lc_bl_data["banking_line_name"]
 
         term_name_2= frappe.db.get_value("Payment Term", {"term_name":"Import Loan"}, "name")
-        bl_data_2=check_banking_line_n(doc.bank, doc.company, term_name_2)
+        bl_data_2=check_banking_line(doc.bank, doc.company, term_name_2)
         imp_loan_line = bl_data_2["banking_line_name"]
        
         if (lc_open_line == imp_loan_line):

@@ -34,7 +34,10 @@ def get_cif_data(filters):
     cost.purchase,
     cif.sales,
     cif.document,
-    d_rec.doc_rec,     
+    CASE
+        WHEN pt.direct_to_supplier = 1 THEN cif.document
+        ELSE COALESCE(d_rec.doc_rec, 0)
+    END AS doc_rec,      
     cost.cost,
     IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0) AS profit,
     IFNULL(exp.freight, 0) AS freight,
@@ -57,6 +60,7 @@ def get_cif_data(filters):
     LEFT JOIN `tabCity` city ON noti.city=city.name
     LEFT JOIN `tabSupplier` sup ON cost.supplier = sup.name
     LEFT JOIN `tabComm Agent` ca ON ca.name= cost.agent
+    LEFT JOIN `tabPayment Term` pt ON pt.name=sb.payment_term
     LEFT JOIN (
         SELECT inv_no, SUM(received) AS doc_rec
         FROM `tabDoc Received`
