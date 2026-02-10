@@ -14,9 +14,18 @@ def set_calculated_fields(doc):
 def final_validation(doc):
     if not doc.inv_no:
         return
+    
+    shi_b_data = frappe.db.get_value("Shipping Book", doc.inv_no, ["document", "bank"] , as_dict=True)
+   
+    bank = shi_b_data["bank"]
+    shi_document = shi_b_data["document"]
 
-    # Fetch document value safely
-    shi_document = flt(frappe.db.get_value("Shipping Book", doc.inv_no, "document"))
+    if(not bank and not doc.bank_link):
+        frappe.throw(_(f"""
+                ❌ <b>Bank is Blank.</b><br>
+                <b>Please put Bank Name in Shipping Book or Put here<br>
+            """))
+
 
     # Total received from other entries
     total_received = flt(frappe.db.sql("""
@@ -39,12 +48,21 @@ def final_validation(doc):
             <br><b>This Entry:</b> {this_entry:,.2f}
         """))
 
+def set_shipping_book_bank(doc): #set bank if missing in shipping book
+    shipping_bank = frappe.db.get_value("Shipping Book",doc.inv_no,"bank")
+
+    if not shipping_bank and doc.bank_link:
+        frappe.db.set_value("Shipping Book",doc.inv_no,"bank",doc.bank_link)
+   
+
+
 class DocReceived(Document):
     def validate(self):
         final_validation(self)
     
     def before_save(self):
         set_calculated_fields(self)
+        set_shipping_book_bank(self)
 
 @frappe.whitelist()
 def get_shi_data(inv_no):

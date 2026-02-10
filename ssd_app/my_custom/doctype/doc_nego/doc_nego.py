@@ -12,7 +12,7 @@ import numpy as np
 from frappe.utils import today
 
 
-from ssd_app.utils.banking import export_banking_data
+
 from ssd_app.utils.banking_line import check_banking_line, banking_line_data
 
 def calculate_term_days(doc):
@@ -55,6 +55,8 @@ def final_validation(doc):
     document = shipping_data.document or 0
     nego_date = getdate(doc.nego_date) if doc.nego_date else None
     bl_date = getdate(shipping_data.bl_date) if shipping_data.bl_date else None
+
+
 
     # Total received from other Doc Received entries (excluding current one)
     total_received = frappe.db.sql("""
@@ -116,27 +118,24 @@ def protect_delete(doc):
         frappe.throw("❌ Cannot delete: Doc Already Refunded")
 
 
-
-# def put_value_from_cif(doc):
-#     if doc.is_new():
-#         fields = [ "bank", "payment_term", "due_date"]
-#         data = frappe.db.get_value("Shipping Book", doc.inv_no, fields, as_dict=True)
-
-#         if data:
-#             for field in fields:
-#                 if not getattr(doc, field):  # only set if value is missing
-#                     setattr(doc, field, data.get(field))
-
-
 def bank_line_validtation(doc):
     result = frappe.db.get_value("Shipping Book", doc.inv_no, ["company", "bank", "payment_term"] , as_dict=True)
    
     shipping_company = result["company"]
     bank = result["bank"]
     payment_term = result["payment_term"]
+    
+    if(not bank and not doc.bank_link):
+        frappe.throw(_(f"""
+                ❌ <b>Bank is Blank.</b><br>
+                <b>Please put Bank Name in Shipping Book or Put here<br>
+            """))
+    if(not bank and doc.bank_link):
+        bank= doc.bank_link
+
     bl_data=check_banking_line(bank, shipping_company, payment_term)
     bl = bl_data["balance_line"]
-    
+
     if bl >= 0:
         if bl==0:
             frappe.throw("❌ No banking Line")
@@ -154,32 +153,31 @@ def bank_line_validtation(doc):
             <b>Banking Line Balance:</b> {bl:,.2f}<br>
             <b>Try to Entry:</b> {doc.nego_amount:,.2f}<br>
         """))
+            
+def set_shipping_book_bank(doc): #set bank if missing in shipping book
+    shipping_bank = frappe.db.get_value("Shipping Book",doc.inv_no,"bank")
+
+    if not shipping_bank and doc.bank_link:
+        frappe.db.set_value("Shipping Book",doc.inv_no,"bank",doc.bank_link)
+   
+
+
 
 from datetime import date
 class DocNego(Document): 
-    # def onload(self):
-    #     if not self.nego_date:
-    #         self.nego_date = today()
-    # def onload(self):
-        
-    #     if not self.nego_date:
-    #         # Use str(date.today()) to ensure it's a date string
-    #         self.nego_date = str(date.today())
 
     def validate(self):
         final_validation(self)
         bank_line_validtation(self)
+        
+    def before_save(self):
         calculate_term_days(self)
         calculate_due_date(self)
-
-    def before_save(self):
-        # put_value_from_cif(self)
         set_calculated_fields(self)
+        set_shipping_book_bank(self)
     
     def on_trash(self):
         protect_delete(self)
-
-
 
 
 @frappe.whitelist()
@@ -231,12 +229,6 @@ def get_shi_data(inv_no):
         (document_amt - total_nego)
         + min(total_nego - total_received, 0)
     )
-
-    # # Optional: expose computed values
-    # shi["total_received"] = total_received
-    # shi["total_nego"] = total_nego
-    # shi["term_days"] = term_days
-    # shi["p_term"] = payment_term
 
     return shi
 
@@ -406,144 +398,9 @@ def used_banking_line(as_on, columns_order=[]):
     return "".join(html)
 
 
-
-# @frappe.whitelist()
-# def export_banking_line(as_on, columns_order=[]):
-
-#     data = export_banking_data(as_on)
-
-#     if not data:
-#         return "<p>No data found</p>"
-
-#     df = pd.DataFrame(data)
-#     if columns_order:
-#         if isinstance(columns_order, str):
-#             columns_order = json.loads(columns_order)
-#     else:
-#         columns_order = None  # No order specified
-#         columns_order = sorted(df["p_term"].dropna().unique().tolist())
-
-
-#     pivot = (
-#         df.pivot_table(
-#             index=["bank", "com"],
-#             columns="p_term",
-#             values="nego",
-#             aggfunc="sum",
-#             fill_value=0.0
-#         )
-#         .reindex(columns=columns_order, fill_value=0.0)
-#         .sort_index(level=[0, 1])
-#     )
-
-#     display_vals = pivot.replace(0.0, np.nan)
-
-#     css = """
-#         <style>
-#         table.bank-summary { 
-#             border-collapse: separate !important;
-#             border-spacing: 0;
-#             width: 100%; 
-#             color:black;
-#             font-family: Arial, sans-serif; 
-#             font-size: 13px; 
-#             border: 1px solid #ccc;
-#             border-radius: 8px;
-#             overflow: hidden;
-#         }
-
-#         .bank-summary th, .bank-summary td { 
-#             border: 1px solid #ddd;
-#             padding: 6px 10px; 
-#         }
-
-#         .bank-summary th { 
-#             text-align: center; 
-#             font-weight: bold;
-#             color: white; 
-#             white-space: nowrap;
-#             background: linear-gradient(#4a6fa5, #3d5e8b); /* modern blue */
-#             border-top: none;
-#         }
-
-#         .bank-summary th:first-child { border-top-left-radius: 8px; }
-#         .bank-summary th:last-child { border-top-right-radius: 8px; }
-
-#         /* Row hover effect */
-#         .bank-summary tbody tr:hover {
-#             background-color: #eef5ff;
-#         }
-
-#         .bank-summary td.num { text-align: right; white-space: nowrap; }
-#         .bank-summary td.txt { text-align: left; }
-#         .bank-summary td.blank { text-align: center; color: #555; }
-
-#         /* New softer colors */
-#         .bank-row-even { background-color: #f8fbff; }
-#         .bank-row-odd  { background-color: #fdfcfb; }
-#         .total { font-weight: bold; background-color: #d4f8d4; }
-        
-#         </style>
-
-#         """
-
-#     html = [css, '<table class="bank-summary">']
-#     html.append("<thead><tr><th>Bank</th><th>Company</th>")
-#     for col in columns_order:
-#         html.append(f"<th>{col}</th>")
-#     html.append("</tr></thead><tbody>")
-
-#     # Grand totals
-#     grand_totals = display_vals.copy().fillna(0.0).sum(axis=0)
-
-#     # Bank colors
-#     bank_colors = ["bank-row-even", "bank-row-odd"]
-#     color_idx = 0
-
-#     # Loop through banks
-#     for bank, bank_frame in display_vals.groupby(level=0):
-#         bank_rows = bank_frame.reset_index(level=0, drop=True)
-#         rowspan = len(bank_rows)
-#         first_row = True
-#         row_class = bank_colors[color_idx % 2]
-#         color_idx += 1
-
-#         for company, row in bank_rows.iterrows():
-#             html.append(f'<tr class="{row_class}">')
-#             if first_row:
-#                 html.append(f'<td class="txt" rowspan="{rowspan}">{bank}</td>')
-#                 first_row = False
-#             html.append(f'<td class="txt">{company}</td>')
-#             for col in columns_order:
-#                 val = row.get(col, np.nan)
-#                 if pd.isna(val):
-#                     html.append('<td class="blank">-</td>')
-#                 else:
-#                     html.append(f'<td class="num">{val:,.2f}</td>')
-#             html.append("</tr>")
-
-#     # Grand total row
-#     html.append('<tr class="total"><td class="txt" style = "text-align: center;" colspan="2">TOTAL</td>')
-#     for col in columns_order:
-#         tot = grand_totals.get(col, 0.0)
-#         if tot == 0.0 or pd.isna(tot):
-#             html.append('<td class="blank">-</td>')
-#         else:
-#             html.append(f'<td class="num">{tot:,.2f}</td>')
-#     html.append("</tr>")
-
-#     html.append("</tbody></table>")
-#     return "".join(html)
-
-
-
-
 @frappe.whitelist()
 def update_export_due_date(docname, new_due_date, due_date_confirm, note= None):
     """Update due date and confirmation flag"""
-    # frappe.db.set_value("Doc Nego", docname, "bank_due_date", new_due_date)
-    # frappe.db.set_value("Doc Nego", docname, "due_date_confirm", due_date_confirm)
-    # frappe.db.set_value("Doc Nego", docname, "note", note)
     frappe.db.set_value("Doc Nego", docname, {
         "bank_due_date": new_due_date,
         "due_date_confirm": int(due_date_confirm),
@@ -552,14 +409,9 @@ def update_export_due_date(docname, new_due_date, due_date_confirm, note= None):
     return "success"
 
 
-
-
 @frappe.whitelist()
 def update_import_due_date(doctype_name,docname, new_due_date, due_date_confirm, note=None):
     """Update due date and confirmation flag"""
-    # frappe.db.set_value("Doc Nego", docname, "bank_due_date", new_due_date)
-    # frappe.db.set_value("Doc Nego", docname, "due_date_confirm", due_date_confirm)
-    # frappe.db.set_value("Doc Nego", docname, "note", note)
     frappe.db.set_value(doctype_name, docname, {
         "due_date": new_due_date,
         "due_date_confirm": int(due_date_confirm),

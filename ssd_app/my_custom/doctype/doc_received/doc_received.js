@@ -5,6 +5,29 @@ function inv_no_filter(frm) {
     }));
 }
 
+function handle_bank_text_visibility(frm, bank, bank_name) {
+
+    if (bank) {
+        // ---- Bank exists ----
+        frm.toggle_display("bank", true);
+        frm.set_value("bank", bank_name || "");
+        frm.set_df_property("bank_text", "read_only", 1);
+
+        frm.toggle_display("bank_link", false);
+        frm.set_value("bank_link", "");
+        frm.set_df_property("bank_link", "reqd", 0);
+
+    } else {
+        // ---- Bank does NOT exist ----
+        frm.toggle_display("bank", false);
+        frm.set_df_property("bank", "read_only", 0);
+
+        frm.toggle_display("bank_link", true);
+        frm.set_value("bank_link", "");
+        frm.set_df_property("bank_link", "reqd", 1); 
+    }
+}
+
 // 🧠 Function to fetch CIF data based on selected inv_no
 function get_shi_data(frm) {
     if (!frm.doc.inv_no) return;
@@ -29,6 +52,7 @@ function get_shi_data(frm) {
                     received: data.receivable,
                     received_date: frappe.datetime.get_today()
                 });
+                handle_bank_text_visibility(frm, data.bank, data.bank_name)
             }
         });
     }

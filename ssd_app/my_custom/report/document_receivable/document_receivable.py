@@ -41,9 +41,9 @@ def execute(filters=None):
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
 		{"label": "Inv Date", "fieldname": "bl_date", "fieldtype": "Date", "width": 110},
 		{"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 120},
-		{"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 130},
+		{"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 180},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
-		{"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 80},
+		{"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 100},
 		{"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 115},
 		{"label": "Received", "fieldname": "total_rec", "fieldtype": "Float", "width": 115},
 		{"label": "Receivable", "fieldname": "receivable", "fieldtype": "Float", "width": 115},
@@ -68,7 +68,10 @@ def execute(filters=None):
 				CONCAT(pt.term_name, '- ', shi.term_days),
 				pt.term_name) AS p_term,
 			ROUND(shi.document, 2) AS document,
-			shi.bl_date AS due_date,
+			DATE_ADD(
+				shi.bl_date,
+				INTERVAL IFNULL(shi.term_days, 0) DAY
+			) AS due_date,
 			IFNULL(nego.total_nego, 0) AS total_nego,
 			CASE
 				WHEN GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0) > 0
@@ -123,9 +126,11 @@ def get_doc_flow(inv_name):
 	customer = frappe.get_value("Customer", doc.customer, "code")
 	notify = frappe.get_value("Notify", doc.notify, "code")
 	bank = frappe.get_value("Bank", doc.bank, "bank")
-	payment_term=frappe.get_value("Payment Term", doc.payment_term, "term_name")
-	# category = frappe.get_value("Product Category", doc.category, "product_category")
-	category= "bb"
+
+	payment_term_data = frappe.db.get_value("Payment Term",doc.payment_term,["term_name", "use_banking_line"],as_dict=True) or {}
+
+	payment_term = payment_term_data.get("term_name")
+	use_banking_line = payment_term_data.get("use_banking_line")
 
 	doc_amount = doc.document or 0
 
@@ -189,8 +194,9 @@ def get_doc_flow(inv_name):
 	due_date_str = (date.today() + timedelta(days=doc.term_days)).strftime("%Y-%m-%d")
 	buttons_html = ""
 
+
 	
-	if coll > 0 :
+	if coll > 0 and use_banking_line:
 		buttons_html += f"""
 		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
 		
@@ -209,7 +215,7 @@ def get_doc_flow(inv_name):
 	box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
     <table style="width:100%; font-size:13px; margin-bottom:0;">
 			<tr><td><b>Invoice Date:</b> {doc.bl_date}</td><td><b>Customer:</b> {customer}</td><td><b>Notify:</b> {notify}</td></tr>
-			<tr><td><b>Bank:</b> {bank}</td><td><b>Payment Term:</b> {payment_term}{' - '+str(doc.term_days) if payment_term in ['LC','DA'] else ''}</td><td><b>Category:</b> {category}</td></tr>
+			<tr><td><b>Bank:</b> {bank}</td><td><b>Payment Term:</b> {payment_term}{' - '+str(doc.term_days) if payment_term in ['LC','DA'] else ''}</td></tr>
 		</table>
 	</div>
 	<table class="table table-bordered" style="font-size:14px; border:1px solid #ddd;">
