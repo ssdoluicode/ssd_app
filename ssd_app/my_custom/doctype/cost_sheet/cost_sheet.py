@@ -145,7 +145,7 @@ def render_cost_sheet_pdf(inv_name, pdf=0):
     doc.agent_name=frappe.db.get_value("Comm Agent", doc.agent, "agent_name")
     doc.sales= cif_doc.sales
     profit= cif_doc.sales- doc.cost
-    profit_pct= round(profit/cif_doc.sales,2)
+    profit_pct= round(profit/doc.cost*100,2)
     doc.profit=profit
     doc.profit_pct= profit_pct
 

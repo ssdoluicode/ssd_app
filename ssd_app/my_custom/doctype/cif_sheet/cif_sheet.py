@@ -158,7 +158,7 @@ def render_master_sheet_pdf(inv_name, pdf=0):
         cost = cost_sheet.cost or 0
         doc.cost= cost
         profit= doc.sales- cost or 0
-        profit_pct= round(profit/doc.sales,2)
+        profit_pct= round(profit/doc.cost*100,2)
         doc.profit=profit
         doc.profit_pct= profit_pct
 
