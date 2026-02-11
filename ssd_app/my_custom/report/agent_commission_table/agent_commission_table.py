@@ -7,20 +7,54 @@ from frappe.utils.pdf import get_pdf
 from frappe.utils.jinja import render_template
 from frappe import _
 
-def get_cif_data(filters):
+def get_cif_data1(filters):
     year = filters.year
-
+    status= filters.status
+    as_on= filters.as_on
+    sql_filters = {"as_on": as_on}
+    
+    year_filter=""
     if not year:
         max_year = frappe.db.sql("""
             SELECT MAX(YEAR(inv_date))
             FROM `tabCost Sheet`
             WHERE inv_date IS NOT NULL
         """, as_list=True)[0][0]
-        conditional_filter= f"""AND YEAR(cost.inv_date)= {int(max_year)}"""
+        year_filter= f"""AND YEAR(cost.inv_date)= {int(max_year)}"""
     elif year == "All":
-        conditional_filter= ""
+        year_filter= ""
     else:
-        conditional_filter= f"""AND YEAR(cost.inv_date)= {int(year)}"""
+        year_filter= f"""AND YEAR(cost.inv_date)= {int(year)}"""
+
+    status_filter=""
+    if status=="Paid":
+        status_filter= f"AND cp.comm_paid = cost.commission"
+
+    if status=="Payable":
+        status_filter= f"AND IFNULL(cp.comm_paid, 0) < cost.commission"
+    
+    if status == "Can Pay":
+        status_filter = """
+            AND IFNULL(cp.comm_paid, 0) < IFNULL(cost.commission, 0)
+            AND IFNULL(cif.document, 0) =
+                CASE
+                    WHEN pt.direct_to_supplier = 1
+                    THEN IFNULL(cif.document, 0)
+                    ELSE IFNULL(d_rec.doc_rec, 0)
+                END
+        """
+    
+    if status == "Hold":
+        status_filter = """
+            AND IFNULL(cp.comm_paid, 0) < IFNULL(cost.commission, 0)
+            AND IFNULL(cif.document, 0) >
+                CASE
+                    WHEN pt.direct_to_supplier = 1
+                    THEN IFNULL(cif.document, 0)
+                    ELSE IFNULL(d_rec.doc_rec, 0)
+                END
+        """
+
 
     data= frappe.db.sql(f"""
     SELECT
@@ -89,6 +123,7 @@ def get_cif_data(filters):
     LEFT JOIN (
         SELECT inv_no, SUM(received) AS doc_rec
         FROM `tabDoc Received`
+        WHERE received_date <= %(as_on)s
         GROUP BY inv_no
     ) d_rec ON sb.name = d_rec.inv_no
     LEFT JOIN (
@@ -99,15 +134,197 @@ def get_cif_data(filters):
 		FROM `tabComm Breakup` cb
 		LEFT JOIN `tabComm Paid` cp 
 			ON cp.name = cb.parent
+        WHERE cp.date <= %(as_on)s
 		GROUP BY cb.inv_no
 		ORDER BY cb.inv_no
     ) AS cp ON cp.inv_no= cost.name
-    WHERE  cost.commission > 0
-    {conditional_filter}
+    WHERE  cost.commission > 0 AND cif.inv_date <= %(as_on)s
+    {year_filter}
+    {status_filter}
+
     
     ORDER BY cost.creation DESC 
     ;
-    """, as_dict=1)
+    """,sql_filters, as_dict=1)
+    return data
+
+
+def get_cif_data(filters):
+
+    year   = filters.year
+    status = filters.status
+    as_on  = filters.as_on
+
+    sql_filters = {"as_on": as_on}
+    conditions = [
+        "cost.commission > 0",
+        "cif.inv_date <= %(as_on)s"
+    ]
+
+    # -------------------------------------------------
+    # YEAR FILTER (INDEX SAFE – VERY IMPORTANT)
+    # -------------------------------------------------
+    if not year:
+        max_year = frappe.db.sql("""
+            SELECT MAX(inv_date)
+            FROM `tabCost Sheet`
+            WHERE inv_date IS NOT NULL
+        """, as_list=True)[0][0]
+
+        if max_year:
+            year = frappe.utils.getdate(max_year).year
+
+    if year and year != "All":
+        conditions.append(
+            "cost.inv_date BETWEEN %(year_start)s AND %(year_end)s"
+        )
+        sql_filters["year_start"] = f"{year}-01-01"
+        sql_filters["year_end"]   = f"{year}-12-31"
+
+    # -------------------------------------------------
+    # STATUS FILTER (SIMPLIFIED LOGIC)
+    # -------------------------------------------------
+    if status == "Paid":
+        conditions.append("IFNULL(cp.comm_paid,0) = cost.commission")
+
+    elif status == "Payable":
+        conditions.append("IFNULL(cp.comm_paid,0) < cost.commission")
+
+    elif status == "Can Pay":
+        conditions.append("""
+            IFNULL(cp.comm_paid,0) < cost.commission
+            AND (
+                pt.direct_to_supplier = 1
+                OR IFNULL(cif.document,0) = IFNULL(d_rec.doc_rec,0)
+            )
+        """)
+
+    elif status == "Hold":
+        conditions.append("""
+            IFNULL(cp.comm_paid,0) < cost.commission
+            AND IFNULL(cif.document,0) > IFNULL(d_rec.doc_rec,0)
+        """)
+
+    where_clause = " AND ".join(conditions)
+
+    # -------------------------------------------------
+    # MAIN QUERY
+    # -------------------------------------------------
+    data = frappe.db.sql(f"""
+        SELECT
+            cif.name AS cif_id,
+            cost.custom_title AS inv_no,
+            cost.name,
+            cif.inv_date,
+            cat.product_category,
+            cus.code AS customer,
+            noti.code AS notify,
+            qty.qty,
+            cost.commission,
+            cost.comm_based_on,
+            cost.comm_rate,
+            ca.agent_name AS agent,
+            cost.purchase,
+            cif.sales,
+            cif.document,
+
+            CASE
+                WHEN pt.direct_to_supplier = 1
+                THEN cif.document
+                ELSE COALESCE(d_rec.doc_rec, 0)
+            END AS doc_rec,
+
+            cost.cost,
+            IFNULL(cif.sales,0) - IFNULL(cost.cost,0) AS profit,
+
+            l_port.port AS load_port,
+            d_port.port AS destination_port,
+            l_port.country AS from_country,
+            city.country AS to_country,
+
+            cp.comm_paid,
+            cp.paid_date
+
+        FROM `tabCost Sheet` cost
+
+        LEFT JOIN `tabCIF Sheet` cif
+            ON cif.name = cost.inv_no
+
+        LEFT JOIN `tabShipping Book` sb
+            ON sb.name = cif.inv_no
+
+        LEFT JOIN `tabCustomer` cus
+            ON sb.customer = cus.name
+
+        LEFT JOIN `tabProduct Category` cat
+            ON cif.category = cat.name
+
+        LEFT JOIN `tabNotify` noti
+            ON sb.notify = noti.name
+
+        LEFT JOIN `tabPort` l_port
+            ON cost.load_port = l_port.name
+
+        LEFT JOIN `tabPort` d_port
+            ON cost.destination_port = d_port.name
+
+        LEFT JOIN `tabCity` city
+            ON noti.city = city.name
+
+        LEFT JOIN `tabComm Agent` ca
+            ON ca.name = cost.agent
+
+        LEFT JOIN `tabPayment Term` pt
+            ON pt.name = sb.payment_term
+
+        -- PRODUCT QTY (Removed useless ORDER BY)
+        LEFT JOIN (
+            SELECT 
+                t.parent,
+                GROUP_CONCAT(
+                    CONCAT(FORMAT(t.total_qty,0),' ',t.unit_display)
+                    ORDER BY t.unit_display
+                    SEPARATOR ', '
+                ) AS qty
+            FROM (
+                SELECT 
+                    pc.parent,
+                    u.unit AS unit_display,
+                    SUM(pc.qty) AS total_qty
+                FROM `tabProduct Cost` pc
+                LEFT JOIN `tabUnit` u ON pc.unit = u.name
+                GROUP BY pc.parent, u.unit
+            ) t
+            GROUP BY t.parent
+        ) qty ON cost.name = qty.parent
+
+        -- DOC RECEIVED
+        LEFT JOIN (
+            SELECT inv_no, SUM(received) AS doc_rec
+            FROM `tabDoc Received`
+            WHERE received_date <= %(as_on)s
+            GROUP BY inv_no
+        ) d_rec ON sb.name = d_rec.inv_no
+
+        -- COMMISSION PAID (Removed ORDER BY)
+        LEFT JOIN (
+            SELECT 
+                cb.inv_no,
+                SUM(cb.amount) AS comm_paid,
+                MAX(cp.date) AS paid_date
+            FROM `tabComm Breakup` cb
+            LEFT JOIN `tabComm Paid` cp
+                ON cp.name = cb.parent
+            WHERE cp.date <= %(as_on)s
+            GROUP BY cb.inv_no
+        ) cp ON cp.inv_no = cost.name
+
+        WHERE {where_clause}
+
+        ORDER BY cost.creation DESC
+
+    """, sql_filters, as_dict=1)
+
     return data
 
 

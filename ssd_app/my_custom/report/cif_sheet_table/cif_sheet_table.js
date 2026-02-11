@@ -11,9 +11,13 @@ if (typeof html2pdf === "undefined") {
 
 frappe.query_reports["CIF Sheet Table"] = {
     onload: function (report) {
+        report.page.add_inner_button("Cost Sheet Table", function () {
+            frappe.set_route("query-report", "Cost Sheet Table");
+        });
         report.page.add_inner_button("Open CIF Sheet List", function () {
             frappe.set_route("List", "CIF Sheet");
         });
+        
         frappe.call({
             method: "ssd_app.my_custom.report.cif_sheet_table.cif_sheet_table.get_years",
             callback: function (r) {

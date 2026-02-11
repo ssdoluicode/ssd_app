@@ -55,18 +55,26 @@ function calculate_total_qty(frm) {
 
 // Commission calculation
 function calculate_commission(frm) {
-    const rate = frm.doc.comm_rate;
+    if (frm.doc.comm_based_on === "Fixed Amount"){
+        frm.set_df_property('commission', 'read_only', 0);
+        frm.set_value('comm_rate', 0);
+        frm.set_df_property('comm_rate', 'read_only', 1);
+    }else{
+        frm.set_df_property('commission', 'read_only', 1);
+        frm.set_df_property('comm_rate', 'read_only', 0);
+        
+        const rate = frm.doc.comm_rate;
+        if (rate) {
+            frm.toggle_reqd('agent', true);
+            const base = frm.doc.comm_based_on === "Sales"
+                ? flt(frm.doc.sales) * rate / 100
+                : calculate_total_qty(frm) * rate;
 
-    if (rate) {
-        frm.toggle_reqd('agent', true);
-        const base = frm.doc.comm_based_on === "Sales"
-            ? flt(frm.doc.sales) * rate / 100
-            : calculate_total_qty(frm) * rate;
-
-        frm.set_value('commission', flt(base, 2));
-    } else {
-        frm.toggle_reqd('agent', false);
-        frm.set_value('commission', 0);
+            frm.set_value('commission', flt(base, 2));
+        } else {
+            frm.toggle_reqd('agent', false);
+            frm.set_value('commission', 0);
+        }
     }
 }
 
@@ -305,6 +313,9 @@ frappe.ui.form.on("Cost Sheet", {
     },
     comm_based_on(frm) {
         calculate_commission(frm);
+        calculate_cost(frm);
+    },
+    commission(frm) {
         calculate_cost(frm);
     },
     after_save(frm) {

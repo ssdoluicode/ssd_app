@@ -13,11 +13,11 @@ def get_cif_data(filters):
             FROM `tabCost Sheet`
             WHERE inv_date IS NOT NULL
         """, as_list=True)[0][0]
-        conditional_filter= f"""WHERE YEAR(cost.inv_date)= {int(max_year)}"""
+        conditional_filter= f"WHERE YEAR(cost.inv_date)= {int(max_year)}"
     elif year == "All":
         conditional_filter= ""
     else:
-        conditional_filter= f"""WHERE YEAR(cost.inv_date)= {int(year)}"""
+        conditional_filter= f"WHERE YEAR(cost.inv_date)= {int(year)}"
 
     data= frappe.db.sql(f"""
     SELECT
@@ -30,24 +30,19 @@ def get_cif_data(filters):
     cus.code AS customer,
     noti.code AS notify,
     cost.commission,
-    ca.agent_name AS agent,
     cost.purchase,
     cif.sales,
-    cif.document,
-    CASE
-        WHEN pt.direct_to_supplier = 1 THEN cif.document
-        ELSE COALESCE(d_rec.doc_rec, 0)
-    END AS doc_rec,      
+    cif.document,     
     cost.cost,
     IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0) AS profit,
+    ROUND((IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0)) / NULLIF(cost.cost, 0) * 100, 2) AS profit_pct,        
     IFNULL(exp.freight, 0) AS freight,
     IFNULL(exp.local_exp, 0) AS local_exp,
     l_port.port AS load_port,
     d_port.port AS destination_port,
     l_port.country AS from_country,
     city.country AS to_country,                
-    COALESCE(NULLIF(sup.supplier, ''), '**Multi Supplier**') AS supplier,
-    cp.comm_paid
+    COALESCE(NULLIF(sup.supplier, ''), '**Multi Supplier**') AS supplier
     FROM `tabCost Sheet` cost
     LEFT JOIN `tabCIF Sheet` cif ON cif.name= cost.inv_no
     LEFT JOIN `tabCompany` com ON cif.accounting_company = com.name
@@ -61,15 +56,6 @@ def get_cif_data(filters):
     LEFT JOIN `tabSupplier` sup ON cost.supplier = sup.name
     LEFT JOIN `tabComm Agent` ca ON ca.name= cost.agent
     LEFT JOIN `tabPayment Term` pt ON pt.name=sb.payment_term
-    LEFT JOIN (
-        SELECT inv_no, SUM(received) AS doc_rec
-        FROM `tabDoc Received`
-        GROUP BY inv_no
-    ) d_rec ON sb.name = d_rec.inv_no
-    LEFT JOIN (
-        SELECT cb.inv_no, SUM(cb.amount) AS comm_paid from `tabComm Breakup` cb
-        GROUP BY cb.inv_no
-    ) AS cp ON cp.inv_no= cost.name
     LEFT JOIN (
         SELECT 
         parent,
@@ -100,17 +86,16 @@ def execute(filters=None):
         {"label": "Category", "fieldname": "product_category", "fieldtype": "Data", "width": 150},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 150},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 180},
+        {"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 180},
         {"label": "Purchase", "fieldname": "purchase", "fieldtype": "Float", "width": 110},
         {"label": "Freight", "fieldname": "freight", "fieldtype": "Float", "width": 100},
         {"label": "Local Exp", "fieldname": "local_exp", "fieldtype": "Float", "width": 90},
         {"label": "Comm", "fieldname": "commission", "fieldtype": "Float", "width": 90},
         {"label": "Cost", "fieldname": "cost", "fieldtype": "Float", "width": 120},
-        {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 120},
         {"label": "Profit", "fieldname": "profit", "fieldtype": "Float", "width": 90},
-        {"label": "Comm Status", "fieldname": "comm_status", "fieldtype": "Data"},
-        {"label": "Agent", "fieldname": "agent", "fieldtype": "Data", "width": 90},
-        {"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 180},
-        {"label": "Comm Paid", "fieldname": "comm_paid", "fieldtype": "Float"}
+        {"label": "Profit %", "fieldname": "profit_pct", "fieldtype": "Float", "width": 80},
+        {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 120},
+        
     ]
     data = get_cif_data(filters)
     return columns, data

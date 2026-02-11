@@ -3,6 +3,7 @@
 
 frappe.query_reports["Agent Commission Table"] = {
 	onload: function (report) {
+        report.set_filter_value("status", "Payable");
         report.page.add_inner_button("Open Cost Sheet List", function () {
             frappe.set_route("List", "Cost Sheet");
         });
@@ -31,6 +32,11 @@ frappe.query_reports["Agent Commission Table"] = {
     },
     formatter: function(value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
+
+        // 🔗 Clickable inv_no with modal
+        if (column.fieldname === "inv_no" && data && data.cif_id) {
+            return `<a href="#" onclick="showCostDetails('${data.cif_id}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
+        }
 
         if (column.fieldname === "comm_status" && data) {
 
@@ -95,11 +101,6 @@ frappe.query_reports["Agent Commission Table"] = {
             `;
         }
 
-        // 🔗 Clickable inv_no with modal
-        if (column.fieldname === "inv_no" && data && data.cif_id) {
-            return `<a href="#" onclick="showCostDetails('${data.cif_id}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
-        }
-
         return value;
     },
     filters: [   
@@ -109,6 +110,19 @@ frappe.query_reports["Agent Commission Table"] = {
             fieldtype: "Select",
             options: [],   // will be filled dynamically
             reqd: 0
-        }    
+        } ,
+        {
+            fieldname: "status",
+            label: "Status",
+            fieldtype: "Select",
+            options: "\nAll\nPaid\nPayable\nCan Pay\nHold",
+        } ,
+        {
+            fieldname: "as_on",
+            label: "As On",
+            fieldtype: "Date",
+            default: frappe.datetime.get_today(),
+        }  
     ],
+    
 };

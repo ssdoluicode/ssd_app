@@ -291,7 +291,7 @@
    "fieldname": "comm_based_on",
    "fieldtype": "Select",
    "label": "Based On",
-   "options": "Sales\nQuantity"
+   "options": "Sales\nQuantity\nFixed Amount"
   },
   {
    "fieldname": "comm_rate",
@@ -368,7 +368,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-09 02:41:50.067103",
+ "modified": "2026-02-12 00:38:35.259939",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Sheet",

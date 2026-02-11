@@ -7,6 +7,9 @@ if (typeof Chart === "undefined") {
 
 frappe.query_reports["Cost Sheet Table"] = {
 	onload: function (report) {
+        report.page.add_inner_button("CIF Sheet Table", function () {
+            frappe.set_route("query-report", "CIF Sheet Table");
+        });
         report.page.add_inner_button("Open Cost Sheet List", function () {
             frappe.set_route("List", "Cost Sheet");
         });
@@ -35,69 +38,6 @@ frappe.query_reports["Cost Sheet Table"] = {
     },
     formatter: function(value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
-
-        if (column.fieldname === "comm_status" && data) {
-
-            const commission = flt(data.commission || 0);
-            const comm_paid = flt(data.comm_paid || 0);
-            const document = flt(data.document || 0);
-            const doc_rec = flt(data.doc_rec || 0);
-            if (commission === 0) {
-                return "";
-            }
-
-            let label = "";
-            let color = "";
-            let icon = "";
-            let title = "";
-
-            // ✅ PAID
-            if (comm_paid === commission) {
-                label = "Paid";
-                color = "#16a34a";        // green
-                icon = "check-circle";
-                title = "Commission fully paid";
-
-            // 🟡 CAN PAY
-            } else if (comm_paid === 0 && document === doc_rec) {
-                label = "Can Pay";
-                color = "#f59e0b";
-                icon = "circle";
-                title = "Documents received, payment allowed";
-            
-            // 🟡 CAN PAY
-            } else if (0<comm_paid<commission  && document === doc_rec) {
-                label = "Partly Paid";
-                color = "#f59e0b";
-                icon = "circle";
-                title = `Partly (paid ${comm_paid})`;
-
-
-            // 🔴 HOLD
-            } else if (comm_paid === 0 && document > doc_rec) {
-                label = "Hold";
-                color = "#dc2626";        // red
-                icon = "ban";
-                title = "Documents pending, commission on hold";
-
-            } else {
-                return "-";
-            }
-
-            return `
-                <span title="${title}"
-                    style="
-                        display:inline-flex;
-                        align-items:center;
-                        gap:6px;
-                        font-weight:600;
-                        color:${color};
-                    ">
-                    <i class="fa fa-${icon}"></i>
-                    ${label}
-                </span>
-            `;
-        }
 
         // 🔗 Clickable inv_no with modal
         if (column.fieldname === "inv_no" && data && data.cif_id) {
