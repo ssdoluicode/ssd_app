@@ -1,0 +1,18 @@
+.kpi-card {
+    padding: 20px;
+    border-radius: 12px;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.kpi-card.blue { background:#1e3c72; }
+.kpi-card.green { background:#11998e; }
+.kpi-card.red { background:#cb2d3e; }
+.kpi-card.orange { background:#f7971e; }
+
+.chart-box {
+    background:#fff;
+    padding:15px;
+    border-radius:10px;
+}

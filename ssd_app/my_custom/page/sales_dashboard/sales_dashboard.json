@@ -1,0 +1,24 @@
+{
+ "content": null,
+ "creation": "2026-02-13 14:58:49.906169",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "dashboard",
+ "idx": 0,
+ "modified": "2026-02-13 14:59:20.583993",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "sales-dashboard",
+ "owner": "Administrator",
+ "page_name": "sales-dashboard",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Sales Dashboard"
+}

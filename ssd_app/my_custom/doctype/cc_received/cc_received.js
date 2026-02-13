@@ -4,6 +4,41 @@
 
 frappe.ui.form.on("CC Received", {
 
+    refresh(frm) {
+
+        // Remove old handler (avoid duplicate binding)
+        $(frm.wrapper).off('keydown.form_focus_loop');
+
+        $(frm.wrapper).on('keydown.form_focus_loop', function (e) {
+
+            if (e.key !== "Tab") return;
+
+            let focusable = $(frm.wrapper)
+                .find('input, select, textarea, button')
+                .filter(':visible:not([disabled])');
+
+            if (!focusable.length) return;
+
+            let first = focusable.first()[0];
+            let last  = focusable.last()[0];
+
+            // SHIFT + TAB (reverse)
+            if (e.shiftKey) {
+                if (document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                }
+            }
+            // Normal TAB
+            else {
+                if (document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+    },
+
     amount(frm) {
         calculate_amount_usd(frm);
     },

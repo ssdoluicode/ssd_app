@@ -1,5 +1,41 @@
 
 frappe.ui.form.on('Comm Paid', {
+
+    refresh(frm) {
+
+        // Remove old handler (avoid duplicate binding)
+        $(frm.wrapper).off('keydown.form_focus_loop');
+
+        $(frm.wrapper).on('keydown.form_focus_loop', function (e) {
+
+            if (e.key !== "Tab") return;
+
+            let focusable = $(frm.wrapper)
+                .find('input, select, textarea, button')
+                .filter(':visible:not([disabled])');
+
+            if (!focusable.length) return;
+
+            let first = focusable.first()[0];
+            let last  = focusable.last()[0];
+
+            // SHIFT + TAB (reverse)
+            if (e.shiftKey) {
+                if (document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                }
+            }
+            // Normal TAB
+            else {
+                if (document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+    },
+
     setup(frm) {
         frm.set_query('inv_no', 'comm_breakup', () => {
             return {
@@ -51,7 +87,7 @@ frappe.ui.form.on('Comm Breakup', {
                     const inv_balance = flt(r.message);
                     
                     // Calculate current running balance BEFORE this row's amount is added
-                    const total_usd = flt(frm.doc.amount_usd);
+                    const total_usd = flt(frm.doc.amount_usd, 2);
                     const allocated_other_rows = (frm.doc.comm_breakup || [])
                         .filter(d => d.name !== row.name)
                         .reduce((sum, d) => sum + flt(d.amount), 0);
@@ -79,7 +115,7 @@ frappe.ui.form.on('Comm Breakup', {
 });
 
 function calculate_running_balance(frm) {
-    const total_usd = flt(frm.doc.amount_usd);
+    const total_usd = flt(frm.doc.amount_usd, 2);
     let current_allocated = 0;
 
     (frm.doc.comm_breakup || []).forEach(row => {
@@ -95,10 +131,12 @@ function calculate_running_balance(frm) {
         frm.disable_save();
     } else {
         // frm.set_intro(__("Fully Allocated"), 'blue');
+        frm.fields_dict.comm_breakup.grid.cannot_add_rows = true
         frm.enable_save();
     }
 
     frm.refresh_field('comm_breakup');
+
 }
 
 function toggle_agent_readonly(frm) {

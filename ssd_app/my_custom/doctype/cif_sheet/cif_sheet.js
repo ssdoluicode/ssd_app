@@ -213,19 +213,19 @@ frappe.ui.form.on("CIF Sheet", {
         }
     },
 
-    validate(frm) {
-        frm.trigger('calculate_all');
-        // Propagate SC No
-        if (!frm.doc.multiple_sc && frm.doc.sc_no) {
-            frm.doc.product_details.forEach(row => { row.sc_no = frm.doc.sc_no; });
-            frm.refresh_field('product_details');
-        }
-        // Unique Expenses check
-        let expense_types = (frm.doc.expenses || []).map(r => r.expenses).filter(Boolean);
-        if (expense_types.length !== new Set(expense_types).size) {
-            frappe.throw(__('Expenses must be unique.'));
-        }
-    },
+    // validate(frm) {
+    //     frm.trigger('calculate_all');
+    //     // Propagate SC No
+    //     if (!frm.doc.multiple_sc && frm.doc.sc_no) {
+    //         frm.doc.product_details.forEach(row => { row.sc_no = frm.doc.sc_no; });
+    //         frm.refresh_field('product_details');
+    //     }
+    //     // Unique Expenses check
+    //     let expense_types = (frm.doc.expenses || []).map(r => r.expenses).filter(Boolean);
+    //     if (expense_types.length !== new Set(expense_types).size) {
+    //         frappe.throw(__('Expenses must be unique.'));
+    //     }
+    // },
 
 
     after_save(frm) {
