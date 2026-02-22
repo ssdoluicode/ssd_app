@@ -1,92 +1,129 @@
 import frappe
 
+
+# ==============================
+# API 1: Sidebar Summary
+# ==============================
 @frappe.whitelist()
-def get_dashboard_data(filters=None):
+def get_month_summary():
+    return frappe.db.sql("""
+        SELECT 
+    DATE_FORMAT(cif.inv_date,'%Y-%m') AS month,
+    "month" AS period_type,
+    DATE_FORMAT(cif.inv_date,'%Y%m') AS sort_key,
 
-    filters = frappe.parse_json(filters) or {}
-    conditions = "WHERE 1 = 1"
-    values = {}
+    ROUND(SUM(CASE 
+            WHEN IFNULL(cs.cost,0) > 0 
+            THEN cif.sales 
+            ELSE 0 
+        END),0) AS sales,
 
-    if filters.get("from_date"):
-        conditions += " AND inv_date >= %(from_date)s"
-        values["from_date"] = filters["from_date"]
+    ROUND(IFNULL(SUM(cs.cost),0),0) AS cost,
 
-    if filters.get("to_date"):
-        conditions += " AND inv_date <= %(to_date)s"
-        values["to_date"] = filters["to_date"]
+    -- ✅ NEW COLUMN (Sales where cost = 0)
+    ROUND(SUM(CASE 
+            WHEN IFNULL(cs.cost,0) = 0 
+            THEN cif.sales 
+            ELSE 0 
+        END),0) AS sales_nc,
 
-    # -------- KPI --------
-    kpi = frappe.db.sql(f"""
-        SELECT
-            IFNULL(SUM(sales),0) as total_sales,
-            IFNULL(SUM(document),0) as total_collection,
-            IFNULL(SUM(sales - document),0) as outstanding,
-            IFNULL(AVG(sales),0) as avg_invoice
-        FROM `tabCIF Sheet`
-        {conditions}
-    """, values, as_dict=True)[0]
+    ROUND(
+        IFNULL(
+            (SUM(cif.sales) - IFNULL(SUM(cs.cost),0))
+            / NULLIF(SUM(cs.cost),0) * 100
+        ,0)
+    ,2) AS profit_pct
 
-    # -------- Monthly Trend --------
-    trend = frappe.db.sql(f"""
-        SELECT DATE_FORMAT(inv_date,'%%Y-%%m') as month,
-               SUM(sales) as total
-        FROM `tabCIF Sheet`
-        {conditions}
-        GROUP BY month
-        ORDER BY month
-    """, values, as_dict=True)
+FROM `tabCIF Sheet` cif
+LEFT JOIN `tabCost Sheet` cs 
+    ON cs.inv_no = cif.name
 
-    # -------- Top Customers --------
-    top_customers = frappe.db.sql(f"""
-        SELECT accounting_company as customer,
-               SUM(sales) as total,
-               SUM(sales - document) as outstanding
-        FROM `tabCIF Sheet`
-        {conditions}
-        GROUP BY accounting_company
-        ORDER BY total DESC
-        LIMIT 10
-    """, values, as_dict=True)
+GROUP BY YEAR(cif.inv_date), MONTH(cif.inv_date)
 
-    # -------- Aging --------
-    aging = frappe.db.sql(f"""
-        SELECT
-            CASE
-                WHEN DATEDIFF(CURDATE(), inv_date) <= 30 THEN '0-30'
-                WHEN DATEDIFF(CURDATE(), inv_date) <= 60 THEN '31-60'
-                ELSE '60+'
-            END as bucket,
-            SUM(sales - document) as total
-        FROM `tabCIF Sheet`
-        {conditions}
-        GROUP BY bucket
-    """, values, as_dict=True)
+UNION ALL
 
-    trend_1 = frappe.db.sql("""
-        SELECT
-            DATE_FORMAT(cif.inv_date,'%Y-%m') AS month,
-            SUM(cif.sales) AS sales,
-            SUM(cif.sales) - IFNULL(SUM(cs.total_cost),0) AS profit
-        FROM `tabCIF Sheet` cif
+/* =========================
+   YEARLY DATA
+========================= */
+SELECT 
+    CONCAT('Year-', DATE_FORMAT(cif.inv_date,'%Y')) AS month,
+    "year" AS period_type,
+    CONCAT(DATE_FORMAT(cif.inv_date,'%Y'), '99') AS sort_key,
 
-        LEFT JOIN (
-            SELECT
-                inv_no,
-                SUM(cost) AS total_cost
-            FROM `tabCost Sheet`
-            GROUP BY inv_no
-        ) cs ON cs.inv_no = cif.name
+    ROUND(SUM(CASE 
+            WHEN IFNULL(cs.cost,0) > 0 
+            THEN cif.sales 
+            ELSE 0 
+        END),0) AS sales,
 
-        GROUP BY month
-        ORDER BY month
+    ROUND(IFNULL(SUM(cs.cost),0),0) AS cost,
 
+    -- ✅ NEW COLUMN (Sales where cost = 0)
+    ROUND(SUM(CASE 
+            WHEN IFNULL(cs.cost,0) = 0 
+            THEN cif.sales 
+            ELSE 0 
+        END),0) AS sales_nc,
+
+    ROUND(
+        IFNULL(
+            (SUM(cif.sales) - IFNULL(SUM(cs.cost),0))
+            / NULLIF(SUM(cs.cost),0) * 100
+        ,0)
+    ,2) AS profit_pct
+
+FROM `tabCIF Sheet` cif
+LEFT JOIN `tabCost Sheet` cs 
+    ON cs.inv_no = cif.name
+
+GROUP BY YEAR(cif.inv_date)
+
+ORDER BY sort_key DESC;
     """, as_dict=True)
 
 
-    return {
-        "kpi": kpi,
-        "trend": trend,
-        "top_customers": top_customers,
-        "aging": aging,
-        "trend_1":trend_1
-    }
+# ==============================
+# API 2: Selected Month Details
+# ==============================
+
+@frappe.whitelist()
+def get_data(year, month=None):
+
+    conditions = ["YEAR(cif.inv_date) = %(year)s"]
+    values = {"year": year}
+
+    # If month is provided and not empty
+    if month:
+        conditions.append("MONTH(cif.inv_date) = %(month)s")
+        values["month"] = month
+
+    where_clause = " AND ".join(conditions)
+
+    return frappe.db.sql(f"""
+        SELECT
+    cif.name AS invoice,
+    cif.inv_date,
+
+    YEAR(cif.inv_date) AS year,
+    MONTH(cif.inv_date) AS month,
+
+    COALESCE(pc.product_category, 'Unknown') AS category,
+    COALESCE(cus.code, 'Unknown') AS customer,
+    COALESCE(n.code, 'Unknown') AS notify,
+    COALESCE(cif.accounting_company, 'Unknown') AS company,
+    COALESCE(cif.to_country, 'Unknown') AS country,
+
+    cif.sales AS total_sales,
+    (cif.sales - COALESCE(cost.cost, 0)) AS total_profit
+
+FROM `tabCIF Sheet` cif
+LEFT JOIN `tabCost Sheet` cost ON cost.inv_no = cif.name
+LEFT JOIN `tabShipping Book` sb ON sb.name = cif.inv_no
+LEFT JOIN `tabNotify` n ON n.name = sb.notify
+LEFT JOIN `tabProduct Category` pc ON cif.category = pc.name
+LEFT JOIN `tabCustomer` cus ON sb.customer = cus.name
+
+WHERE {where_clause}
+AND COALESCE(cost.cost, 0) > 0;
+
+    """, values, as_dict=True)

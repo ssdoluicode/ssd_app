@@ -28,15 +28,8 @@ def execute(filters=None):
     cost.other_exp,
     cost.commission, 
     cost.cost, 
-    IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0) AS profit,
-    IFNULL(
-        ROUND(
-            (IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0))
-            / NULLIF(cif.sales, 0) * 100,
-            2
-        ),
-        0
-    ) AS profit_pct,
+    IF(cost.cost IS NULL, NULL, cif.sales - cost.cost) AS profit,
+    IF(cost.cost IS NULL, NULL, ROUND((cif.sales - cost.cost)/ cost.cost * 100,2)) AS profit_pct,
     IF(pt.term_name IN ('LC', 'DA'), CONCAT(pt.term_name, '- ', sb.term_days), pt.term_name) AS p_term,
     cif.from_country AS f_country, lport.port AS l_port, 
     cif.to_country AS t_country, dport.port AS d_port
@@ -79,7 +72,9 @@ LEFT JOIN (
                     ) exp ON exp.cost_id = cost_s.name
         ) cost ON cif.name = cost.inv_no
 
-    WHERE 1=1 {conditions} {limit_clause}
+    WHERE 1=1 {conditions} 
+    ORDER BY cif.inv_date DESC
+    {limit_clause};
     """
 
     data = frappe.db.sql(query, as_dict=1)

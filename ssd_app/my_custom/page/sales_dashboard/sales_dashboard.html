@@ -1,30 +1,54 @@
-<div class="sales-dashboard">
+<!-- ================= MAIN DASHBOARD ================= -->
+<div class="main-dashboard">
 
-    <div class="kpi-container"></div>
+    <div class="dashboard-layout">
 
-    <div class="chart-box mt-4">
-        <h4>Sales Trend</h4>
-        <div id="sales-trend"></div>
-    </div>
+        <!-- LEFT SIDE (Analysis Area) -->
+        <div class="dashboard-left">
 
-    <div class="chart-box mt-4">
-        <h4>Monthly Sales vs Profit</h4>
-        <div id="sales-profit-trend"></div>
-    </div>
+            <div class="analysis-area">
 
+                <h4 class="analysis-title">Sales Analysis</h4>
 
-    <div class="row mt-4">
+                <!-- Filter Bar -->
+                <!-- <div class="analysis-filters mb-3">
+                    <select id="group-by-select" class="form-control" style="width:200px;">
+                        <option value="Category">Category</option>
+                        <option value="Customer">Customer</option>
+                        <option value="Notify">Notify</option>
+                        <option value="Month">Month</option>
+                    </select>
+                    <div id="analysis-filter-fields"></div>
+                </div> -->
 
-        <div class="col-md-6">
-            <h4>Top Customers</h4>
-            <div id="top-customers"></div>
+                <!-- Dynamic Analysis Content -->
+                <div class="analysis-content mt-3">
+                    <div class="empty-state">
+                        Select a month to view analysis.
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="col-md-6">
-            <h4>Aging Analysis</h4>
-            <div id="aging-chart"></div>
+        <!-- RIGHT SIDE (Month Cubes) -->
+        <div class="dashboard-right">
+
+            <div class="cube-title">Period</div>
+            <div class="monthly-cubes"></div>
+
         </div>
 
     </div>
+
+</div>
+
+
+<!-- ================= SEPARATE INDEPENDENT REPORT ================= -->
+<div class="separate-report mt-4">
+
+    <h4>Independent Report Section</h4>
+    <div id="independent-report"></div>
 
 </div>
