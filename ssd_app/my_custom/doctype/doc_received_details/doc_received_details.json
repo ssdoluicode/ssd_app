@@ -77,7 +77,6 @@
    "read_only": 1
   },
   {
-   "default": "0",
    "fieldname": "interest_days",
    "fieldtype": "Int",
    "label": "Interest Days",
@@ -123,7 +122,7 @@
    "fieldname": "bank_liability",
    "fieldtype": "Float",
    "label": "Bank Liability",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "default": "0",
@@ -233,7 +232,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-05 23:17:49.291171",
+ "modified": "2026-02-23 23:47:07.661843",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Received Details",

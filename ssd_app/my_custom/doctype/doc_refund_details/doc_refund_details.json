@@ -81,7 +81,6 @@
    "default": "Today",
    "fieldname": "interest_from",
    "fieldtype": "Date",
-   "is_virtual": 1,
    "label": "Interest From",
    "read_only": 1
   },
@@ -89,22 +88,22 @@
    "default": "0",
    "fieldname": "interest_on",
    "fieldtype": "Float",
-   "is_virtual": 1,
    "label": "Interest On",
    "non_negative": 1,
    "read_only": 1
   },
   {
-   "default": "0",
    "fieldname": "interest_days",
    "fieldtype": "Int",
-   "label": "Interest Days"
+   "label": "Interest Days",
+   "reqd": 1
   },
   {
    "fieldname": "interest_pct",
    "fieldtype": "Float",
    "label": "Interest %",
-   "non_negative": 1
+   "non_negative": 1,
+   "reqd": 1
   },
   {
    "default": "0",
@@ -174,7 +173,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-05 23:05:13.378640",
+ "modified": "2026-02-24 01:01:07.487766",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Refund Details",
