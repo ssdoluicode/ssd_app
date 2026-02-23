@@ -128,12 +128,12 @@ frappe.ui.form.on("Doc Nego Details", {
         if_min_comm(frm);
         calculate_comm(frm);
     },
-    nego_amount(frm) {
-        // ✅ Recalculate everything when main amount changes
-        calculate_int(frm);
-        calculate_comm(frm);
-        calculate_bank_amount(frm);
-    },
+    // nego_amount(frm) {
+    //     // ✅ Recalculate everything when main amount changes
+    //     calculate_int(frm);
+    //     calculate_comm(frm);
+    //     calculate_bank_amount(frm);
+    // },
 
     nego_date(frm) {
         // ✅ Recalculate interest due date when base date changes

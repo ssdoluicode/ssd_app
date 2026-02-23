@@ -62,30 +62,32 @@ function handle_bank_text_visibility(frm, term_days, bank, bank_name, p_term, p_
 function get_shi_data(frm) {
     if (!frm.doc.inv_no) return;
 
-    if (frm.is_new() && !frappe.quick_entry) {
-        frappe.call({
-            method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_shi_data",
-            args: { inv_no: frm.doc.inv_no },
-            callback: function (r) {
-                const data = r.message;
-                console.log(data);
-                if (!data) return;
+    
+    frappe.call({
+        method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_shi_data",
+        args: { inv_no: frm.doc.inv_no },
+        callback: function (r) {
+            const data = r.message;
+            console.log(data);
+            if (!data) return;
 
-                // Set values
-                frm.set_value({
-                    inv_date: data.inv_date,
-                    bank: data.bank,
-                    payment_term_days: data.term_days,
-                    term_days: data.term_days,
-                    nego_amount: data.can_nego,
-                });
+            // Set values
+            frm.set_value({
+                // inv_date: data.inv_date,
+                bank_text: data.bank_name,
+                payment_term_days: data.term_days,
+                payment_term_text: data.p_term_name,
+                nego_amount: data.can_nego,
+            });
 
+            if (frm.is_new()){
                 // 🔁 Toggle bank_text visibility
                 handle_bank_text_visibility(frm, data.term_days, data.bank, data.bank_name, data.payment_term, data.p_term_name)
             }
-        });
-    }
+        }
+    });
 }
+
 
 
 function calculate_term_days(frm) {
