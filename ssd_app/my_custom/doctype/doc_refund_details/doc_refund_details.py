@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 
+from ssd_app.my_custom.doctype.doc_nego.doc_nego import get_doc_int_summary
 
 def set_calculated_fields(doc):
     inv_id= frappe.db.get_value("Doc Refund", doc.inv_no, "inv_no")
@@ -17,13 +18,19 @@ def set_calculated_fields(doc):
     doc.shipping_id = shi_id
 
 class DocRefundDetails(Document):
+    def validate(self): # need to delete
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        x= get_doc_int_summary("ref", self.inv_no)
+        self.interest_from = x.get("int_upto")
+        self.interest_on = x.get("b_liab")
+        print(self.interest_from, self.interest_on)
     def before_save(self):
         if self.inv_no:
             set_calculated_fields(self)
             frappe.db.set_value("Doc Refund", self.inv_no, "refund_details", 1)		
     def on_trash(self):
         if self.inv_no:
-            frappe.db.set_value("Doc Refund", self.inv_no, "refund_details", 0)	
+            frappe.db.set_value("Doc Refund", self.inv_no, "refund_details", 0)
 
 
 @frappe.whitelist()

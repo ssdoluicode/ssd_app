@@ -113,15 +113,15 @@ async function get_ref_data(frm) {
         refund_amount: data.ref_amount,
         refund_date: data.ref_date,
         bank: data.bank_name,
-        interest_on: data.b_liab || 0, //after update all need to move if new
-        interest_from: data.int_upto //after update all need to move if new
+        // interest_on: data.b_liab || 0, //after update all need to move if new
+        // interest_from: data.int_upto //after update all need to move if new
     });
 
     if (frm.is_new()) {
         await frm.set_value({
             interest_pct: data.int_pct,
-            // interest_on: data.b_liab || 0,
-            // interest_from: data.int_upto
+            interest_on: data.b_liab || 0,
+            interest_from: data.int_upto
         });
 
         // Now calculations will use updated values

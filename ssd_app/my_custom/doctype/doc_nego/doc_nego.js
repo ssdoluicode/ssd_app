@@ -82,8 +82,8 @@ async function get_shi_data(frm) {
             await frm.set_value({
                 nego_amount: data.can_nego,
             });
-
-            handle_bank_text_visibility(
+        }
+        handle_bank_text_visibility(
                 frm,
                 data.term_days,
                 data.bank,
@@ -91,7 +91,6 @@ async function get_shi_data(frm) {
                 data.payment_term,
                 data.p_term_name
             );
-        }
 
     } catch (error) {
         console.error("Error in get_shi_data:", error);
