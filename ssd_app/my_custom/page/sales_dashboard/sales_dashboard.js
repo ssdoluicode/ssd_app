@@ -235,72 +235,6 @@ frappe.pages['sales-dashboard'].on_page_load = function (wrapper) {
     // ==================================================
     // Render Bar Chart
     // ==================================================
-    function render_category_chart1(data, field) {
-        let grouped = group_by_field(data, field);
-
-        let labels = [];
-        let cost_values = [];
-        let profit_values = [];
-        // We create a helper array to store the percentages
-        let profit_percentages = [];
-
-        Object.keys(grouped).forEach(function (key) {
-            let sales = flt(grouped[key].sales);
-            let profit = flt(grouped[key].profit);
-            let cost = Math.round(sales - profit);
-            let display_label = key;
-
-            if (field === "month" && key) {
-                let date = key.includes("-") ? new Date(key.split("-")[0], key.split("-")[1] - 1) : new Date(key);
-                if (!isNaN(date.getTime())) {
-                    display_label = date.toLocaleString("en-US", { month: "short" });
-                }
-            }
-
-            labels.push(display_label);
-            cost_values.push(cost);
-            profit_values.push(Math.round(profit));
-
-            // Pre-calculate percentage string
-            let percentage = (cost > 0) ? ((profit / cost) * 100).toFixed(2) : "0.00";
-            profit_percentages.push(percentage);
-        });
-
-        if (category_chart) {
-            category_chart.destroy();
-        }
-
-        category_chart = new frappe.Chart("#sales-category-chart", {
-            data: {
-                labels: labels,
-                datasets: [
-                    { name: "Cost", values: cost_values },
-                    { name: "Profit", values: profit_values }
-                ]
-            },
-            type: "bar",
-            height: 350,
-            barOptions: { stacked: true },
-            colors: ['orange', '#2F9E44'],
-            tooltipOptions: {
-                // Frappe Charts' tooltip formatter often only reliable passes the value
-                formatTooltipY: (value) => {
-                    let num_val = parseFloat(value);
-                    let formatted = num_val.toLocaleString();
-
-                    // Logic: Check if this value exists in our profit array to append %
-                    // Note: This works best if Profit and Cost values are unique-ish
-                    let idx = profit_values.indexOf(num_val);
-                    if (idx !== -1 && profit_percentages[idx]) {
-                        return `${formatted} (${profit_percentages[idx]}%)`;
-                    }
-                    
-                    return formatted;
-                }
-            }
-        });
-    }
-
     function render_category_chart(data, field) {
         let grouped = group_by_field(data, field);
 
@@ -369,7 +303,6 @@ frappe.pages['sales-dashboard'].on_page_load = function (wrapper) {
             }
         });
     }
-
 
     $(document).on("change", "#group-by-select", function () {
         update_bar_chart();

@@ -117,7 +117,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-19 23:07:00.499307",
+ "modified": "2026-02-24 17:35:24.046352",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Shipping Book",
@@ -143,5 +143,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "inv_no"
+ "title_field": "inv_no",
+ "track_changes": 1
 }

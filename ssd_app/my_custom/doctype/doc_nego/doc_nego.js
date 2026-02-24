@@ -59,35 +59,44 @@ function handle_bank_text_visibility(frm, term_days, bank, bank_name, p_term, p_
 }
 
 
-function get_shi_data(frm) {
+async function get_shi_data(frm) {
     if (!frm.doc.inv_no) return;
 
-    
-    frappe.call({
-        method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_shi_data",
-        args: { inv_no: frm.doc.inv_no },
-        callback: function (r) {
-            const data = r.message;
-            console.log(data);
-            if (!data) return;
+    try {
+        const r = await frappe.call({
+            method: "ssd_app.my_custom.doctype.doc_nego.doc_nego.get_shi_data",
+            args: { inv_no: frm.doc.inv_no }
+        });
 
-            // Set values
-            frm.set_value({
-                // inv_date: data.inv_date,
-                bank_text: data.bank_name,
-                payment_term_days: data.term_days,
-                payment_term_text: data.p_term_name,
+        const data = r.message;
+        if (!data) return;
+
+        // ✅ wait for values to set
+        await frm.set_value({
+            bank_text: data.bank_name,
+            payment_term_days: data.term_days,
+            payment_term_text: data.p_term_name,
+        });
+
+        if (frm.is_new()) {
+            await frm.set_value({
                 nego_amount: data.can_nego,
             });
 
-            if (frm.is_new()){
-                // 🔁 Toggle bank_text visibility
-                handle_bank_text_visibility(frm, data.term_days, data.bank, data.bank_name, data.payment_term, data.p_term_name)
-            }
+            handle_bank_text_visibility(
+                frm,
+                data.term_days,
+                data.bank,
+                data.bank_name,
+                data.payment_term,
+                data.p_term_name
+            );
         }
-    });
-}
 
+    } catch (error) {
+        console.error("Error in get_shi_data:", error);
+    }
+}
 
 
 function calculate_term_days(frm) {
@@ -139,12 +148,12 @@ function calculate_due_date(frm) {
 
 
 frappe.ui.form.on("Doc Nego", {
-	onload(frm) {
+	async onload(frm) {
         inv_no_filter(frm);  // ✅ Register custom filter  
-        get_shi_data(frm);
+        await get_shi_data(frm);
     },
-    inv_no(frm) {
-        get_shi_data(frm);   // ✅ Fetch CIF details
+    async inv_no(frm) {
+        await get_shi_data(frm);   // ✅ Fetch CIF details
     },
     bank_due_date(frm){
         calculate_term_days(frm);
