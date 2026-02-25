@@ -18,12 +18,6 @@ def set_calculated_fields(doc):
     doc.shipping_id = shi_id
 
 class DocRefundDetails(Document):
-    def validate(self): # need to delete
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        x= get_doc_int_summary("ref", self.inv_no)
-        self.interest_from = x.get("int_upto")
-        self.interest_on = x.get("b_liab")
-        print(self.interest_from, self.interest_on)
     def before_save(self):
         if self.inv_no:
             set_calculated_fields(self)
