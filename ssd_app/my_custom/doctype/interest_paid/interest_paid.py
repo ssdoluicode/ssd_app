@@ -13,7 +13,8 @@ def set_calculated_fields(doc):
     )
     doc.invoice_no = invoice
     doc.custom_title = f"{doc.name} ({invoice})"
-    doc.shiping_id = shi_id
+    doc.shipping_id = shi_id
+    print(shi_id)
 
 class InterestPaid(Document):
     def before_save(self):
