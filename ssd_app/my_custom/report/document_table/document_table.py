@@ -37,158 +37,187 @@ def execute(filters=None):
 	# Build WHERE clause based on status
   
 
-    query = f"""
-		SELECT *
+    query= f"""
+			SELECT 
+			all_data.*,
+			com.company_code AS com
 		FROM (
+
+			/* =========================
+			NEGO
+			========================== */
 			SELECT
-				sb.name AS cif_id,
+				sb.name AS shipping_id,
+				sb.inv_no,
 				nego.name,
-				sb.inv_no, 
 				nego.nego_date AS date,
 				"Nego" AS type,
-				cus.customer, 
-				noti.notify, 
+				cus.customer,
+				noti.code AS notify,
 				bank.bank,
-				IF(pt.term_name IN ('LC', 'DA'),
-					CONCAT(pt.term_name, '- ', sb.term_days),
+				IF(pt.term_name IN ('LC','DA'),
+					CONCAT(pt.term_name,'- ',sb.term_days),
 					pt.term_name
 				) AS p_term,
 				sb.document,
 				nego.nego_amount AS amount,
-                nego.nego_amount * -1 AS bank_liab,
-                (negod.postage_charges + negod.commission + negod.other_charges + negod.round_off) AS bank_ch,
-                negod.interest AS interest,
-                negod.bank_amount,
-                negod.interest_days AS interest_days,
-                negod.interest_pct AS interest_pct
-                
+				nego.nego_amount * -1 AS bank_liab,
+				(negod.postage_charges + negod.commission +
+				negod.other_charges + negod.round_off) AS bank_ch,
+				negod.interest,
+				negod.bank_amount,
+				negod.interest_days,
+				negod.interest_pct
 			FROM `tabDoc Nego` nego
-            LEFT JOIN `tabShipping Book` sb ON sb.name = nego.shipping_id
-            LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
+			LEFT JOIN `tabShipping Book` sb ON sb.name = nego.shipping_id
+			LEFT JOIN `tabPayment Term` pt ON pt.name = sb.payment_term
 			LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
 			LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
 			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
-            LEFT JOIN `tabDoc Nego Details` negod ON nego.name= negod.inv_no
+			LEFT JOIN `tabDoc Nego Details` negod ON nego.name = negod.inv_no
 			{where_clause_nego}
 
 			UNION ALL
-			
-			SELECT 
-				sb.name AS cif_id,
+
+			/* =========================
+			REFUND
+			========================== */
+			SELECT
+				sb.name AS shipping_id,
+				sb.inv_no,
 				ref.name,
-				sb.inv_no, 
 				ref.refund_date AS date,
 				"Refund" AS type,
-				cus.customer, 
-				noti.notify, 
+				cus.customer,
+				noti.code AS notify,
 				bank.bank,
-				IF(sb.payment_term IN ('LC', 'DA'),
-					CONCAT(pt.term_name, '- ', sb.term_days),
+				IF(pt.term_name IN ('LC','DA'),
+					CONCAT(pt.term_name,'- ',sb.term_days),
 					pt.term_name
 				) AS p_term,
 				sb.document,
 				ref.refund_amount AS amount,
-                ref.refund_amount AS bank_liab,
-                refd.bank_charges AS bank_ch,
-                refd.interest AS interest,
-                refd.bank_amount * -1 AS bank_amount,
-                refd.interest_days AS interest_days,
-                refd.interest_pct AS interest_pct
+				ref.refund_amount AS bank_liab,
+				refd.bank_charges AS bank_ch,
+				refd.interest,
+				refd.bank_amount * -1 AS bank_amount,
+				refd.interest_days,
+				refd.interest_pct
 			FROM `tabDoc Refund` ref
-            LEFT JOIN `tabShipping Book` sb ON sb.name = ref.shipping_id
-            LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
+			LEFT JOIN `tabShipping Book` sb ON sb.name = ref.shipping_id
+			LEFT JOIN `tabPayment Term` pt ON pt.name = sb.payment_term
 			LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
-			LEFT JOIN `tabNotify` noti ON noti.name =sb.notify
+			LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
 			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
-            LEFT JOIN `tabDoc Refund Details` refd ON ref.name= refd.inv_no
+			LEFT JOIN `tabDoc Refund Details` refd ON ref.name = refd.inv_no
 			{where_clause_ref}
 
 			UNION ALL
-			
-			SELECT 
-				sb.name AS cif_id,
+
+			/* =========================
+			RECEIVED
+			========================== */
+			SELECT
+				sb.name AS shipping_id,
+				sb.inv_no,
 				rec.name,
-				sb.inv_no, 
 				rec.received_date AS date,
 				"Received" AS type,
-				cus.customer, 
-				noti.notify, 
+				cus.customer,
+				noti.code AS notify,
 				bank.bank,
-				IF(pt.term_name IN ('LC', 'DA'),
-					CONCAT(pt.term_name, '- ', sb.term_days),
+				IF(pt.term_name IN ('LC','DA'),
+					CONCAT(pt.term_name,'- ',sb.term_days),
 					pt.term_name
 				) AS p_term,
 				sb.document,
 				rec.received AS amount,
-                recd.bank_liability AS bank_liab,
-                recd.bank_charge + recd.foreign_charges + recd.commission + recd.postage + recd.cable_charges + recd.short_payment + recd.discrepancy_charges AS bank_ch,
-                recd.interest AS interest,
-                recd.bank_amount AS bank_amount,
-                recd.interest_days AS interest_days,
-                recd.interest_pct AS interest_pct
+				recd.bank_liability AS bank_liab,
+				(recd.bank_charge + recd.foreign_charges +
+				recd.commission + recd.postage +
+				recd.cable_charges + recd.short_payment +
+				recd.discrepancy_charges) AS bank_ch,
+				recd.interest,
+				recd.bank_amount,
+				recd.interest_days,
+				recd.interest_pct
 			FROM `tabDoc Received` rec
-            LEFT JOIN `tabShipping Book` sb ON sb.name = rec.shipping_id
-            LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
+			LEFT JOIN `tabShipping Book` sb ON sb.name = rec.shipping_id
+			LEFT JOIN `tabPayment Term` pt ON pt.name = sb.payment_term
 			LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
 			LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
 			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
-            LEFT JOIN `tabDoc Received Details` recd ON rec.name= recd.inv_no
+			LEFT JOIN `tabDoc Received Details` recd ON rec.name = recd.inv_no
 			{where_clause_rec}
-            
+
 			UNION ALL
-            
-            SELECT 
-				sb.name AS cif_id,
+
+			/* =========================
+			INTEREST PAID
+			========================== */
+			SELECT
+				sb.name AS shipping_id,
+				sb.inv_no,
 				intp.name,
-				sb.inv_no, 
 				intp.date AS date,
 				"Interest" AS type,
-				cus.customer, 
-				noti.notify, 
+				cus.customer,
+				noti.code AS notify,
 				bank.bank,
-				IF(pt.term_name IN ('LC', 'DA'),
-					CONCAT(pt.term_name, '- ', sb.term_days),
+				IF(pt.term_name IN ('LC','DA'),
+					CONCAT(pt.term_name,'- ',sb.term_days),
 					pt.term_name
 				) AS p_term,
 				sb.document,
-				intp.interest AS amount,
-                0 AS bank_liab,
-                0 AS bank_ch,
-                0 AS interest,
-                0 AS bank_amount,
-                0 AS interest_days,
-                0 AS interest_pct
+				0 AS amount,
+				0 AS bank_liab,
+				0 AS bank_ch,
+				intp.interest AS interest,
+				0 AS bank_amount,
+				intp.interest_days AS interest_days,
+				intp.interest_rate AS interest_pct
 			FROM `tabInterest Paid` intp
-            LEFT JOIN `tabShipping Book` sb ON sb.name = intp.shipping_id
-            LEFT JOIN `tabPayment Term` pt ON pt.name= sb.payment_term
+			LEFT JOIN `tabShipping Book` sb ON sb.name = intp.shipping_id
+			LEFT JOIN `tabPayment Term` pt ON pt.name = sb.payment_term
 			LEFT JOIN `tabCustomer` cus ON cus.name = sb.customer
 			LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
 			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
-            {where_clause_rec}
-            
-		) AS all_data
-		ORDER BY date
-	"""
+			{where_clause_rec}
 
+		) AS all_data
+
+		/* ===== CIF JOIN OUTSIDE (Optimized) ===== */
+		LEFT JOIN (
+			SELECT inv_no, accounting_company
+			FROM `tabCIF Sheet`
+		) cif
+			ON cif.inv_no = all_data.shipping_id
+
+		LEFT JOIN `tabCompany` com
+			ON com.name = cif.accounting_company
+
+		ORDER BY all_data.date;
+	"""
 
     data = frappe.db.sql(query, as_dict=1)
 
     columns = [
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90},
         {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
-        {"label": "Type", "fieldname": "type", "fieldtype": "Data", "width": 80},
+        {"label": "Type", "fieldname": "type", "fieldtype": "Data", "width": 75},
+        {"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 105},
         # {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 250},
-        {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 250},
+        {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 220},
         {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
         {"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 95},
-        {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 125},
-        {"label": "Amount", "fieldname": "amount", "fieldtype": "Float", "width": 125},
-        {"label": "Bank Liab", "fieldname": "bank_liab", "fieldtype": "Float", "width": 125},
-        {"label": "Bank Ch", "fieldname": "bank_ch", "fieldtype": "Float", "width": 125},
-        {"label": "Interest", "fieldname": "interest", "fieldtype": "Float", "width": 125},
-        {"label": "Bank Amount", "fieldname": "bank_amount", "fieldtype": "Float", "width": 125},
-        {"label": "Int Days", "fieldname": "interest_days", "fieldtype": "Float", "width": 125},
-        {"label": "Int %", "fieldname": "interest_pct", "fieldtype": "Float", "width": 125},
+        {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 115},
+        {"label": "Amount", "fieldname": "amount", "fieldtype": "Float", "width": 115},
+        {"label": "Bank Liab", "fieldname": "bank_liab", "fieldtype": "Float", "width": 120},
+        {"label": "Bank Ch", "fieldname": "bank_ch", "fieldtype": "Float", "width": 85	},
+        {"label": "Interest", "fieldname": "interest", "fieldtype": "Float", "width": 85},
+        {"label": "Bank Amount", "fieldname": "bank_amount", "fieldtype": "Float", "width": 120},
+        {"label": "Int Days", "fieldname": "interest_days", "fieldtype": "Float", "width": 85},
+        {"label": "Int %", "fieldname": "interest_pct", "fieldtype": "Float", "width": 60},
     ]
 
     return columns, data
