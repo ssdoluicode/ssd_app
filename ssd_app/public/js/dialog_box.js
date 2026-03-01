@@ -526,3 +526,33 @@ function showImportBankingFlow(lc_no, inv_no, dc_name) {
     });
 }
 
+
+function showFinanceCostDetails(inv_name, inv_no) {
+    frappe.call({
+        method: "ssd_app.my_custom.report.document_table.document_table.get_finance_cost_details",
+        args: { inv_name },
+        callback: function (r) {
+            if (r.message) {
+                const d = new frappe.ui.Dialog({
+                    title: `Document Flow for: ${inv_no}`,
+                    size: 'extra-large',
+                    fields: [
+                        {
+                            fieldtype: 'HTML',
+                            fieldname: 'details_html',
+                            options: `
+                                <div id="cif-details-a4" style="box-shadow: 0 0 8px rgba(0,0,0,0.2);">
+                                    ${r.message}
+                                </div>`
+                        }
+                    ]
+                });
+                d.show();
+                // Insert before the close (X) button for better spacing
+                $header.find('.modal-title').after(refreshBtn);
+            }
+        }
+    });
+}
+
+

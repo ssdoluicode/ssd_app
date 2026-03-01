@@ -1,49 +1,228 @@
 /* =====================================================
-   DASHBOARD LAYOUT
+   GLOBAL SALES DASHBOARD THEME
 ===================================================== */
 
-.dashboard-layout {
-    display: flex;
-    gap: 24px;
-}
+:root {
 
-/* LEFT SIDE (Analysis Area) */
-.dashboard-left {
-    flex: 1;
-}
+    --primary:#2563eb;
+    --primary-soft:#eff6ff;
 
-/* RIGHT SIDE (Month Cube Panel) */
-.dashboard-right {
-    min-width: 240px;
-    max-width: 280px;
-    position: sticky;
-    top: 80px;
-    height: calc(100vh - 100px);
-    overflow-y: auto;
-    background: #ffffff;
-    padding: 16px 12px;
-    border-radius: 14px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.06);
+    --sales:#2563eb;
+    --profit:#16a34a;
+    --cost:#f97316;
+    --loss:#dc2626;
+
+    --text-main:#0f172a;
+    --text-muted:#64748b;
+
+    --bg-page:#f4f6fa;
+    --bg-card:#ffffff;
+
+    --analysis-bg:#1e293b;
+    --analysis-bg-soft:#243248;
+
+    --border:#e5e7eb;
+    --shadow:0 10px 28px rgba(0,0,0,.06);
 }
 
 
 /* =====================================================
-   MAIN CARDS (LEFT SIDE SECTIONS)
+   PAGE
 ===================================================== */
 
-.analysis-area,
-.separate-report {
-    background: #ffffff;
-    padding: 18px;
-    border-radius: 14px;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+body{
+    background:var(--bg-page);
+    color:var(--text-main);
+    font-family:system-ui,-apple-system,BlinkMacSystemFont;
 }
 
-.analysis-area h4,
-.separate-report h4 {
-    margin-bottom: 14px;
-    font-weight: 600;
-    color: #0f172a;
+
+/* =====================================================
+   DASHBOARD LAYOUT
+===================================================== */
+
+.dashboard-layout{
+    display:flex;
+    gap:24px;
+}
+
+.dashboard-left{
+    flex:1;
+    min-width:0;
+}
+
+.dashboard-right{
+    min-width:260px;
+    max-width:300px;
+    position:sticky;
+    top:80px;
+    height:calc(100vh - 100px);
+    overflow-y:auto;
+
+    background:var(--bg-card);
+    padding:18px;
+    border-radius:16px;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+}
+
+
+/* =====================================================
+   MAIN ANALYSIS AREA
+===================================================== */
+
+.analysis-area{
+    background:var(--bg-card);
+    padding:22px;
+    border-radius:18px;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+}
+
+.analysis-area h4{
+    font-weight:700;
+    margin-bottom:18px;
+}
+
+
+/* =====================================================
+   TOP ANALYSIS GRID
+===================================================== */
+
+.pie-inline-wrapper{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:30px;
+}
+
+
+/* =====================================================
+   ANALYSIS CARD
+===================================================== */
+
+.pie-card{
+    background:var(--bg-card);
+    border-radius:16px;
+    padding:14px;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+}
+
+.pie-card h6{
+    text-align:center;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+
+/* =====================================================
+   MINI SUMMARY TABLE
+===================================================== */
+
+.mini-table{
+    background:linear-gradient(
+        180deg,
+        var(--analysis-bg),
+        var(--analysis-bg-soft)
+    );
+    border-radius:14px;
+    padding:12px;
+    max-height:260px;
+    overflow-y:auto;
+}
+
+.mini-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:11px 6px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.mini-row:last-child{
+    border-bottom:none;
+}
+
+.mini-name{
+    color:#e2e8f0;
+    font-weight:500;
+}
+
+.mini-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.mini-amount{
+    color:#cbd5e1;
+    font-size:13px;
+}
+
+
+/* =====================================================
+   CONTRIBUTION BADGES
+===================================================== */
+
+.mini-badge{
+    padding:4px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+    color:#fff;
+}
+
+.badge-good{
+    background:#16a34a;
+}
+
+.badge-mid{
+    background:#0284c7;
+}
+
+.badge-low{
+    background:#dc2626;
+}
+
+
+/* =====================================================
+   ✅ SIDE BY SIDE CHART LAYOUT
+===================================================== */
+
+.chart-row{
+    display:flex;
+    gap:20px;
+    width:100%;
+    margin-top:20px;
+}
+
+.chart-row .bar-card{
+    flex:1;
+    min-width:0;
+}
+
+
+/* =====================================================
+   BAR CHART CARD
+===================================================== */
+
+.bar-card{
+    background:var(--bg-card);
+    border-radius:18px;
+    padding:20px;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+}
+
+.bar-card h6{
+    font-weight:600;
+    margin-bottom:12px;
+}
+
+.bar-card > div{
+    height:320px;
+    width:100%;
 }
 
 
@@ -51,179 +230,106 @@
    MONTH PANEL
 ===================================================== */
 
-.cube-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 14px;
-    text-align: center;
-    letter-spacing: 0.3px;
+.cube-title{
+    text-align:center;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:14px;
 }
 
-.monthly-cubes {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
+.cube-card{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:14px;
+    background:#fff;
+    transition:.25s;
+    cursor:pointer;
 }
 
-
-/* =====================================================
-   CUBE CARD (Executive Compact Style)
-===================================================== */
-
-.cube-card {
-    width: 100%;
-    max-width: 210px;
-    background: #ffffff;
-    padding: 16px 14px;
-    border-radius: 14px;
-    cursor: pointer;
-    border: 1px solid #e5e7eb;
-    transition: all 0.25s ease;
+.cube-card:hover{
+    transform:translateY(-3px);
 }
 
-/* Hover lift */
-.cube-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.10);
-    border-color: #cbd5f5;
-}
-
-/* Active cube */
-.active-cube {
-    border: 1px solid #2563eb;
-    background: #f8fbff;
-    box-shadow: 0 14px 30px rgba(37,99,235,0.20);
+.active-cube{
+    border:1px solid var(--primary);
+    background:var(--primary-soft);
 }
 
 
 /* =====================================================
-   CUBE CONTENT
+   MONTH CONTENT
 ===================================================== */
 
-/* Month Heading */
-.cube-month {
-    font-size: 15px;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 12px;
-    text-align: center;
+.cube-month{
+    font-size:15px;
+    font-weight:700;
+    text-align:center;
+    margin-bottom:10px;
 }
 
-/* Sales / Profit Row */
-.cube-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 13px;
-    margin-bottom: 8px;
+.cube-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    margin-bottom:6px;
 }
 
-/* Labels */
-.cube-label {
-    color: #64748b;
+.cube-label{
+    color:var(--text-muted);
 }
 
-/* Values (Inline layout for Profit + %) */
-.cube-value {
-    font-weight: 600;
-    color: #0f172a;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    text-align: right;
+.cube-value{
+    font-weight:600;
 }
 
 
 /* =====================================================
-   PROFIT INLINE STYLE
+   PROFIT INDICATOR
 ===================================================== */
 
-/* Profit % text */
-.profit-pct {
-    font-size: 11px;
-    opacity: 0.8;
-    font-weight: 500;
+.margin-good{
+    color:var(--profit);
 }
 
-/* Positive Profit */
-.margin-good {
-    color: #059669;
+.margin-bad{
+    color:var(--loss);
 }
 
-/* Negative Profit */
-.margin-bad {
-    color: #dc2626;
-}
-
-/* Optional subtle color tweak for percentage */
-.margin-good .profit-pct {
-    color: #10b981;
-}
-
-.margin-bad .profit-pct {
-    color: #ef4444;
+.profit-pct{
+    font-size:11px;
 }
 
 
 /* =====================================================
-   SCROLLBAR STYLE
+   SCROLLBAR
 ===================================================== */
 
-.dashboard-right::-webkit-scrollbar {
-    width: 6px;
+::-webkit-scrollbar{
+    width:6px;
 }
 
-.dashboard-right::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 6px;
+::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
+    border-radius:6px;
 }
 
-.dashboard-right::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+::-webkit-scrollbar-thumb:hover{
+    background:#94a3b8;
 }
 
-/* ================= INLINE PIE CHARTS ================= */
 
-.pie-inline-wrapper {
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-    flex-wrap: nowrap;
-    margin-bottom: 30px;
-}
+/* =====================================================
+   ✅ RESPONSIVE FIX
+===================================================== */
 
-.pie-inline-wrapper .pie-card {
-    flex: 1;
-    min-width: 220px;
-    max-width: 25%;
-    background: #ffffff;
-    padding: 14px;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-    text-align: center;
-}
+@media (max-width:1200px){
 
-.pie-inline-wrapper .pie-card h6 {
-    font-weight: 600;
-    margin-bottom: 1px;
-    font-size: 13px;
-}
+    .pie-inline-wrapper{
+        grid-template-columns:repeat(2,1fr);
+    }
 
-/* Make pie chart consistent size */
-.pie-inline-wrapper .pie-card svg {
-    max-height: 200px;
+    .chart-row{
+        flex-direction:column;
+    }
 }
-.pie-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.pie-card > div {
-    width: 100%;
-    height: 220px;   /* same as chart height */
-}
-

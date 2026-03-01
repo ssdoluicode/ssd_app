@@ -110,7 +110,7 @@ def get_data(year, month=None):
     COALESCE(pc.product_category, 'Unknown') AS category,
     COALESCE(cus.code, 'Unknown') AS customer,
     COALESCE(n.code, 'Unknown') AS notify,
-    COALESCE(cif.accounting_company, 'Unknown') AS company,
+    COALESCE(com.company_code, 'Unknown') AS company,
     COALESCE(cif.to_country, 'Unknown') AS country,
 
     cif.sales AS total_sales,
@@ -122,6 +122,7 @@ LEFT JOIN `tabShipping Book` sb ON sb.name = cif.inv_no
 LEFT JOIN `tabNotify` n ON n.name = sb.notify
 LEFT JOIN `tabProduct Category` pc ON cif.category = pc.name
 LEFT JOIN `tabCustomer` cus ON sb.customer = cus.name
+LEFT JOIN `tabCompany` com ON com.name=cif.accounting_company
 
 WHERE {where_clause}
 AND COALESCE(cost.cost, 0) > 0;

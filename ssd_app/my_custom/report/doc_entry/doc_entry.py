@@ -47,10 +47,12 @@ def execute(filters=None):
   
 
     query = f"""
-		SELECT *
+		SELECT all_data.*, 
+        com.company_code AS com,
+        cif.name AS cif_id
 		FROM (
 			SELECT
-				sb.name AS cif_id,
+				sb.name AS shi_id,
 				nego.name,
 				sb.inv_no, 
 				nego.nego_date AS date,
@@ -76,7 +78,7 @@ def execute(filters=None):
 			UNION ALL
 			
 			SELECT 
-				sb.name AS cif_id,
+				sb.name AS shi_id,
 				ref.name,
 				sb.inv_no, 
 				ref.refund_date AS date,
@@ -102,7 +104,7 @@ def execute(filters=None):
 			UNION ALL
 			
 			SELECT 
-				sb.name AS cif_id,
+				sb.name AS shi_id,
 				rec.name,
 				sb.inv_no, 
 				rec.received_date AS date,
@@ -125,6 +127,13 @@ def execute(filters=None):
 			LEFT JOIN `tabBank` bank ON bank.name = sb.bank
 			{where_clause_rec}
 		) AS all_data
+        LEFT JOIN (
+			SELECT inv_no, name, accounting_company
+			FROM `tabCIF Sheet`
+		) cif
+			ON cif.inv_no = all_data.shi_id
+        LEFT JOIN `tabCompany` com
+			ON com.name = cif.accounting_company
 		ORDER BY date
 	"""
 
@@ -134,6 +143,7 @@ def execute(filters=None):
     columns = [
         {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 125},
         {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
+        {"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 105},
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 250},
         {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 250},
         {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 70},

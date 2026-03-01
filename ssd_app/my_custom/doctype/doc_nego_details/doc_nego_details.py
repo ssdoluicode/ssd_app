@@ -60,3 +60,8 @@ class DocNegoDetails(Document):
     def on_trash(self):
         if self.inv_no:
             frappe.db.set_value("Doc Nego", self.inv_no, "nego_details", 0)
+
+
+
+
+

@@ -116,6 +116,7 @@ def execute(filters=None):
 
 	return columns, data
 
+
 @frappe.whitelist()
 def get_doc_flow(inv_name):
 	if not inv_name:
