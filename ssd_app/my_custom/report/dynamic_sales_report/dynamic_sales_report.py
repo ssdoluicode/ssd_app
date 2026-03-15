@@ -1,9 +1,128 @@
+# import frappe
+# from datetime import datetime
+# from frappe.utils import fmt_money
+# from datetime import date, timedelta
+# today_str = date.today().strftime("%Y-%m-%d")
+
+
+# filter_data_dict = {
+#         "Customer": {"dc": "tabCustomer", "jdc":"sb", "as":"cus", "field": "code", "l_field": "customer"},
+#         "Notify": {"dc": "tabNotify","jdc":"sb", "as":"noti", "field": "code", "l_field": "notify"},
+#         "Category": {"dc": "tabProduct Category", "jdc":"cif", "as":"pc", "field": "product_category", "l_field": "category"},
+#         "From Country": {"dc": "tabCountry", "jdc":"cif", "as":"fc", "field": "country_name", "l_field": "from_country"},
+#         "To Country": {"dc": "tabCountry", "jdc":"cif", "as":"tc", "field": "country_name", "l_field": "to_country"},
+#         "Company": {"dc": "tabCompany", "jdc":"cif", "as":"com", "field": "company_code", "l_field": "accounting_company"}
+#     }
+
+# def execute(filters=None):
+#     from_date = filters.get('from_date')
+#     to_date = filters.get('to_date')
+#     group_by = filters.get('group_by') or "Customer"
+
+#     if not from_date or not to_date:
+#         frappe.throw("Please set both From Date and To Date")
+
+#     # Map group_by to database fields
+
+
+#     # handle invalid group_by
+#     if group_by not in filter_data_dict:
+#         frappe.throw(f"Invalid Group By value: {group_by}")
+
+#     filter_field = filter_data_dict[group_by]["field"]
+#     filter_dc = filter_data_dict[group_by]["dc"]
+#     filter_l_field = filter_data_dict[group_by]["l_field"]
+#     join_dc = filter_data_dict[group_by]["jdc"]
+
+#     # Build month list
+#     months = []
+#     current = datetime.strptime(from_date, "%Y-%m-%d")
+#     end = datetime.strptime(to_date, "%Y-%m-%d")
+#     while current <= end:
+#         month_label = current.strftime('%b-%Y')
+#         months.append({
+#             'label': month_label,
+#             'year': current.year,
+#             'month': current.month
+#         })
+#         # Move to next month
+#         if current.month == 12:
+#             current = current.replace(year=current.year + 1, month=1)
+#         else:
+#             current = current.replace(month=current.month + 1)
+
+#     # Build columns
+#     columns = [
+#         {"label": group_by, "fieldname": "group_value", "fieldtype": "Data", "width": 150}
+#     ]
+#     for m in months:
+#         columns.append({
+#             "label": m['label'],
+#             "fieldname": m['label'].lower().replace('-', '_'),
+#             "fieldtype": "Float",
+#             "precision": 0,
+#             "width": 110
+#         })
+#     # Add total column
+#     columns.append({
+#         "label": "Total",
+#         "fieldname": "total",
+#         "fieldtype": "Float",
+#         "width": 120
+#     })
+
+#     # Query data
+#     data = frappe.db.sql(f"""
+#         SELECT 
+#             jdc.{filter_field} AS group_value,
+#             YEAR(cif.inv_date) AS year,
+#             MONTH(cif.inv_date) AS month,
+#             SUM(cif.sales) AS amount
+#         FROM `tabCIF Sheet` cif
+#         LEFT JOIN `tabShipping Book` sb ON sb.name=cif.inv_no
+#         LEFT JOIN `{filter_dc}` jdc ON {join_dc}.{filter_l_field} = jdc.name
+#         WHERE cif.inv_date BETWEEN %(from_date)s AND %(to_date)s
+#         GROUP BY jdc.{filter_field}, YEAR(cif.inv_date), MONTH(cif.inv_date)
+#         ORDER BY jdc.{filter_field} ASC
+#     """, {
+#         "from_date": from_date,
+#         "to_date": to_date
+#     }, as_dict=1)
+
+#     # Pivot data into result_map
+#     result_map = {}
+#     for row in data:
+#         key = row.group_value or "(Not Set)"
+#         month_label = datetime(row.year, row.month, 1).strftime('%b-%Y')
+#         if key not in result_map:
+#             result_map[key] = {}
+#         result_map[key][month_label] = row.amount
+
+#     # Build final result rows with total
+#     result = []
+#     for key, month_values in result_map.items():
+#         row = {"group_value": key}
+#         total = 0
+#         for m in months:
+#             label = m['label']
+#             value = month_values.get(label, 0)
+#             row[label.lower().replace('-', '_')] = value
+#             total += value
+#         row["total"] = total
+#         result.append(row)
+
+#     # Sort by group_value
+#     # result.sort(key=lambda x: x["group_value"])
+
+#     return columns, result
+
+
 import frappe
 from datetime import datetime
 from frappe.utils import fmt_money
 from datetime import date, timedelta
-today_str = date.today().strftime("%Y-%m-%d")
 
+today_str = date.today().strftime("%Y-%m-%d")
 
 filter_data_dict = {
         "Customer": {"dc": "tabCustomer", "jdc":"sb", "as":"cus", "field": "code", "l_field": "customer"},
@@ -14,6 +133,7 @@ filter_data_dict = {
         "Company": {"dc": "tabCompany", "jdc":"cif", "as":"com", "field": "company_code", "l_field": "accounting_company"}
     }
 
+
 def execute(filters=None):
     from_date = filters.get('from_date')
     to_date = filters.get('to_date')
@@ -22,10 +142,6 @@ def execute(filters=None):
     if not from_date or not to_date:
         frappe.throw("Please set both From Date and To Date")
 
-    # Map group_by to database fields
-
-
-    # handle invalid group_by
     if group_by not in filter_data_dict:
         frappe.throw(f"Invalid Group By value: {group_by}")
 
@@ -38,6 +154,7 @@ def execute(filters=None):
     months = []
     current = datetime.strptime(from_date, "%Y-%m-%d")
     end = datetime.strptime(to_date, "%Y-%m-%d")
+
     while current <= end:
         month_label = current.strftime('%b-%Y')
         months.append({
@@ -45,7 +162,7 @@ def execute(filters=None):
             'year': current.year,
             'month': current.month
         })
-        # Move to next month
+
         if current.month == 12:
             current = current.replace(year=current.year + 1, month=1)
         else:
@@ -55,6 +172,7 @@ def execute(filters=None):
     columns = [
         {"label": group_by, "fieldname": "group_value", "fieldtype": "Data", "width": 150}
     ]
+
     for m in months:
         columns.append({
             "label": m['label'],
@@ -63,7 +181,7 @@ def execute(filters=None):
             "precision": 0,
             "width": 110
         })
-    # Add total column
+
     columns.append({
         "label": "Total",
         "fieldname": "total",
@@ -89,32 +207,66 @@ def execute(filters=None):
         "to_date": to_date
     }, as_dict=1)
 
-    # Pivot data into result_map
+    # Pivot data
     result_map = {}
+
     for row in data:
         key = row.group_value or "(Not Set)"
         month_label = datetime(row.year, row.month, 1).strftime('%b-%Y')
+
         if key not in result_map:
             result_map[key] = {}
+
         result_map[key][month_label] = row.amount
 
-    # Build final result rows with total
     result = []
+
     for key, month_values in result_map.items():
         row = {"group_value": key}
         total = 0
+
         for m in months:
             label = m['label']
+            fieldname = label.lower().replace('-', '_')
+
             value = month_values.get(label, 0)
-            row[label.lower().replace('-', '_')] = value
+
+            row[fieldname] = value
             total += value
+
         row["total"] = total
         result.append(row)
 
-    # Sort by group_value
-    # result.sort(key=lambda x: x["group_value"])
+    # ---------------- CHART ----------------
 
-    return columns, result
+    labels = []
+    month_totals = []
+
+    for m in months:
+        label = m['label']
+        fieldname = label.lower().replace('-', '_')
+
+        labels.append(label)
+
+        total = sum(r.get(fieldname, 0) for r in result)
+        month_totals.append(total)
+
+    chart = {
+        "data": {
+            "labels": labels,
+            "datasets": [
+                {
+                    "name": "Sales",
+                    "values": month_totals
+                }
+            ]
+        },
+        "type": "bar",
+        "colors": ["#765eff"],
+        
+    }
+
+    return columns, result, None, chart
 
 
 

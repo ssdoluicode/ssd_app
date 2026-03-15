@@ -86,15 +86,16 @@
   {
    "fieldname": "shipping_line",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Shipping Line",
    "options": "Shipping Line"
   },
   {
    "fieldname": "invoice_amount",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Invoice Amount",
-   "non_negative": 1,
-   "reqd": 1
+   "non_negative": 1
   },
   {
    "fieldname": "note",
@@ -117,7 +118,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-24 17:35:24.046352",
+ "modified": "2026-03-14 00:04:58.880182",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Shipping Book",

@@ -14,6 +14,7 @@ frappe.query_reports["Dynamic Sales Report"] = {
                 }
             }
         });
+        
     },
     
     formatter: function (value, row, column, data, default_formatter) {
