@@ -1,6 +1,5 @@
-// // Copyright (c) 2026, SSDolui and contributors
-// // For license information, please see license.txt
-
+// Copyright (c) 2026, SSDolui and contributors
+// For license information, please see license.txt
 
 function validate_inv_no(frm){
     if (!frm.doc.inv_no) return;
@@ -17,21 +16,48 @@ function validate_inv_no(frm){
     });
 }
 
+
 function apply_payment_term_filter(frm) {
+
+    // Filter Payment Term list
     frm.set_query("payment_term", function () {
         return {
             filters: [
-                // Condition 1: full_tt based on document value
-                ["Payment Term", "full_tt", "=", frm.doc.document > 0 ? 0 : 1],
-                
-                // Condition 2: term_type must be "Export"
                 ["Payment Term", "term_type", "=", "Export"],
-                
-                // Condition 3: active must be 1 (Checked)
                 ["Payment Term", "active", "=", 1]
             ]
         };
     });
+
+    let pt = frm.doc.payment_term;
+    if (!pt) return;
+
+    frappe.db.get_value("Payment Term", pt, ["full_tt", "use_banking_line"])
+        .then(r => {
+
+            if (!r.message) return;
+
+            let { full_tt, use_banking_line } = r.message;
+
+            // Banking fields
+            frm.set_df_property("bank", "reqd", use_banking_line ? 1 : 0);
+            frm.set_df_property("term_days", "reqd", use_banking_line ? 1 : 0);
+
+            // Document field logic
+            
+            if (full_tt == 1) {
+                frm.set_value("document", 0);
+                frm.set_df_property("document", "read_only", 1);
+            } else {
+                frm.set_df_property("document", "read_only", 0);
+                if (frm.is_new()){
+                    frm.set_value("document", frm.doc.invoice_amount);
+                }
+            }
+
+            frm.refresh_field(["bank", "term_days", "document"]);
+
+        });
 }
 
 function check_and_lock_fields(frm) {
@@ -41,6 +67,7 @@ function check_and_lock_fields(frm) {
         args: { inv_id: frm.doc.name }
     }).then(r => {
         if (r.message === true) {
+            frm.set_df_property("invoice_amount", "read_only", 1);
             frm.set_df_property("document", "read_only", 1);
             frm.set_df_property("bank", "read_only", 1);
             frm.set_df_property("payment_term", "read_only", 1);
@@ -48,55 +75,20 @@ function check_and_lock_fields(frm) {
     });
 }
 
-function toggle_field(frm) {
-    frappe.db.get_value(
-        "Payment Term",
-        frm.doc.payment_term,
-        "use_banking_line"
-    ).then(r =>{
-         const use_banking = r.message?.use_banking_line;
-
-        // Hide & make not mandatory
-        if (use_banking === 0){
-            // frm.set_df_property("bank", "hidden", 1);
-            frm.set_df_property("bank", "reqd", 0);
-            frm.set_value("bank", null); // optional: clear value
-            // frm.set_df_property("term_days", "hidden", 1);
-            frm.set_df_property("term_days", "reqd", 0);
-            frm.set_value("term_days", null); // optional: clear value
-            // frm.set_df_property("bank_ref_no", "hidden", 1);
-            frm.set_df_property("payment_term", "reqd", 0);
-        }else{
-            // frm.set_df_property("bank", "hidden", 0);
-            frm.set_df_property("bank", "reqd", 1);
-            // frm.set_df_property("term_days", "hidden", 0);
-            frm.set_df_property("term_days", "reqd", 1);
-            // frm.set_df_property("bank_ref_no", "hidden", 0);
-            frm.set_df_property("payment_term", "reqd", 1);
-
-        }            
-
-    });
-}
-
 
 frappe.ui.form.on("Shipping Book", {
     onload(frm){
         check_and_lock_fields(frm);
+        apply_payment_term_filter(frm);
     },
 	inv_no(frm) {
         validate_inv_no(frm);
     },
-    refresh(frm) {
-        apply_payment_term_filter(frm);
-        toggle_field(frm);
-    },
-
-    document(frm) {
-        frm.set_value("payment_term", null); // clear invalid value
+    invoice_amount(frm) {
         apply_payment_term_filter(frm);
     },
     payment_term(frm){
-        toggle_field(frm);
+        apply_payment_term_filter(frm);
+
     }
 });

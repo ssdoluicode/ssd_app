@@ -301,6 +301,7 @@ frappe.pages['sales-dashboard'].on_page_load = function (wrapper) {
         if (metric === "g-profit")   color = "#16a34a";
         if (metric === "f-cost") color =  "#f97316";
 
+    
 
         charts[metric] = new frappe.Chart(chart_id, {
 

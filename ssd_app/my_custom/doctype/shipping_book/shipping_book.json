@@ -11,12 +11,12 @@
   "customer",
   "notify",
   "shipping_line",
-  "column_break_inwz",
   "invoice_amount",
-  "document",
+  "column_break_inwz",
   "payment_term",
   "term_days",
   "bank",
+  "document",
   "bank_ref_no",
   "note"
  ],
@@ -93,9 +93,9 @@
   {
    "fieldname": "invoice_amount",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Invoice Amount",
-   "non_negative": 1
+   "non_negative": 1,
+   "reqd": 1
   },
   {
    "fieldname": "note",
@@ -110,7 +110,7 @@
   {
    "fieldname": "document",
    "fieldtype": "Float",
-   "label": "Document",
+   "label": "Document Amount",
    "non_negative": 1,
    "reqd": 1
   }
@@ -118,7 +118,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-14 00:04:58.880182",
+ "modified": "2026-03-17 21:35:59.353297",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Shipping Book",
