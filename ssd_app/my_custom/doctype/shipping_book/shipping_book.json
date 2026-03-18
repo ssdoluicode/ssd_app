@@ -61,7 +61,8 @@
    "fieldname": "payment_term",
    "fieldtype": "Link",
    "label": "Payment Term",
-   "options": "Payment Term"
+   "options": "Payment Term",
+   "reqd": 1
   },
   {
    "fieldname": "term_days",
@@ -111,14 +112,13 @@
    "fieldname": "document",
    "fieldtype": "Float",
    "label": "Document Amount",
-   "non_negative": 1,
-   "reqd": 1
+   "non_negative": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-17 21:35:59.353297",
+ "modified": "2026-03-18 09:33:37.386405",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Shipping Book",
@@ -134,6 +134,19 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Shipping Role",
+   "select": 1,
    "share": 1,
    "write": 1
   }

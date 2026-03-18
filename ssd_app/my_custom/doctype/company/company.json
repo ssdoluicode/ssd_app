@@ -58,7 +58,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-19 01:14:10.581369",
+ "modified": "2026-03-18 09:34:40.216731",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Company",
@@ -74,6 +74,19 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Shipping Role",
+   "select": 1,
    "share": 1,
    "write": 1
   }
