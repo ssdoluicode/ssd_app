@@ -6,7 +6,7 @@ from frappe.model.document import Document
 import pandas as pd
 import numpy as np
 import json
-from ssd_app.utils.banking_line import check_banking_line, banking_lines_position
+from ssd_app.utils.banking_line import check_banking_line, banking_lines_position, get_latest_banking_line_data
 # from frappe.utils import today
 
 
@@ -174,11 +174,12 @@ class LCOpen(Document):
 
 @frappe.whitelist()
 def banking_line():
-    rows = frappe.db.get_all(
-        "Bank Banking Line",
-        filters={"banking_line": [">", 0]},
-        fields=["name", "banking_line"]
-    )
+    # rows = frappe.db.get_all(
+    #     "Bank Banking Line",
+    #     filters={"banking_line": [">", 0]},
+    #     fields=["name", "banking_line"]
+    # )
+    rows=get_latest_banking_line_data()
 
     banking_line_map = {r.name: r.banking_line for r in rows}
     total_line = sum(banking_line_map.values())
@@ -311,7 +312,6 @@ def banking_line_balance():
             for v in balance_banking_line.values()
             if v["balance"] >= 0
         )
-    print(balance_banking_line, total_balance)
     balance_banking=0
     css= """
     <style>

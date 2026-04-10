@@ -319,9 +319,7 @@ def check_banking_line(bank, com, p_term, as_on=today()):
         result["balance_line"] = result["sub_limit"]
     else:
         result["balance_line"] = (result["banking_line"] or 0) - total_used_line
-    print(result)
     return result
-
 
 
 @frappe.whitelist()
@@ -363,7 +361,44 @@ def banking_lines_position(as_on=today()):
 
 
 
+@frappe.whitelist()
+def get_latest_banking_line_data(as_on= None):
+    """
+    Fetch latest Banking Line records (one per banking_line_name)
+    based on a given date filter.
 
+    Logic:
+    1. First filter records where `date <= as_on`
+    2. From filtered records, pick the latest entry using MAX(creation)
+       for each `banking_line_name`
+    """
+    as_on = as_on or today()
+    data = frappe.db.sql("""
+        SELECT 
+            t1.name,
+            t1.date,
+            t1.bank,
+            t1.banking_line_name,
+            t1.banking_line_details,
+            t1.banking_line
+        FROM `tabBank Banking Line` t1
+        INNER JOIN (
+            SELECT 
+                banking_line_name,
+                MAX(creation) AS max_creation
+            FROM `tabBank Banking Line`
+            WHERE date <= %(as_on)s
+            GROUP BY banking_line_name
+        ) t2
+        ON t1.banking_line_name = t2.banking_line_name
+        AND t1.creation = t2.max_creation
+        WHERE 
+            t1.date <= %(as_on)s
+            AND t1.no_limit = 0
+            AND t1.banking_line != 0
+    """, {"as_on": as_on}, as_dict=True)
+
+    return data
 
 
 

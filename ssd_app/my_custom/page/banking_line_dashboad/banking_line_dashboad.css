@@ -1,0 +1,453 @@
+/* =====================================================
+   GLOBAL SALES DASHBOARD THEME
+===================================================== */
+
+:root {
+
+    --primary:#2563eb;
+    --primary-soft:#eff6ff;
+
+    --sales:#2563eb;
+    --profit:#16a34a;
+    --cost:#f97316;
+    --loss:#dc2626;
+
+    --text-main:#0f172a;
+    --text-muted:#64748b;
+
+    --bg-page:#f4f6fa;
+    --bg-card:#ffffff;
+
+    --analysis-bg:#1e293b;
+    --analysis-bg-soft:#243248;
+
+    --border:#e5e7eb;
+    --shadow:0 10px 28px rgba(0,0,0,.06);
+}
+
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+body{
+    background:var(--bg-page);
+    color:var(--text-main);
+    font-family:system-ui,-apple-system,BlinkMacSystemFont;
+}
+
+
+/* =====================================================
+   MAIN ANALYSIS AREA (PARENT CONTAINER)
+===================================================== */
+
+.analysis-area{
+
+    background:var(--bg-card);
+
+    padding:22px;
+
+    border-radius:18px;
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+}
+
+
+/* =====================================================
+   INNER DASHBOARD LAYOUT
+===================================================== */
+
+.dashboard-layout{
+
+    display:flex;
+
+    gap:26px;
+
+    align-items:flex-start;
+
+    width:100%;
+}
+
+
+/* =====================================================
+   LEFT PANEL (MAIN ANALYSIS)
+===================================================== */
+
+.dashboard-left{
+
+    flex:1;
+
+    min-width:0;
+}
+
+
+/* =====================================================
+   RIGHT PANEL (MONTH SELECTOR)
+===================================================== */
+
+.dashboard-right{
+
+    width:260px;
+
+    flex-shrink:0;
+
+    padding-left:22px;
+
+    border-left:1px solid var(--border);
+
+    position:sticky;
+
+    top:80px;
+
+    max-height:calc(100vh - 200px);
+
+    overflow-y:auto;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-state{
+
+    text-align:center;
+
+    padding:80px 20px;
+
+    color:var(--text-muted);
+
+    font-size:14px;
+}
+
+
+/* =====================================================
+   TOP ANALYSIS GRID
+===================================================== */
+
+.pie-inline-wrapper{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:20px;
+
+    margin-bottom:30px;
+}
+
+
+/* =====================================================
+   ANALYSIS CARD
+===================================================== */
+
+.pie-card{
+
+    background:var(--bg-card);
+
+    border-radius:16px;
+
+    padding:14px;
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+}
+
+.pie-card h6{
+
+    text-align:center;
+
+    font-weight:600;
+
+    margin-bottom:10px;
+}
+
+
+/* =====================================================
+   MINI SUMMARY TABLE
+===================================================== */
+
+.mini-table{
+
+    background:linear-gradient(
+        180deg,
+        var(--analysis-bg),
+        var(--analysis-bg-soft)
+    );
+
+    border-radius:14px;
+
+    padding:12px;
+
+    max-height:260px;
+
+    overflow-y:auto;
+}
+
+.mini-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:11px 6px;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.mini-row:last-child{
+    border-bottom:none;
+}
+
+.mini-name{
+    color:#e2e8f0;
+    font-weight:500;
+}
+
+.mini-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+}
+
+.mini-amount{
+
+    color:#cbd5e1;
+
+    font-size:13px;
+}
+
+
+/* =====================================================
+   CONTRIBUTION BADGES
+===================================================== */
+
+.mini-badge{
+
+    padding:4px 10px;
+
+    border-radius:8px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:#fff;
+}
+
+.badge-good{
+    background:#16a34a;
+}
+
+.badge-mid{
+    background:#0284c7;
+}
+
+.badge-low{
+    background:#dc2626;
+}
+
+
+/* =====================================================
+   SIDE BY SIDE CHART LAYOUT
+===================================================== */
+
+.chart-row{
+
+    display:flex;
+
+    gap:20px;
+
+    width:100%;
+
+    margin-top:20px;
+}
+
+.chart-row .bar-card{
+
+    flex:1;
+
+    min-width:0;
+}
+
+
+/* =====================================================
+   BAR CHART CARD
+===================================================== */
+
+.bar-card{
+
+    background:var(--bg-card);
+
+    border-radius:18px;
+
+    padding:20px;
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+}
+
+.bar-card h6{
+
+    font-weight:600;
+
+    margin-bottom:12px;
+}
+
+.bar-card > div{
+
+    width:100%;
+}
+
+
+/* =====================================================
+   MONTH PANEL
+===================================================== */
+
+.cube-title{
+
+    text-align:center;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    margin-bottom:14px;
+}
+
+.cube-card{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:14px;
+    background:#fff;
+    transition:all .25s ease;
+    cursor:pointer;
+}
+
+/* .cube-card:hover{ */
+.cube-card:hover:not(.active-cube){
+    transform:translateY(-4px);
+    border-color:var(--primary);
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+    background:#f9fbff;
+}
+
+.active-cube{
+    border:1px solid var(--primary);
+    background:var(--primary-soft);
+    box-shadow:0 6px 16px rgba(37,99,235,.15);
+    transform:translateY(-2px);
+}
+
+
+/* =====================================================
+   MONTH CONTENT
+===================================================== */
+
+.cube-month{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    text-align:center;
+
+    margin-bottom:10px;
+}
+
+.cube-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    font-size:13px;
+
+    margin-bottom:6px;
+}
+
+.cube-label{
+    color:var(--text-muted);
+}
+
+.cube-value{
+    font-weight:600;
+}
+
+
+/* =====================================================
+   PROFIT INDICATOR
+===================================================== */
+
+.margin-good{
+    color:var(--profit);
+}
+
+.margin-bad{
+    color:var(--loss);
+}
+
+.profit-pct{
+    font-size:11px;
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar{
+    width:6px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
+    border-radius:6px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#94a3b8;
+}
+g{
+    color: red;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width:1200px){
+
+    .pie-inline-wrapper{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .chart-row{
+        flex-direction:column;
+    }
+
+    .dashboard-layout{
+        flex-direction:column;
+    }
+
+    .dashboard-right{
+        width:100%;
+        border-left:none;
+        padding-left:0;
+        margin-top:20px;
+        position:relative;
+        max-height:none;
+    }
+
+}

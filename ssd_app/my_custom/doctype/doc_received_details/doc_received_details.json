@@ -121,8 +121,7 @@
    "default": "0",
    "fieldname": "bank_liability",
    "fieldtype": "Float",
-   "label": "Bank Liability",
-   "read_only": 1
+   "label": "Bank Liability"
   },
   {
    "default": "0",
@@ -232,11 +231,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-23 23:47:07.661843",
+ "modified": "2026-04-09 21:12:18.687582",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Doc Received Details",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
