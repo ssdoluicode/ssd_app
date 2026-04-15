@@ -34,6 +34,7 @@ def get_shipping_book_data(inv_no):
 class CIFSheet(Document):
     def before_save(self):
         self.set_field_value()
+        self.set_sc_no()
 
     def validate(self):
         self.validate_unique_expenses()
@@ -52,6 +53,11 @@ class CIFSheet(Document):
             if row.expenses in seen:
                 frappe.throw(_('Expenses must be unique: {0}').format(row.expenses))
             seen.add(row.expenses)
+    
+    def set_sc_no(self):
+        if self.multiple_sc == 0:
+            for row in self.product_details:
+                row.sc_no = self.sc_no
 
 
 @frappe.whitelist()

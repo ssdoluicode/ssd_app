@@ -19,6 +19,10 @@ def execute(filters=None):
 	# print(x)
 
 	as_on = filters.as_on
+	p_term=filters.p_term
+	if not p_term:
+		frappe.throw("⚠️ Please select at least one P Term to proceed")
+		return
 	conditional_filter = ""
 	if filters.based_on == "Receivable":
 		conditional_filter = "AND (shi.document - IFNULL(rec.total_rec, 0)) > 0"
@@ -40,6 +44,7 @@ def execute(filters=None):
 	columns = [
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
 		{"label": "Inv Date", "fieldname": "bl_date", "fieldtype": "Date", "width": 110},
+		{"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 60},
 		{"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 120},
 		{"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 180},
 		{"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
@@ -61,6 +66,7 @@ def execute(filters=None):
 			IFNULL(nego.nego_name, "") AS nego_name,
 			shi.inv_no,
 			shi.bl_date,
+			com.company_code AS com,
 			cus.code AS customer,
 			noti.code AS notify,
 			bank.bank,
@@ -108,11 +114,13 @@ def execute(filters=None):
 		LEFT JOIN `tabBank` bank ON shi.bank = bank.name
 		LEFT JOIN `tabPayment Term` pt ON shi.payment_term = pt.name
 		LEFT JOIN `tabCIF Sheet` cif ON shi.name = cif.inv_no
+		LEFT JOIN `tabCompany` com ON shi.company = com.name
 		WHERE pt.term_type= "Export" AND pt.full_tt=0 AND pt.direct_to_supplier=0
 			{conditional_filter}
 			AND shi.bl_date <= %(as_on)s
+			AND shi.payment_term IN %(p_term)s
 		ORDER BY shi.inv_no ASC
-	""", {"as_on": as_on}, as_dict=1)
+	""", {"as_on": as_on, "p_term":tuple(p_term)}, as_dict=1)
 
 	return columns, data
 
