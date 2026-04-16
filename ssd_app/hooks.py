@@ -180,8 +180,14 @@ scheduler_events = {
             "ssd_app.my_custom.report.daily_payment.daily_payment.send_daily_sales_report",
             "ssd_app.utils.auto_excel_report.send_daily_banking_email"
         ]
-    }
+    },
+
+    "daily": [
+        "ssd_app.utils.backup.auto_backup"
+    ]
 }
+
+
 
 # Testing
 # -------
