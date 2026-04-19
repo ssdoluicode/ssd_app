@@ -1,3 +1,5 @@
+// Copyright (c) 2025, SSDolui and contributors
+// For license information, please see license.txt
 
 // Utility: Toggle SC No field
 function toggle_po_no_field(frm) {
@@ -23,22 +25,6 @@ function toggle_supplier_field(frm) {
     grid.update_docfield_property('supplier', 'read_only', !hidden);
 }
 
-// Utility: Set PO and Supplier in child table
-function put_po_no_sup_in_child_row(frm) {
-    let updated = false;
-
-    if (!frm.doc.multiple_po) {
-        frm.doc.product_details.forEach(row => row.po_no = frm.doc.po_no);
-        updated = true;
-    }
-
-    if (!frm.doc.multiple_supplier) {
-        frm.doc.product_details.forEach(row => row.supplier = frm.doc.supplier);
-        updated = true;
-    }
-
-    if (updated) frm.refresh_field('product_details');
-}
 
 // Calculate total purchase
 function calculate_purchase(frm) {
@@ -86,6 +72,7 @@ function calculate_cost(frm) {
     frappe.db.get_value("CIF Sheet", frm.doc.inv_no, "sales")
         .then(r => {
             if (!r.message) return;
+
             const sales = flt(r.message.sales);
             const commission = flt(frm.doc.commission);
             const purchase = flt(frm.doc.purchase);
@@ -105,7 +92,6 @@ function calculate_cost(frm) {
             frappe.msgprint("Failed to fetch sales value from CIF Sheet.");
         });
 }
-
 
 
 
@@ -228,59 +214,6 @@ function inv_no_filter(frm) {
     }));
 }
 
-// Child calculations
-function calculate_gross(cdt, cdn) {
-    const row = locals[cdt][cdn];
-    const gross = flt(row.qty) * flt(row.rate) + flt(row.charges_amount);
-    frappe.model.set_value(cdt, cdn, 'gross', flt(gross, 4));
-}
-
-
-function calculate_rate(cdt, cdn) {
-    const row = locals[cdt][cdn];
-
-    if (flt(row.qty) > 0) {
-        const rate = (flt(row.gross) - flt(row.charges_amount)) / flt(row.qty);
-        frappe.model.set_value(cdt, cdn, 'rate', flt(rate, 4));
-    } else {
-        frappe.model.set_value(cdt, cdn, 'rate', 0);
-    }
-}
-
-function calculate_gross_usd(cdt, cdn) {
-    const row = locals[cdt][cdn];
-    if (row.ex_rate) {
-        const usd = flt(row.gross / row.ex_rate) + flt(row.round_off_usd);
-        frappe.model.set_value(cdt, cdn, 'gross_usd', flt(usd, 2));
-    }
-}
-
-function calculate_exp(cdt, cdn) {
-    const row = locals[cdt][cdn];
-    if (row.ex_rate) {
-        frappe.model.set_value(cdt, cdn, 'amount_usd', flt(row.amount / row.ex_rate, 2));
-    }
-}
-
-// Shared triggers
-function update_all(frm, cdt, cdn) {
-    calculate_gross(cdt, cdn);
-    calculate_gross_usd(cdt, cdn);
-    calculate_purchase(frm);
-    calculate_commission(frm);
-    calculate_cost(frm);
-}
-
-function update_exp_and_totals(frm, cdt, cdn) {
-    calculate_exp(cdt, cdn);
-    calculate_cost(frm);
-}
-
-function run_all_calculations(frm) {
-    frm.doc.product_details.forEach(row => update_all(frm, row.doctype, row.name));
-    frm.doc.expenses.forEach(row => update_exp_and_totals(frm, row.doctype, row.name));
-    calculate_purchase(frm);
-}
 
 //  Create Custom Print button
 function custom_print(frm){
@@ -289,90 +222,18 @@ function custom_print(frm){
     });
 }
 
-
-function protect_add_detete_row(frm) {
+function protect_add_detete_row(frm){
     let grid = frm.fields_dict.product_details.grid;
-    grid.cannot_add_rows = true;
-   
-    frm.get_field("product_details").grid.cannot_delete_rows = true;
-    grid.refresh();
+        // 1. Stop adding new rows
+        grid.cannot_add_rows = true;
+        // 2. Stop deleting rows (removes the trash icon/delete button)
+        grid.wrapper.find('.grid-remove-rows').hide(); // Hides the "Delete" button
+        grid.wrapper.find('.grid-delete-row').hide(); // Hides individual trash icons
+        // grid.wrapper.find('.sortable-handle').hide();
+        grid.refresh();
 }
 
-// Hooks
-frappe.ui.form.on("Cost Sheet", {
-    onload(frm){
-        get_cif_data(frm);
-    },
-    setup: inv_no_filter,
-    onload_post_render: run_all_calculations,
-    inv_no: get_cif_data,
-    validate(frm){
-        checkDuplicateExpensesOnValidation(frm);
-        // put_po_no_sup_in_child_row(frm);
-    },
-    refresh(frm) {
-        toggle_po_no_field(frm);
-        toggle_supplier_field(frm);
-        custom_print(frm);
-        protect_add_detete_row(frm); 
-    },
-    multiple_po: toggle_po_no_field,
-    multiple_supplier: toggle_supplier_field,
-    comm_rate(frm) {
-        calculate_commission(frm);
-        calculate_cost(frm);
-    },
-    comm_based_on(frm) {
-        calculate_commission(frm);
-        calculate_cost(frm);
-    },
-    commission(frm) {
-        calculate_cost(frm);
-    },
-    after_save(frm) {
-        showCostDetails(frm.doc.inv_no, frm.doc.custom_title);
-    },
-});
 
-frappe.ui.form.on("Product Cost", {
-    rate: update_all,
-    qty: update_all,
-    gross: function(frm, cdt, cdn) {
-        calculate_rate(cdt, cdn); 
-        update_all(frm, cdt, cdn);
-    },
-
-    charges_amount: update_all,
-    ex_rate: update_all,
-    round_off_usd: update_all,
-    product_details_remove: function(frm) {
-        calculate_purchase(frm);
-        calculate_commission(frm);
-        calculate_cost(frm);
-    }
-});
-
-frappe.ui.form.on("Expenses Cost", {
-    amount: update_exp_and_totals,
-    ex_rate: update_exp_and_totals,
-    expenses: checkDuplicateExpenses
-});
-
-//  protect duplicate expnses entry
-function checkDuplicateExpenses(frm, cdt, cdn) {
-    let row = locals[cdt][cdn];
-    let table = frm.doc.expenses;  
-
-    let is_duplicate = table.some(r =>
-        r.name !== row.name && r.expenses === row.expenses
-    );
-
-    if (is_duplicate) {
-        frappe.msgprint('Expenses must be unique.');
-        frappe.model.set_value(cdt, cdn, 'expenses', null); // clear the field
-    }
-}
- 
 
 // Check duplicates on validation
 function checkDuplicateExpensesOnValidation(frm) {
@@ -382,7 +243,120 @@ function checkDuplicateExpensesOnValidation(frm) {
     let unique_values = new Set(expenses_values);
 
     if (expenses_values.length !== unique_values.size) {
-        frappe.throw(__('Expenses must be unique.'));
+        frappe.throw(__('Expenses must be uniquePPP.'));
     }
 }
 
+
+// --- SAFE CALCULATION ENGINE (Bypasses Event Loops) ---
+
+function update_row_logic(frm, cdt, cdn, source_field) {
+    let row = locals[cdt][cdn];
+    
+    // Using 4 decimal precision for internal math
+    if (source_field === 'gross') {
+        // User touched Gross: Calculate Rate only
+        if (flt(row.qty) > 0) {
+            let rate = (flt(row.gross) - flt(row.charges_amount)) / flt(row.qty);
+            row.rate = flt(rate, 4); 
+        }
+    } else if (['rate', 'qty', 'charges_amount'].includes(source_field)) {
+        // User touched Rate/Qty/Charges: Calculate Gross
+        let gross = (flt(row.qty) * flt(row.rate)) + flt(row.charges_amount);
+        row.gross = flt(gross, 4);
+    }
+
+    // Common USD calculation
+    if (flt(row.ex_rate) > 0) {
+        let usd = (flt(row.gross) / flt(row.ex_rate)) + flt(row.round_off_usd);
+        row.gross_usd = flt(usd, 2); 
+    }
+
+    // Update UI without re-triggering 'on_change' events
+    frm.refresh_field('product_details');
+    calculate_purchase(frm);
+    calculate_commission(frm);
+    calculate_cost(frm);
+}
+
+function run_all_calculations(frm) {
+    (frm.doc.product_details || []).forEach(row => {
+        let gross = (flt(row.qty) * flt(row.rate)) + flt(row.charges_amount);
+        row.gross = flt(gross, 4);
+        if (flt(row.ex_rate) > 0) {
+            row.gross_usd = flt((flt(row.gross) / flt(row.ex_rate)) + flt(row.round_off_usd), 2);
+        }
+    });
+    (frm.doc.expenses || []).forEach(row => {
+        if (flt(row.ex_rate) > 0) row.amount_usd = flt(row.amount / row.ex_rate, 2);
+    });
+    frm.refresh_fields();
+    calculate_purchase(frm);
+    calculate_commission(frm);
+    calculate_cost(frm);
+}
+
+// Hooks
+frappe.ui.form.on("Cost Sheet", {
+    onload(frm){
+        get_cif_data(frm);
+    },
+    // onload: (frm) => get_cif_data(frm),
+    setup: inv_no_filter,
+    inv_no: get_cif_data,
+    refresh(frm) {
+        toggle_po_no_field(frm);
+        toggle_supplier_field(frm);
+        custom_print(frm);
+        protect_add_detete_row(frm);
+        
+        // let grid = frm.fields_dict.product_details.grid;
+        // grid.cannot_add_rows = true;
+        // grid.wrapper.find('.grid-remove-rows, .grid-delete-row').hide();
+        // grid.refresh();
+    },
+    multiple_po: toggle_po_no_field,
+    multiple_supplier: toggle_supplier_field,
+    comm_rate: (frm) => { calculate_commission(frm); calculate_cost(frm); },
+    comm_based_on: (frm) => { calculate_commission(frm); calculate_cost(frm); },
+    commission(frm) {   // ✅ FIXED
+        calculate_cost(frm);
+    },
+    validate(frm){
+        checkDuplicateExpensesOnValidation(frm);
+    },
+    after_save(frm) {
+        showCostDetails(frm.doc.inv_no, frm.doc.custom_title);
+    }
+});
+
+frappe.ui.form.on("Product Cost", {
+    rate: (frm, cdt, cdn) => update_row_logic(frm, cdt, cdn, 'rate'),
+    qty: (frm, cdt, cdn) => update_row_logic(frm, cdt, cdn, 'qty'),
+    charges_amount: (frm, cdt, cdn) => update_row_logic(frm, cdt, cdn, 'charges_amount'),
+    gross: (frm, cdt, cdn) => update_row_logic(frm, cdt, cdn, 'gross'),
+    ex_rate: (frm, cdt, cdn) => update_row_logic(frm, cdt, cdn, 'ex_rate'),
+    round_off_usd: (frm, cdt, cdn) => update_row_logic(frm, cdt, cdn, 'round_off_usd')
+});
+
+frappe.ui.form.on("Expenses Cost", {
+    amount: (frm, cdt, cdn) => {
+        let row = locals[cdt][cdn];
+        if (flt(row.ex_rate) > 0) row.amount_usd = flt(row.amount / row.ex_rate, 2);
+        frm.refresh_field('expenses');
+        calculate_cost(frm);
+    },
+    ex_rate: (frm, cdt, cdn) => {
+        let row = locals[cdt][cdn];
+        if (flt(row.ex_rate) > 0) row.amount_usd = flt(row.amount / row.ex_rate, 2);
+        frm.refresh_field('expenses');
+        calculate_cost(frm);
+    },
+    expenses: (frm, cdt, cdn) => {
+        let row = locals[cdt][cdn];
+        if ((frm.doc.expenses || []).some(r => r.name !== row.name && r.expenses === row.expenses)) {
+            frappe.msgprint('Expenses must be unique.');
+            frappe.model.set_value(cdt, cdn, 'expenses', null);
+        }
+    }
+});

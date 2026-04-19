@@ -7,6 +7,7 @@ import frappe
 def execute(filters=None):
 	customer = filters.get("customer", "")
 	from_date = filters.get('from_date')
+	to_date = filters.get('to_date')
 	
 	data = frappe.db.sql("""
         SELECT
@@ -37,6 +38,7 @@ def execute(filters=None):
                 'Opening Balance' AS details,
                 NULL AS qty,
                 NULL AS rate,
+				NULL AS sc_no,
                 NULL AS curr,
                 NULL AS ex_rate,
                 NULL AS total,
@@ -91,6 +93,7 @@ def execute(filters=None):
                 pcat.product_category AS details,
                 NULL AS qty,
                 NULL AS rate,
+				NULL AS sc_no,
                 NULL AS curr,
                 NULL AS ex_rate,
                 NULL AS total,
@@ -106,7 +109,7 @@ def execute(filters=None):
             LEFT JOIN `tabShipping Book` sb ON sb.name = cif.inv_no
             LEFT JOIN `tabNotify` noti ON noti.name = sb.notify
             LEFT JOIN `tabProduct Category` pcat ON pcat.name = cif.category
-            WHERE cif.inv_date >= %(from_date)s
+            WHERE cif.inv_date BETWEEN %(from_date)s AND %(to_date)s
 
 
             UNION ALL
@@ -126,6 +129,7 @@ def execute(filters=None):
                 ccr.note AS details,
                 NULL AS qty,
                 NULL AS rate,
+				NULL AS sc_no,
                 NULL AS curr,
                 NULL AS ex_rate,
                 NULL AS total,
@@ -138,7 +142,7 @@ def execute(filters=None):
                 '' AS notify,
                 'received' AS note
             FROM `tabCC Received` ccr
-            WHERE ccr.date >= %(from_date)s
+            WHERE ccr.date BETWEEN %(from_date)s AND %(to_date)s
 
 
             UNION ALL
@@ -155,9 +159,10 @@ def execute(filters=None):
                 cif.inv_no AS i_inv_no,
                 NULL AS date,
                 cif.inv_date AS i_date,
-                pro.product AS details,
+                pro.custom_title AS details,
                 pcif.qty,
                 pcif.rate,
+				pcif.sc_no AS sc_no,
                 pcif.currency AS curr,
                 pcif.ex_rate AS ex_rate,
                 pcif.gross_usd AS total,
@@ -173,7 +178,7 @@ def execute(filters=None):
             LEFT JOIN `tabCIF Sheet` cif ON cif.name = pcif.parent
             LEFT JOIN `tabShipping Book` sb ON sb.name = cif.inv_no
             LEFT JOIN `tabProduct` pro ON pro.name = pcif.product
-            WHERE cif.inv_date >= %(from_date)s
+            WHERE cif.inv_date BETWEEN %(from_date)s AND %(to_date)s
 
 
             UNION ALL
@@ -193,6 +198,7 @@ def execute(filters=None):
                 NULL AS details,
                 SUM(cifp.qty) AS qty,
                 NULL AS rate,
+				NULL AS sc_no,
                 NULL AS curr,
                 NULL AS ex_rate,
                 SUM(cifp.gross_usd) AS total,
@@ -207,7 +213,7 @@ def execute(filters=None):
             FROM `tabProduct CIF` cifp
             LEFT JOIN `tabCIF Sheet` cif ON cif.name = cifp.parent
             LEFT JOIN `tabShipping Book` sb ON sb.name = cif.inv_no
-            WHERE cif.inv_date >= %(from_date)s
+            WHERE cif.inv_date BETWEEN %(from_date)s AND %(to_date)s
             GROUP BY cifp.parent
 
         ) combined
@@ -218,6 +224,7 @@ def execute(filters=None):
             combined.idex
     """, {
         "from_date": from_date,
+		"to_date": to_date,
         "customer": customer
     }, as_dict=True)
 
@@ -230,6 +237,7 @@ def execute(filters=None):
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
 		{"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
 		{"label": "Details", "fieldname": "details", "fieldtype": "Data", "width": 280},
+		{"label": "SC No", "fieldname": "sc_no", "fieldtype": "Data", "width": 80},
 		{"label": "Qty", "fieldname": "qty", "fieldtype": "Float", "width": 110},
 		{"label": "Rate", "fieldname": "rate","fieldtype": "Currency", "options": "curr", "width": 90},
 		{"label": "Ex Rate", "fieldname": "ex_rate", "fieldtype": "Float", "width": 80},

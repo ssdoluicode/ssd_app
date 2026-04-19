@@ -21,6 +21,13 @@ frappe.query_reports["CC Statement"] = {
             fieldtype: "Date",
             reqd: 1
         },
+        {
+            fieldname: "to_date",
+            label: __("To Date"),
+            fieldtype: "Date",
+            default: frappe.datetime.get_today(),
+            reqd: 1
+        },
 		{
             fieldname: "customer",
             label: __("Customer"),
@@ -45,6 +52,7 @@ frappe.query_reports["CC Statement"] = {
         if (column.fieldname === "inv_no" && data && data.name) {
             return `<a href="#" onclick="showCIFDetails('${data.name}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
         }
+     
          return value;
     }
 };

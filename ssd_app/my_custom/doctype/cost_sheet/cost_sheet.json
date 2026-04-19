@@ -368,11 +368,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-12 00:38:35.259939",
+ "modified": "2026-04-18 04:13:39.179931",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Sheet",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -394,5 +394,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "custom_title"
+ "title_field": "custom_title",
+ "track_changes": 1
 }
