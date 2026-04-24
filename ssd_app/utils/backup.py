@@ -2,41 +2,32 @@ import frappe
 import os
 import shutil
 from datetime import datetime, timedelta
+from frappe.utils.backups import new_backup
 
 
 def auto_backup():
-    """Run daily backup with custom filename + cleanup"""
+    """Only SQL backup + cleanup"""
 
     site = frappe.local.site
 
-    # Run backup (DB + files)
-    backup = frappe.utils.backups.new_backup(ignore_files=False)
+    # Only DB backup
+    backup = new_backup(ignore_files=True)
 
-    # Date format
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    # Date format (with time to avoid overwrite)
+    date_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     # Backup directory
     backup_dir = frappe.get_site_path("private", "backups")
 
-    # ------------------ DATABASE ------------------
+    # ------------------ DATABASE ONLY ------------------
     if backup.backup_path_db and os.path.exists(backup.backup_path_db):
-        new_db = os.path.join(backup_dir, f"backup_{date_str}.sql.gz")
+        new_db = os.path.join(backup_dir, f"db_{date_str}.sql.gz")
         shutil.move(backup.backup_path_db, new_db)
 
-    # ------------------ PUBLIC FILES ------------------
-    if backup.backup_path_files and os.path.exists(backup.backup_path_files):
-        new_files = os.path.join(backup_dir, f"files_{date_str}.tar")
-        shutil.move(backup.backup_path_files, new_files)
+    # # Cleanup old backups (30 days)
+    # delete_old_backups(backup_dir, days=30)
 
-    # ------------------ PRIVATE FILES ------------------
-    if backup.backup_path_private_files and os.path.exists(backup.backup_path_private_files):
-        new_private = os.path.join(backup_dir, f"private_files_{date_str}.tar")
-        shutil.move(backup.backup_path_private_files, new_private)
-
-    # ------------------ CLEAN OLD BACKUPS ------------------
-    delete_old_backups(backup_dir, days=30)
-
-    frappe.logger().info(f"✅ Auto Backup Completed for {site} on {date_str}")
+    frappe.logger().info(f"✅ SQL Backup Completed for {site} on {date_str}")
 
 
 def delete_old_backups(folder, days=30):

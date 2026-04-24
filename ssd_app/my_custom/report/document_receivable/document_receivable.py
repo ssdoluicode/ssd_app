@@ -4,15 +4,13 @@
 import frappe
 from frappe.utils import fmt_money
 from datetime import date, timedelta
-# from ssd_app.utils.auto_excel_report import generate_daily_banking
-
 
 
 def get_today_str():
     return date.today().strftime("%Y-%m-%d")
 
 def execute(filters=None):
-	
+
 
 	# print(line)
 	# x= check_banking_line("bank-002", "com-001", "p_term-002")
@@ -21,8 +19,14 @@ def execute(filters=None):
 	as_on = filters.as_on
 	p_term=filters.p_term
 	if not p_term:
-		frappe.throw("⚠️ Please select at least one P Term to proceed")
-		return
+		p_term = frappe.get_all(
+			"Payment Term",
+			filters={
+				"term_type": "Export",
+				"use_banking_line": 1
+			},
+			pluck="name"
+		)
 	conditional_filter = ""
 	if filters.based_on == "Receivable":
 		conditional_filter = "AND (shi.document - IFNULL(rec.total_rec, 0)) > 0"

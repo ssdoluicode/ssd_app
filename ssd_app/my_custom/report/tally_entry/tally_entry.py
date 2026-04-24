@@ -21,6 +21,9 @@ def execute(filters=None):
 
     elif entry_for == "CC Received":
         return execute_cc_received(filters)
+    
+    elif entry_for == "Sales":
+        return execute_sales(filters)
 
     # elif entry_for == "U LC Payment":
     #     return execute_ulc_payment(filters)
@@ -58,6 +61,49 @@ def build_conditions(filters, date_field, company_field):
         sql_filters["company"] = filters["company"]
 
     return conditions, sql_filters
+
+
+# ---------------------------------------
+# Sales
+# ---------------------------------------
+def execute_sales(filters):
+    conditions, sql_filters = build_conditions(filters, "cif.inv_date", "cif.accounting_company")
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+    query = f"""
+        SELECT shi.inv_no, cif.inv_date, cus.customer, noti.notify, pcat.product_category, 
+        ROUND(CAST(cif.sales * -1 AS FLOAT), 2) AS sales, 
+        ROUND(CAST(cif.document AS FLOAT), 2) AS document, 
+        ROUND(CAST(cif.cc AS FLOAT), 2) AS cc,
+        pt.term_name, pt.direct_to_supplier, noti.country, cif.accounting_company FROM `tabCIF Sheet` cif
+        LEFT JOIN `tabShipping Book` shi ON shi.name= cif.inv_no
+        LEFT JOIN `tabCustomer` cus ON cus.name= shi.customer
+        LEFT JOIN `tabNotify` noti ON shi.notify=noti.name
+        LEFT JOIN `tabPayment Term` pt ON pt.name= shi.payment_term
+        LEFT JOIN `tabProduct Category` pcat ON pcat.name = cif.category
+        {where_clause}
+        ORDER BY cif.inv_date ASC
+    """
+    data= frappe.db.sql(query, sql_filters, as_dict=1)
+
+    columns= [
+        {"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 90},
+        {"label": "Date", "fieldname": "inv_date", "fieldtype": "Date", "width": 110},
+        # {"label": "Com", "fieldname": "com", "fieldtype": "Data", "width": 110},
+        {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 200},
+        {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 260},
+        {"label": "Category", "fieldname": "product_category", "fieldtype": "Data", "width": 190},
+        {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 110},
+        {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 110},
+        {"label": "CC", "fieldname": "cc", "fieldtype": "Float", "width": 110},
+        {"label": "P Term", "fieldname": "term_name", "fieldtype": "Data", "width": 100},
+        {"label": "Dir To Sup", "fieldname": "direct_to_supplier", "fieldtype": "Int", "width": 100},
+        {"label": "Country", "fieldname": "country", "fieldtype": "Data", "width": 120},
+    ]
+
+    return  columns, data
+
+
 
 
 # ---------------------------------------

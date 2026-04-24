@@ -186,6 +186,9 @@ frappe.ui.form.on("Doc Received Details", {
     interest(frm) {
         calculate_bank_amount(frm);
     },
+    bank_liability(frm) {
+        calculate_bank_amount(frm);
+    },
 
     // Direct bank amount dependencies
     received_amount: calculate_bank_amount,

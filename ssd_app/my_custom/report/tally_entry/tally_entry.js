@@ -46,7 +46,8 @@ frappe.query_reports["Tally Entry"] = {
 				"U LC Payment",
 				"Import Loan",
 				"Import Loan Payment",
-				"CC Received"
+				"CC Received",
+				"Sales"
 			],
 			default: ""
 		}

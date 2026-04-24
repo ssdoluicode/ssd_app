@@ -80,6 +80,7 @@
   {
    "fieldname": "bl_date",
    "fieldtype": "Date",
+   "in_filter": 1,
    "in_list_view": 1,
    "label": "BL Date",
    "reqd": 1
@@ -118,7 +119,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-18 09:33:37.386405",
+ "modified": "2026-04-24 18:44:19.367474",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Shipping Book",
