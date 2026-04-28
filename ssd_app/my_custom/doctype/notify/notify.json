@@ -58,9 +58,7 @@
   {
    "fieldname": "relationship_from",
    "fieldtype": "Int",
-   "label": "Relationship From ",
-   "non_negative": 1,
-   "reqd": 1
+   "label": "Relationship From "
   },
   {
    "fieldname": "country",
@@ -73,7 +71,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-18 09:36:02.891983",
+ "modified": "2026-04-28 16:25:41.016940",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Notify",

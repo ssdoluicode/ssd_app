@@ -78,7 +78,7 @@ function check_and_lock_fields(frm) {
 
 frappe.ui.form.on("Shipping Book", {
     onload(frm){
-        check_and_lock_fields(frm);
+        // check_and_lock_fields(frm);
         apply_payment_term_filter(frm);
     },
 	inv_no(frm) {
