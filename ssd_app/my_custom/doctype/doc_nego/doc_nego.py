@@ -9,11 +9,10 @@ from frappe.utils import getdate, add_days
 import json
 import pandas as pd
 import numpy as np
-from frappe.utils import today
-
-
+# from frappe.utils import today
 
 from ssd_app.utils.banking_line import check_banking_line, banking_line_data
+from ssd_app.my_custom.doctype.shipping_book.shipping_book import set_doc_status_value, get_doc_status_value
 
 def calculate_term_days(doc):
     if doc.bank_due_date and doc.nego_date:
@@ -49,21 +48,24 @@ def set_calculated_fields(doc):
 def final_validation(doc):
     if not doc.inv_no:
         return
-
-    # Fetch document value
-    shipping_data = frappe.db.get_value("Shipping Book", doc.inv_no, ["document", "bl_date", "bank"], as_dict=True)
-    document = shipping_data.document or 0
+    
+    doc_coll, doc_nego, doc_refund, doc_received, doc_receivable = get_doc_status_value(shi_id=doc.inv_no, exclude_name=doc.name, as_on=doc.nego_date)
+    shipping_data = frappe.db.get_value("Shipping Book", doc.inv_no, ["document", "bl_date", "bank", "doc_collection", "doc_nego", "doc_received"], as_dict=True)
+    document = shipping_data.get("document") or 0
     nego_date = getdate(doc.nego_date) if doc.nego_date else None
     bl_date = getdate(shipping_data.bl_date) if shipping_data.bl_date else None
 
-
+    can_nego = round(doc_coll, 2)
+    total_received= round(doc_received,2)
+    # pending_nego= round(doc_received,2)
+    
 
     # Total received from other Doc Received entries (excluding current one)
-    total_received = frappe.db.sql("""
-        SELECT IFNULL(SUM(received), 0)
-        FROM `tabDoc Received`
-        WHERE inv_no = %s 
-    """, (doc.inv_no))[0][0] or 0
+    # total_received = frappe.db.sql("""
+    #     SELECT IFNULL(SUM(received), 0)
+    #     FROM `tabDoc Received`
+    #     WHERE inv_no = %s 
+    # """, (doc.inv_no))[0][0] or 0
 
     # Total nego from other Doc Nego entries (excluding current one)
     total_nego = frappe.db.sql("""
@@ -73,10 +75,12 @@ def final_validation(doc):
     """, (doc.inv_no, doc.name))[0][0] or 0
 
     # Can Nego calculation
-    can_nego = round((document - total_nego) + min(total_nego - total_received, 0), 2)
+    # can_nego = round((document - total_nego) + min(total_nego - total_received, 0), 2)
+   
     nego = doc.nego_amount or 0
 
-    if doc.is_new() and nego > can_nego:
+    # if doc.is_new() and nego > can_nego:
+    if doc.is_new() and nego > doc_coll:
         frappe.throw(_(f"""
             ❌ <b>Nego amount exceeds the Document Amount.</b><br>
             <b>Document Amount:</b> {document:,.2f}<br>
@@ -95,13 +99,6 @@ def final_validation(doc):
             <b>This Entry:</b> {doc.nego_amount:,.2f}
         """))
 
-
-
-    if not bl_date:
-        frappe.throw(_("🛑 Please set the <b>Invoice Date</b> before saving."))
-
-    if not nego_date:
-        frappe.throw(_("🛑 Please set the <b>Nego Date</b> before saving."))
 
     if nego_date < bl_date:
         frappe.throw(
@@ -167,17 +164,22 @@ from datetime import date
 class DocNego(Document): 
 
     def validate(self):
-        final_validation(self)
         bank_line_validtation(self)
+        final_validation(self)
         
     def before_save(self):
         calculate_term_days(self)
         calculate_due_date(self)
         set_calculated_fields(self)
         set_shipping_book_bank(self)
+        set_doc_status_value(shi_id=self.inv_no,
+                         this_data= {"type": "nego", "date": getdate(self.nego_date), "amount": self.nego_amount}, 
+                         exclude_name=self.name )
+
     
     def on_trash(self):
         protect_delete(self)
+        set_doc_status_value(shi_id=self.inv_no, exclude_name=self.name)
 
 
 @frappe.whitelist()

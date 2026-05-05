@@ -61,7 +61,10 @@
                 <td>{{ p.sc_no }}</td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.qty) }}</td>
                 <td>{{ p.unit }}</td>
-                <td style="text-align: right;">{{"{:,.2f}".format(p.rate)}}</td>
+                {% set is_four = (p.rate * 10000) % 100 != 0 %}
+                <td style="text-align: right;">
+                    {{ "{:,.4f}".format(p.rate) if is_four else "{:,.2f}".format(p.rate) }}
+                </td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.charges_amount) }}</td>
                 <td style="text-align: right;">{{"{:,.2f}".format( p.gross) }}</td>
                 <td>{{ p.currency }}</td>

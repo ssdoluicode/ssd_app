@@ -61,14 +61,14 @@ def final_validation(doc):
 		# Total Available = Banking Line + Already Paid
 		total_available = bl + actual_lc_paid
 
-		if doc.amount > total_available:
+		if float(doc.amount) > total_available:
 			frappe.throw(f"""
 				❌ <b>Nego amount exceeds Bank Line Limit.</b><br>
 				<b>Banking Line Balance:</b> {total_available:,.2f}<br>
 				<b>Try to Entry:</b> {doc.amount:,.2f}<br>
 			""")
 
-	elif doc.amount > bl:
+	elif float(doc.amount) > bl:
 		frappe.throw(f"""
 			❌ <b>LC amount exceeds Bank Line Limit.</b><br>
 			<b>Banking Line Balance:</b> {bl:,.2f}<br>

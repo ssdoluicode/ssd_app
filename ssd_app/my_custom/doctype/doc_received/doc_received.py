@@ -3,7 +3,8 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 from frappe.utils import flt # Added flt for safer math
-
+from frappe.utils import getdate
+from ssd_app.my_custom.doctype.shipping_book.shipping_book import set_doc_status_value
 def set_calculated_fields(doc):
     # Fetching inv_no from Shipping Book
     invoice = frappe.db.get_value("Shipping Book", doc.inv_no, "inv_no")
@@ -55,7 +56,6 @@ def set_shipping_book_bank(doc): #set bank if missing in shipping book
         frappe.db.set_value("Shipping Book",doc.inv_no,"bank",doc.bank_link)
    
 
-
 class DocReceived(Document):
     def validate(self):
         final_validation(self)
@@ -63,6 +63,12 @@ class DocReceived(Document):
     def before_save(self):
         set_calculated_fields(self)
         set_shipping_book_bank(self)
+        set_doc_status_value(shi_id=self.shipping_id,
+                         this_data= {"type": "received", "date": getdate(self.received_date), "amount": self.received}, 
+                         exclude_name=self.name )
+        
+    def on_trash(self):
+        set_doc_status_value(shi_id=self.shipping_id, exclude_name=self.name )
 
 @frappe.whitelist()
 def get_shi_data(inv_no):

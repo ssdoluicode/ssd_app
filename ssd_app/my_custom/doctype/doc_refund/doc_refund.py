@@ -3,9 +3,12 @@
 
 import frappe
 from frappe.model.document import Document
+from ssd_app.my_custom.doctype.shipping_book.shipping_book import set_doc_status_value, get_doc_status_value
+from frappe.utils import getdate
+
 
 # ----------------------------
-# 🔁 Utility: Aggregate sums by inv_no
+# Utility: Aggregate sums by inv_no
 # ----------------------------
 def get_total(table, field, inv_no, exclude_name=None):
     condition = "AND name != %(exclude_name)s" if exclude_name else ""
@@ -20,14 +23,19 @@ def get_total(table, field, inv_no, exclude_name=None):
     """, params)[0][0]
 
 # ----------------------------
-# 🔎 Validate refund entry
+# Validate refund entry
 # ----------------------------
 def final_validation(doc):
-    total_received = get_total("Doc Received", "received", doc.inv_no)
-    total_nego     = get_total("Doc Nego", "nego_amount", doc.inv_no)
-    total_ref      = get_total("Doc Refund", "refund_amount", doc.inv_no, exclude_name=doc.name)
+    doc_coll, doc_nego, doc_refund, doc_received, doc_receivable = get_doc_status_value(shi_id=doc.inv_no, exclude_name=doc.name, as_on=doc.refund_date)
+    # total_received = get_total("Doc Received", "received", doc.inv_no)
+    total_nego = get_total("Doc Nego", "nego_amount", doc.inv_no)
+    total_ref = get_total("Doc Refund", "refund_amount", doc.inv_no, exclude_name=doc.name)
 
-    pending_nego = max(total_nego - total_received - total_ref, 0)
+    total_received = round(doc_received, 2)
+    pending_nego = round(doc_nego, 2)
+    pendong_ref = round(doc_refund,2)
+ 
+    # pending_nego = max(total_nego - total_received - total_ref, 0)
 
     if doc.is_new() and pending_nego < doc.refund_amount:
         frappe.throw(f"""
@@ -71,7 +79,7 @@ def set_calculated_fields(doc):
     doc.shipping_id = doc.inv_no
 
 # ----------------------------
-# 📄 DocType Class
+# DocType Class
 # ----------------------------
 class DocRefund(Document):
     def validate(self):
@@ -80,12 +88,17 @@ class DocRefund(Document):
     def before_save(self):
         put_value_from_shi(self)
         set_calculated_fields(self)
+        set_doc_status_value(shi_id=self.inv_no,
+                         this_data= {"type": "refund", "date": getdate(self.refund_date), "amount": self.refund_amount}, 
+                         exclude_name=self.name )
 
     def on_trash(self):
         protect_delete(self)
+        set_doc_status_value(shi_id=self.inv_no, exclude_name=self.name )
+
 
 # ----------------------------
-# 🔍 For Link Field Filtering
+# For Link Field Filtering
 # ----------------------------
 @frappe.whitelist()
 def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
@@ -114,7 +127,7 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
     })
 
 # ----------------------------
-# 🧠 Get shi data with computed nego amount
+# Get shi data with computed nego amount
 # ----------------------------
 @frappe.whitelist()
 def get_shi_data(inv_no):

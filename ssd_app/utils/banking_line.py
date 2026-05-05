@@ -266,6 +266,7 @@ def check_banking_line(bank, com, p_term, as_on=today()):
         {}
     )
 
+
     # ---- Safety check ----
     if not data:
         return {

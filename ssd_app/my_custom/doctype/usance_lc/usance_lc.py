@@ -79,13 +79,13 @@ def bank_line_validtation(doc):
                 WHERE lc_o.group_id = %s
             """, group_id)[0][0] or 0.0
         else:
-            term_name_2= frappe.db.get_value("Payment Term", {"term_name":"Import Loan"}, "name")
-            bl_data_2=check_banking_line_n(doc.bank, doc.company, term_name_2)
             bl= bl_data_2["balance_line"]
 
 
     else:
-        bl = check_banking_line(company_code, bank_details, "lc")
+        term_name= frappe.db.get_value("Payment Term", {"term_name":"LC Open"}, "name")
+        bl_data = check_banking_line( doc.bank, doc.company, term_name)
+        bl= bl_data["balance_line"]
     
     if bl == 0:
         frappe.throw(f"❌ In {company_code} {bank_details} Bank — No banking line found")
@@ -122,12 +122,14 @@ class UsanceLC(Document):
         if self.company and self.bank:
             self.group_id = f"{self.company} : {self.bank}"
 
+
+
 @frappe.whitelist()
 def get_supplier(invoice_no):
     # Fetch CIF Sheet record safely
     data = frappe.get_value(
         "CIF Sheet",
-        {"inv_no": invoice_no},
+        {"invoice_no": invoice_no},
         ["name", "inv_date"],
         as_dict=True
     )

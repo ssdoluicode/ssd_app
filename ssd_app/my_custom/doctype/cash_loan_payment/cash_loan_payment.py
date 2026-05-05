@@ -20,7 +20,7 @@ def final_validation(doc):
 	imp_l_p_amount = (cash_l_p_data[0]["total_cash_l_p"] or 0) if cash_l_p_data else 0
 
 	# Check if LC balance is exceeded
-	if doc.amount > cash_l_amount - imp_l_p_amount:
+	if float(doc.amount) > (cash_l_amount - imp_l_p_amount):
 		msg = f"""<b>❌ Cash Loan Payment Exceeds Cash Loan Amount.</b><br>
 		<b>Cash Loan:</b> {cash_l_amount:,.2f}<br>
 		<b>Cash Loan Paid:</b> {imp_l_p_amount:,.2f}<br>

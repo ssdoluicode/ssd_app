@@ -58,9 +58,16 @@
                 <td>{{ p.sc_no }}</td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.qty) }}</td>
                 <td>{{ p.unit }}</td>
-                <td style="text-align: right;">{{ p.s_curr_s }} {{"{:,.2f}".format(p.s_rate)}}</td>
+                {% set s_is_four = (p.s_rate * 10000) % 100 != 0 %}
+                <td style="text-align: right;">
+                    {{ "{:,.4f}".format(p.s_rate) if s_is_four else "{:,.2f}".format(p.s_rate) }}
+                </td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.s_ex_rate) }}</td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.g_sales_usd) }}</td>
+                {% set b_is_four = (p.b_rate * 10000) % 100 != 0 %}
+                <td style="text-align: right;">
+                    {{ "{:,.4f}".format(p.b_rate) if b_is_four else "{:,.2f}".format(p.b_rate) }}
+                </td>
                 <td style="text-align: right;">{{ p.b_curr_s }} {{"{:,.2f}".format(p.b_rate)}}</td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.b_ex_rate) }}</td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.pur_usd) }}</td>

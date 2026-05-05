@@ -1,6 +1,10 @@
+// Copyright (c) 2026, SSDolui and contributors
+// For license information, please see license.txt
+
+frappe.query_reports["Doc Receivable Historical"] = {
 
 
-frappe.query_reports["Document Receivable"] = {
+// frappe.query_reports["Document Receivable"] = {
     formatter: function (value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
         if (!data) return value;
@@ -8,13 +12,13 @@ frappe.query_reports["Document Receivable"] = {
         const { fieldname } = column;
 
         // Handle Bank Due Date
-        if (fieldname === "refund_date" && data.refund_date) {
+        if (fieldname === "bank_due_date" && data.bank_due_date) {
             let styles = ["font-weight: bold"];
             let attributes = "";
 
             if (!data.due_date_confirm) {
                 styles.push("text-decoration: underline double red", "cursor: pointer");
-                attributes = `onclick="changeBankDueDate('${data.nego_name}', '${data.inv_no}', '${data.refund_date}'); return false;"`;
+                attributes = `onclick="changeBankDueDate('${data.nego_name}', '${data.inv_no}', '${data.bank_due_date}'); return false;"`;
             }
 
             if (data.days_to_due < 5) {
@@ -42,20 +46,20 @@ frappe.query_reports["Document Receivable"] = {
     },
 
     onload: function (report) {
-        // // Auto-select Export Payment Terms
-        // frappe.call({
-        //     method: "frappe.client.get_list",
-        //     args: {
-        //         doctype: "Payment Term",
-        //         filters: { term_type: "Export", use_banking_line: 1 },
-        //         fields: ["name"]
-        //     },
-        //     callback: (r) => {
-        //         if (r.message) {
-        //             report.set_filter_value("p_term", r.message.map(d => d.name));
-        //         }
-        //     }
-        // });
+        // Auto-select Export Payment Terms
+        frappe.call({
+            method: "frappe.client.get_list",
+            args: {
+                doctype: "Payment Term",
+                filters: { term_type: "Export", use_banking_line: 1 },
+                fields: ["name"]
+            },
+            callback: (r) => {
+                if (r.message) {
+                    report.set_filter_value("p_term", r.message.map(d => d.name));
+                }
+            }
+        });
 
         // Add Custom Buttons
         report.page.add_inner_button(__("Import Banking"), () => frappe.set_route("query-report", "Import Banking"));
@@ -80,6 +84,13 @@ frappe.query_reports["Document Receivable"] = {
             reqd: 1
         },
         {
+            fieldname: "as_on",
+            label: __("As On"),
+            fieldtype: "Date",
+            default: frappe.datetime.get_today(),
+            reqd: 1
+        },
+        {
             fieldname: "p_term",
             label: __("P Term"),
             fieldtype: "MultiSelectList",
@@ -88,16 +99,7 @@ frappe.query_reports["Document Receivable"] = {
                 term_type: "Export",
                 use_banking_line: 1
             })
-        },
-        {
-            fieldname: "bank",
-            label: __("Bank"),
-            fieldtype: "MultiSelectList",
-            options: "Bank",
-            get_data: (txt) => frappe.db.get_link_options("Bank", txt, {
-                active: 1
-            })
-        } 
+        }
     ]
 };
 

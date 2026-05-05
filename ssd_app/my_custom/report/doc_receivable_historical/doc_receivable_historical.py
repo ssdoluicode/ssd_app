@@ -11,6 +11,12 @@ def get_today_str():
 
 def execute(filters=None):
 
+
+	# print(line)
+	# x= check_banking_line("bank-002", "com-001", "p_term-002")
+	# print(x)
+
+	as_on = filters.as_on
 	p_term=filters.p_term
 	if not p_term:
 		p_term = frappe.get_all(
@@ -21,26 +27,23 @@ def execute(filters=None):
 			},
 			pluck="name"
 		)
-	
-	bank=filters.bank
-	if not bank:
-		bank = frappe.get_all(
-			"Bank",
-			filters={
-				"active": 1
-			},
-			pluck="name"
-		)
 	conditional_filter = ""
 	if filters.based_on == "Receivable":
-		conditional_filter = "AND shi.doc_receivable > 0"
+		conditional_filter = "AND (shi.document - IFNULL(rec.total_rec, 0)) > 0"
 	elif filters.based_on == "Coll":
-		conditional_filter = """AND shi.doc_collection > 0"""
+		conditional_filter = """AND IFNULL( ROUND(
+			(shi.document - IFNULL(nego.total_nego, 0))
+			+ LEAST(IFNULL(nego.total_nego, 0) - IFNULL(rec.total_rec, 0), 0), 2), 0) > 0"""
 	elif filters.based_on == "Nego":
-		conditional_filter ="""AND shi.doc_nego >0"""
+		# conditional_filter = """AND IFNULL( ROUND(
+		# 	GREATEST((IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref, 0))
+		# 	+ LEAST(IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0), 0), 0), 2), 0) > 0"""
+		conditional_filter ="""AND ROUND(GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0),2) >0"""
 	elif filters.based_on == "Refund":
 		# conditional_filter = "AND GREATEST(IFNULL(ref.total_ref, 0) - IFNULL(rec.total_rec, 0), 0) > 0"
-		conditional_filter="""AND shi.doc_refund >0"""
+		conditional_filter="""AND IFNULL(ROUND(
+				GREATEST(IFNULL(ref.total_ref, 0)
+				+ LEAST((IFNULL(nego.total_nego, 0)-IFNULL(ref.total_ref, 0)) - IFNULL(rec.total_rec, 0), 0), 0), 2), 0) >0"""
 
 	columns = [
 		{"label": "Inv No", "fieldname": "inv_no", "fieldtype": "Data", "width": 85},
@@ -54,34 +57,74 @@ def execute(filters=None):
 		{"label": "Received", "fieldname": "total_rec", "fieldtype": "Float", "width": 115},
 		{"label": "Receivable", "fieldname": "receivable", "fieldtype": "Float", "width": 115},
 		{"label": "Due Date", "fieldname": "due_date", "fieldtype": "Date", "width": 110},
-		{"label": "Refund Date", "fieldname": "refund_date", "fieldtype": "Date", "width": 110},
+		{"label": "Refund Date", "fieldname": "bank_due_date", "fieldtype": "Date", "width": 110},
 		{"label": "Coll", "fieldname": "coll", "fieldtype": "Float", "width": 110},
 		{"label": "Nego", "fieldname": "nego", "fieldtype": "Float", "width": 110},
-		{"label": "Refund", "fieldname": "refund", "fieldtype": "Float", "width": 110},
+		{"label": "Refund", "fieldname": "ref", "fieldtype": "Float", "width": 110},
 	]
 
 	data = frappe.db.sql(f"""
-		SELECT shi.inv_no, cif.name AS cif_id,
-			shi.name, shi.bl_date, com.company_code AS com, cus.code AS customer, noti.code AS notify, bank.bank,  
-					shi.document, shi.doc_received AS total_rec, shi.doc_receivable AS receivable, 
-					IF(pt.term_name IN ('LC', 'DA'), CONCAT(pt.term_name, '- ', shi.term_days),pt.term_name) AS p_term, cif.due_date, 
-					IF(shi.doc_nego=0, "", nego.refund_date) AS refund_date,
-					ROUND(shi.document, 2) AS document, shi.doc_collection AS coll, shi.doc_nego AS nego, shi.doc_refund AS refund 
-					FROM `tabShipping Book` shi 
-					LEFT JOIN `tabPayment Term` pt ON shi.payment_term= pt.name
-					LEFT JOIN `tabNotify` noti ON noti.name= shi.notify
-					LEFT JOIN `tabCustomer` cus ON cus.name= shi.customer
-					LEFT JOIN `tabBank` bank ON bank.name= shi.bank
-					LEFT JOIN `tabCompany` com ON com.name= shi.company
-					LEFT JOIN `tabCIF Sheet` cif ON cif.inv_no= shi.name
-					LEFT JOIN (
-					  		SELECT inv_no, MIN(bank_due_date) AS refund_date FROM `tabDoc Nego` GROUP BY inv_no
-					  		) nego ON nego.inv_no= shi.name
-					WHERE shi.document > 0 AND pt.direct_to_supplier = 0 AND pt.full_tt=0 
-					{conditional_filter}
-					AND shi.payment_term IN %(p_term)s
-					AND shi.bank IN %(bank)s
-					""", {"p_term":tuple(p_term), "bank":tuple(bank)}, as_dict=1)
+		SELECT
+			cif.name AS cif_id,
+			shi.name,
+			IFNULL(nego.nego_name, "") AS nego_name,
+			shi.inv_no,
+			shi.bl_date,
+			com.company_code AS com,
+			cus.code AS customer,
+			noti.code AS notify,
+			bank.bank,
+			IF(pt.term_name IN ('LC', 'DA'),
+				CONCAT(pt.term_name, '- ', shi.term_days),
+				pt.term_name) AS p_term,
+			ROUND(shi.document, 2) AS document,
+			DATE_ADD(
+				shi.bl_date,
+				INTERVAL IFNULL(shi.term_days, 0) DAY
+			) AS due_date,
+			IFNULL(nego.total_nego, 0) AS total_nego,
+			CASE
+				WHEN GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0) > 0
+				THEN nego.bank_due_date
+				ELSE NULL
+			END AS bank_due_date,
+			CASE WHEN nego.bank_due_date IS NOT NULL THEN DATEDIFF(nego.bank_due_date, CURDATE()) END AS days_to_due,
+			nego.due_date_confirm,
+			IFNULL(ref.total_ref, 0) AS total_ref,
+			IFNULL(rec.total_rec, 0) AS total_rec,
+			ROUND(shi.document - IFNULL(rec.total_rec, 0), 2) AS receivable,
+			IFNULL(ROUND(
+				(shi.document - IFNULL(nego.total_nego, 0))
+				+ LEAST(IFNULL(nego.total_nego, 0) - IFNULL(rec.total_rec, 0), 0), 2), 0) AS coll,
+			IFNULL(ROUND(
+				GREATEST(IFNULL(ref.total_ref, 0)
+				+ LEAST((IFNULL(nego.total_nego, 0)-IFNULL(ref.total_ref, 0)) - IFNULL(rec.total_rec, 0), 0), 0), 2), 0) AS ref,
+			GREATEST(IFNULL(nego.total_nego, 0) - IFNULL(ref.total_ref,0) - IFNULL(rec.total_rec, 0), 0) AS nego
+		FROM `tabShipping Book` shi
+		LEFT JOIN (
+			SELECT inv_no, SUM(nego_amount) AS total_nego, MIN(bank_due_date) AS bank_due_date, MIN(due_date_confirm) AS due_date_confirm, MIN(name) AS nego_name
+			FROM `tabDoc Nego` WHERE nego_date <= %(as_on)s GROUP BY inv_no
+		) nego ON shi.name = nego.inv_no
+		LEFT JOIN (
+			SELECT inv_no, SUM(refund_amount) AS total_ref
+			FROM `tabDoc Refund` WHERE refund_date <= %(as_on)s GROUP BY inv_no
+		) ref ON shi.name = ref.inv_no
+		LEFT JOIN (
+			SELECT inv_no, SUM(received) AS total_rec
+			FROM `tabDoc Received` WHERE received_date <= %(as_on)s GROUP BY inv_no
+		) rec ON shi.name = rec.inv_no
+		LEFT JOIN `tabCustomer` cus ON shi.customer = cus.name
+		LEFT JOIN `tabNotify` noti ON shi.notify = noti.name
+		LEFT JOIN `tabBank` bank ON shi.bank = bank.name
+		LEFT JOIN `tabPayment Term` pt ON shi.payment_term = pt.name
+		LEFT JOIN `tabCIF Sheet` cif ON shi.name = cif.inv_no
+		LEFT JOIN `tabCompany` com ON shi.company = com.name
+		WHERE pt.term_type= "Export" AND pt.full_tt=0 AND pt.direct_to_supplier=0
+			{conditional_filter}
+			AND shi.bl_date <= %(as_on)s
+			AND shi.payment_term IN %(p_term)s
+		ORDER BY shi.inv_no ASC
+	""", {"as_on": as_on, "p_term":tuple(p_term)}, as_dict=1)
 
 	return columns, data
 
@@ -167,14 +210,14 @@ def get_doc_flow(inv_name):
 
 
 	
-	if round(coll,2) > 0 and use_banking_line:
+	if coll > 0 and use_banking_line:
 		buttons_html += f"""
 		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
 		
-	if round(nego_amt,2) > 0:
+	if nego_amt > 0:
 		buttons_html += f"""
 		<a href="#" onclick="frappe.new_doc('Doc Refund', {{ inv_no: '{inv_name}', refund_date:'{get_today_str()}', refund_amount:'{nego_amt}' }}); return false;" class="btn btn-danger btn-sm" style="margin-left:8px;background-color:red;">Refund</a>"""
-	if (round((doc_amount - received),2) > 0 and direct_to_supplier==0):
+	if ((doc_amount - received) > 0 and direct_to_supplier==0):
 		buttons_html += f"""
 		<a href="#" onclick="frappe.new_doc('Doc Received', {{ inv_no: '{inv_name}', received_date:'{get_today_str()}', received:'{doc_amount - received}' }}); return false;" class="btn btn-success btn-sm" style="margin-left:8px;background-color:green;">Received</a>"""
 
