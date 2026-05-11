@@ -11,12 +11,9 @@ def bank_line_validtation(doc):
     if not doc.cash_loan_amount:
         frappe.throw("❌ Loan Amount cannot be empty. Please enter the amount.")
 
-    company_code = frappe.db.get_value("Company", doc.company, "company_code")
-    company_code=company_code.replace('.', '').replace('-', '').replace(' ', '_')
-    bank_details = frappe.db.get_value("Bank", doc.bank, "bank")
-    bank_details=bank_details.replace('.', '').replace('-', '').replace(' ', '_')
-    bl = check_banking_line(company_code, bank_details, "c_loan")
-    frappe.msgprint(str(bl))
+    term_name= frappe.db.get_value("Payment Term", {"term_name":"Cash Loan"}, "name")
+    bl_data = check_banking_line(doc.bank, doc.company, term_name)
+    bl= bl_data["balance_line"]
     
     if bl == None:
         frappe.throw("❌ No banking Line")
@@ -32,7 +29,6 @@ def bank_line_validtation(doc):
         <b>Banking Line Balance:</b> {allowed_limit:,.2f}<br>
         <b>Try to Entry:</b> {(doc.cash_loan_amount / doc.ex_rate):,.2f}<br>
     """))
-
 
 
 class CashLoan(Document):

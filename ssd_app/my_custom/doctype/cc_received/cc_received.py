@@ -44,6 +44,7 @@ def cc_balance_breakup(customer, as_on):
     # )
     inv_data = frappe.db.sql("""
             SELECT
+                sb.customer AS cus,
                 cif.invoice_no AS ref_no,
                 cif.cc AS amount
             FROM
@@ -59,7 +60,7 @@ def cc_balance_breakup(customer, as_on):
 
     # 2. Get already received CC from Breakup table
     received_entries = frappe.db.sql("""
-        SELECT ccb.ref_no, SUM(ccb.amount) as amount
+        SELECT ccr.customer AS cus, ccb.ref_no, SUM(ccb.amount) as amount
         FROM `tabCC Breakup` ccb
         JOIN `tabCC Received` ccr ON ccb.parent = ccr.name
         WHERE ccr.customer = %s AND ccr.date <= %s
@@ -82,7 +83,12 @@ def cc_balance_breakup(customer, as_on):
             total += amt
             rows_html += f"""
                 <tr>
-                    <td>{ref_no}</td>
+                    <td>
+                        <a href="#" onclick="view_cc_breakup_details('{ref_no}', '{customer}'); return false;" 
+                           style="font-weight:bold; color:var(--primary-color);">
+                            {ref_no}
+                        </a>
+                    </td>
                     <td style="text-align: right;">{amt:,.2f}</td>
                 </tr>"""
 
@@ -101,3 +107,17 @@ def cc_balance_breakup(customer, as_on):
                 </tr>
             </tfoot>
         </table>"""
+
+
+@frappe.whitelist()
+def get_ref_details(ref_no, customer):
+    """Fetches the history of a specific Ref No from CC Breakup"""
+    return frappe.db.sql("""
+        SELECT 
+            ccb.parent, 
+            ccb.ref_no, 
+            ccb.amount 
+        FROM `tabCC Breakup` ccb
+        LEFT JOIN `tabCC Received` ccr ON ccb.parent= ccr.name
+        WHERE ccb.ref_no = %s AND ccr.customer= %s
+    """, (ref_no, customer), as_dict=True)

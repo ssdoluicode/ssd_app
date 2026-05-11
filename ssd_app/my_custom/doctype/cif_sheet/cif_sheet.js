@@ -198,6 +198,8 @@ frappe.ui.form.on("CIF Sheet", {
         }else{
             let hand_base = frm.doc.handling_based_on === "On Gross" ? total_gross : (total_gross + total_exp + flt(frm.doc.insurance));
             let handling = flt(hand_base * flt(frm.doc.handling_pct) / 100);
+            frm.set_df_property('handling_pct', 'read_only', 0);
+            frm.set_df_property('handling_charges', 'read_only', 1);
             frm.set_value('handling_charges', flt(handling, 2));
 
 
@@ -212,25 +214,31 @@ frappe.ui.form.on("CIF Sheet", {
             frm.set_value('due_date', frappe.datetime.add_days(frm.doc.from_date, frm.doc.term_days));
         }
     },
-
-    // validate(frm) {
-    //     frm.trigger('calculate_all');
-    //     // Propagate SC No
-    //     if (!frm.doc.multiple_sc && frm.doc.sc_no) {
-    //         frm.doc.product_details.forEach(row => { row.sc_no = frm.doc.sc_no; });
-    //         frm.refresh_field('product_details');
-    //     }
-    //     // Unique Expenses check
-    //     let expense_types = (frm.doc.expenses || []).map(r => r.expenses).filter(Boolean);
-    //     if (expense_types.length !== new Set(expense_types).size) {
-    //         frappe.throw(__('Expenses must be unique.'));
-    //     }
-    // },
-
-
+  
     after_save(frm) {
-        showCIFDetails(frm.doc.name, frm.doc.inv_no);
+        const returnTo = sessionStorage.getItem('return_to_after_save');
+        
+        if (returnTo === 'CIF Sheet Table') {
+            sessionStorage.removeItem('return_to_after_save');
+
+            // This is the fastest safe way in v15
+            frappe.run_serially([
+                // 1. Wait a tiny bit for the save UI to settle (200ms is fine here)
+                () => frappe.timeout(0.2), 
+                
+                // 2. Change the route (Internal redirect, no full reload)
+                () => frappe.set_route("query-report", returnTo),
+                
+                // 3. Refresh the report data immediately upon arrival
+                () => {
+                    if (frappe.query_report && frappe.query_report.report_name === returnTo) {
+                        frappe.query_report.refresh();
+                    }
+                }
+            ]);
+        }
     },
+        
 
     from_date: frm => frm.trigger('calculate_all'),
     term_days: frm => frm.trigger('calculate_all'),

@@ -22,7 +22,7 @@ def validate_inv_no (doc):
         )
 
 
-def set_value(doc): #### test on 28/4
+def set_default_value(doc): #### test on 28/4
     def r(v):
             return round(float(v or 0), 2)
 
@@ -30,9 +30,17 @@ def set_value(doc): #### test on 28/4
     received = r(doc.doc_received) or 0
     nego = r(doc.doc_nego) or 0
     refund = r(doc.doc_refund) or 0
+    direct_to_supplier=frappe.db.get_value("Payment Term", doc.payment_term, "direct_to_supplier")
 
-    doc.doc_receivable = r(document - received)
-    doc.doc_collection = r(document - received - nego - refund)
+    if direct_to_supplier:
+        doc.doc_collection = 0
+        doc.doc_nego = 0
+        doc.doc_refund = 0
+        doc.doc_received= 0
+        doc.doc_receivable = 0
+    else:
+        doc.doc_receivable = r(document - received)
+        doc.doc_collection = r(document - received - nego - refund)
 
     # Optional validations (recommended)
     if doc.doc_receivable < 0:
@@ -45,8 +53,9 @@ def set_value(doc): #### test on 28/4
 class ShippingBook(Document):
     def validate(self):
         validate_inv_no(self)
-        set_value(self)
+        set_default_value(self)
         # set_all_doc_status_value()
+       
 
 
 @frappe.whitelist()
@@ -249,18 +258,34 @@ def get_doc_status_value(shi_id, this_data=None, exclude_name=None, as_on=None):
 
 #     for shi_id in shi_id_list:
 #         doc_coll, doc_nego, doc_refund, doc_received, doc_receivable = get_doc_status_value(shi_id)
+#         shi_book=frappe.get_doc("Shipping Book", shi_id)
+#         direct_to_supplier=frappe.db.get_value("Payment Term", shi_book.payment_term, "direct_to_supplier")
 
-#         frappe.db.set_value(
-#             "Shipping Book",
-#             shi_id,
-#             {
-#                 "doc_collection": doc_coll,
-#                 "doc_nego": doc_nego,
-#                 "doc_refund": doc_refund,
-#                 "doc_received": doc_received,
-#                 "doc_receivable": doc_receivable
-#             }
-#         )
+#         if direct_to_supplier:
+#             frappe.db.set_value(
+#                 "Shipping Book",
+#                 shi_id,
+#                 {
+#                     "doc_collection": 0,
+#                     "doc_nego": 0,
+#                     "doc_refund": 0,
+#                     "doc_received": 0,
+#                     "doc_receivable": 0
+#                 }
+#             )
+
+#         else:
+#             frappe.db.set_value(
+#                 "Shipping Book",
+#                 shi_id,
+#                 {
+#                     "doc_collection": doc_coll,
+#                     "doc_nego": doc_nego,
+#                     "doc_refund": doc_refund,
+#                     "doc_received": doc_received,
+#                     "doc_receivable": doc_receivable
+#                 }
+#             )
 
 
 

@@ -25,6 +25,8 @@ def get_cif_data(filters):
     cif.invoice_no AS inv_no,
     cif.name AS cif_id,                        
     sb.name,
+    cif.name AS cif_id,
+    cost.name AS cost_id,
     cif.inv_date,
     com.company_code AS a_com,
     cat.product_category,
@@ -36,6 +38,7 @@ def get_cif_data(filters):
     cif.handling_charges,
     cif.sales,
     cif.document,
+    sb.doc_receivable,
     cif.cc,
     l_port.port AS load_port,
     d_port.port AS destination_port,
@@ -43,11 +46,11 @@ def get_cif_data(filters):
     city.country AS to_country,
     CASE
         WHEN pt.direct_to_supplier = 1 THEN cif.document
-        ELSE COALESCE(t_rec.total_rec, 0)
+        ELSE COALESCE(cif.document-sb.doc_receivable, 0)
     END AS total_rec,      
     CASE
     WHEN cost.inv_no IS NULL THEN ''
-    ELSE COALESCE(sup.supplier, '--Multi--')
+    ELSE COALESCE(sup.supplier, '**Multiple Suppliers**')
     END AS supplier,
     bank.bank,
     IF(pt.term_name IN ('LC', 'DA'),
@@ -58,10 +61,11 @@ def get_cif_data(filters):
     cif.bank_ref_no,
     CASE
         WHEN pt.full_tt = 1 THEN ''
-        WHEN COALESCE(t_rec.total_rec, 0) = 0 THEN 'Not'
-        WHEN COALESCE(t_rec.total_rec, 0) >= cif.document THEN 'Rec'
-        ELSE 'Part'
-    END AS status
+        WHEN COALESCE(sb.doc_receivable, 0) = cif.document THEN 'Not Rec'
+        WHEN COALESCE(sb.doc_receivable, 0) = 0 THEN 'Full Rec'
+        ELSE 'Part Rec'
+    END AS status,
+    "o" AS action
 
     FROM `tabCIF Sheet` cif
 
@@ -77,17 +81,12 @@ def get_cif_data(filters):
     LEFT JOIN `tabPayment Term` pt ON pt.name=sb.payment_term
 
     LEFT JOIN (
-        SELECT inv_no, MIN(supplier) AS supplier
+        SELECT name, inv_no, MIN(supplier) AS supplier
         FROM `tabCost Sheet`
         GROUP BY inv_no
     ) cost ON cif.name = cost.inv_no
     LEFT JOIN `tabSupplier` sup ON cost.supplier = sup.name
 
-    LEFT JOIN (
-        SELECT inv_no, SUM(received) AS total_rec
-        FROM `tabDoc Received`
-        GROUP BY inv_no
-    ) t_rec ON sb.name = t_rec.inv_no
     {conditional_filter}
     ORDER BY cif.creation DESC ;
     """, as_dict=1)
@@ -110,6 +109,7 @@ def execute(filters=None):
         {"label": "Status", "fieldname": "status", "fieldtype": "Data", "width": 70},
         {"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 80},
         {"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 180},
+        {"label": "Action", "fieldname": "action", "fieldtype": "Data", "width": 80}
     ]
     data = get_cif_data(filters)
     return columns, data

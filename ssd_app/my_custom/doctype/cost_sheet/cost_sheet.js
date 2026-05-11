@@ -329,8 +329,32 @@ frappe.ui.form.on("Cost Sheet", {
     commission(frm) {
         calculate_cost(frm);
     },
+    // after_save(frm) {
+    //     showCostDetails(frm.doc.inv_no, frm.doc.custom_title);
+    // },
+    
     after_save(frm) {
-        showCostDetails(frm.doc.inv_no, frm.doc.custom_title);
+        const returnTo = frappe.return_to_page;
+        
+        if (returnTo === 'CIF Sheet Table') {
+            sessionStorage.removeItem('return_to_page');
+
+            // This is the fastest safe way in v15
+            frappe.run_serially([
+                // 1. Wait a tiny bit for the save UI to settle (200ms is fine here)
+                () => frappe.timeout(0.2), 
+                
+                // 2. Change the route (Internal redirect, no full reload)
+                () => frappe.set_route("query-report", returnTo),
+                
+                // 3. Refresh the report data immediately upon arrival
+                () => {
+                    if (frappe.query_report && frappe.query_report.report_name === returnTo) {
+                        frappe.query_report.refresh();
+                    }
+                }
+            ]);
+        }
     },
 });
 
@@ -373,7 +397,6 @@ function checkDuplicateExpenses(frm, cdt, cdn) {
     }
 }
  
-
 // Check duplicates on validation
 function checkDuplicateExpensesOnValidation(frm) {
     let table = frm.doc.expenses || [];

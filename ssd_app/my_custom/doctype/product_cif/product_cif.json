@@ -95,7 +95,7 @@
    "fieldtype": "Float",
    "label": "Ex Rate",
    "non_negative": 1,
-   "precision": "4",
+   "precision": "6",
    "reqd": 1
   },
   {
@@ -131,11 +131,11 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-02-07 15:05:41.750331",
+ "modified": "2026-05-10 19:20:36.789548",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Product CIF",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",

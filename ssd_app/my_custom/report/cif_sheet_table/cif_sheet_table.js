@@ -14,10 +14,17 @@ frappe.query_reports["CIF Sheet Table"] = {
         report.page.add_inner_button("Cost Sheet Table", function () {
             frappe.set_route("query-report", "Cost Sheet Table");
         });
-        report.page.add_inner_button("Open CIF Sheet List", function () {
-            frappe.set_route("List", "CIF Sheet");
+        // report.page.add_inner_button("Open CIF Sheet List", function () {
+        //     frappe.set_route("List", "CIF Sheet");
+        // });
+        report.page.add_inner_button(__("Create CIF Sheet"), function () {
+            // Set the flag in sessionStorage before navigating
+            sessionStorage.setItem('return_to_after_save', 'CIF Sheet Table');
+            frappe.new_doc("CIF Sheet");
         });
-        
+
+        report.refresh();
+
         frappe.call({
             method: "ssd_app.my_custom.report.cif_sheet_table.cif_sheet_table.get_years",
             callback: function (r) {
@@ -25,13 +32,13 @@ frappe.query_reports["CIF Sheet Table"] = {
                     let year_filter = report.get_filter("year");
                     let years = r.message;
 
-                    // ✅ Set default as MAX year
+                    // Set default as MAX year
                     year_filter.df.default = Math.max(...years.map(y => parseInt(y))).toString();
 
-                    // ✅ Add "All" option at the beginning
+                    // Add "All" option at the beginning
                     years.unshift("All");
 
-                    // ✅ Set options
+                    // Set options
                     year_filter.df.options = years;
 
                     // Refresh to apply default & options
@@ -44,32 +51,79 @@ frappe.query_reports["CIF Sheet Table"] = {
     formatter: function(value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
 
+                // 🎯 Action Column
+        if (column.fieldname === "action" && value) {
+
+            let cost_button = "";
+
+            if (!data.cost_id) {
+                cost_button = `
+                    <a href="#"
+                        onclick="create_cost_sheet('${data.cif_id}'); return false;"
+                        title="Create Cost Sheet">
+                        <svg class="icon icon-sm">
+                            <use href="#icon-upload"></use>
+                        </svg>
+                    </a>
+                `;
+            }
+
+            return `
+                <div style="display:flex; gap:12px; align-items:center;">
+
+                    <!-- Edit -->
+                    <a href="/app/cif-sheet/${data.cif_id}"
+                        onclick="sessionStorage.setItem('return_to_after_save', 'CIF Sheet Table')"
+                        title="Edit">
+                        <svg class="icon icon-sm">
+                            <use href="#icon-edit"></use>
+                        </svg>
+                    </a>
+
+                    <!-- Search -->
+                    <a href="#"
+                        onclick="showCIFDetails('${data.cif_id}', '${data.inv_no}'); return false;"
+                        title="View Details">
+                        <svg class="icon icon-sm">
+                            <use href="#icon-search"></use>
+                        </svg>
+
+                    </a>
+
+                    ${cost_button}
+
+                </div>
+            `;
+        }
+
+
+
         // 🎯 Status column – 2 color pie (Received vs Outstanding)
-        if (column.fieldname ===  "status" && value) {
+        if (column.fieldname === "status" && value) {
 
-            const total = flt(data.document || 0);
-            const received = flt(data.total_rec || 0);
+            let color = "#f59e0b"; // default orange
 
-            let percent = 0;
-            if (total > 0) {
-                percent = Math.min(100, Math.round((received / total) * 100));
+            if (value === "Full Rec") {
+                color = "#16a34a"; // green
+            }
+            else if (value === "Not Rec") {
+                color = "#dc2626"; // red
             }
 
             return `
                 <a href="#"
-                onclick="showDocFlow('${data.name}'); return false;"
-                title="Received ${percent}%"
-                style="display:inline-block; cursor:pointer;">
+                    onclick="showDocFlow('${data.name}'); return false;"
+                    title="${value}"
+                    style="display:inline-block; cursor:pointer;">
+
                     <div style="
-                        width:14px;
-                        height:14px;
+                        width:10px;
+                        height:10px;
                         border-radius:50%;
-                        background: conic-gradient(
-                            #16a34a ${percent}%,
-                            #dc2626 ${percent}% 100%
-                        );
+                        background:${color};
                     ">
                     </div>
+
                 </a>
             `;
         }
@@ -88,9 +142,53 @@ frappe.query_reports["CIF Sheet Table"] = {
             fieldtype: "Select",
             options: [],   // will be filled dynamically
             reqd: 0
-        }    
+        },
+        {
+            fieldname: "quick_search",
+            label: __("Quick Search"),
+            fieldtype: "Data",
+            on_change: function() {
+                const report = frappe.query_report;
+                const search_term = (this.get_value() || "").toLowerCase();
+                
+                if (!report || !report.datatable) return;
+
+                const datatable = report.datatable;
+                const all_rows = datatable.datamanager.getRows();
+
+                if (!search_term) {
+                    // Reset to show everything
+                    datatable.rowmanager.showRows(all_rows.map((_, i) => i));
+                } else {
+                    // Find indices of rows that match
+                    const matches = all_rows
+                        .map((row, index) => {
+                            // Check every cell in the row
+                            const has_match = row.some(cell => {
+                                const val = String(cell.content || "").toLowerCase();
+                                return val.includes(search_term);
+                            });
+                            return has_match ? index : null;
+                        })
+                        .filter(idx => idx !== null);
+
+                    datatable.rowmanager.showRows(matches);
+                }
+
+                // Essential: Update the display dimensions and refresh
+                datatable.dimensions.recompute();
+                datatable.refresh();
+            }
+        }
     ],
 };
 
 
+function create_cost_sheet(inv_no) {
+    frappe.return_to_page='CIF Sheet Table';
+    frappe.new_doc("Cost Sheet");
 
+    setTimeout(() => {
+        cur_frm.set_value("inv_no", inv_no);
+    }, 200);
+}
