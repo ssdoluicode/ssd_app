@@ -4,6 +4,7 @@ from frappe.utils.pdf import get_pdf
 from frappe.utils.jinja import render_template
 from frappe import _
 
+
 def get_cif_data(filters):
     year = filters.year
 
@@ -53,9 +54,16 @@ def get_cif_data(filters):
     ELSE COALESCE(sup.supplier, '**Multiple Suppliers**')
     END AS supplier,
     bank.bank,
-    IF(pt.term_name IN ('LC', 'DA'),
-       CONCAT(pt.term_name, '- ', sb.term_days),
-       pt.term_name) AS p_term,
+    IF(
+    pt.term_name IN ('LC', 'DA', 'TT'),
+        CONCAT(
+            pt.term_name,
+            IF(sb.term_days IS NOT NULL AND sb.term_days <> '',
+            CONCAT('- ', sb.term_days),
+            '')
+        ),
+        pt.term_name
+    ) AS p_term,
     cif.from_date,
     cif.due_date,
     cif.bank_ref_no,
