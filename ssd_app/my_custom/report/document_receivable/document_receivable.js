@@ -61,7 +61,7 @@ frappe.query_reports["Document Receivable"] = {
         report.page.add_inner_button(__("Import Banking"), () => frappe.set_route("query-report", "Import Banking"));
         
         report.page.add_inner_button(__("Used Banking Line"), () => {
-            const { as_on } = report.get_values();
+            let as_on = frappe.datetime.get_today()
             usedBankingLine(as_on);
         });
 
