@@ -7,6 +7,10 @@ from frappe import _
 
 def get_cif_data(filters):
     year = filters.year
+    limit = filters.get("limit")
+    limit_clause = ""
+    if limit and int(limit) > 0:
+        limit_clause = f"LIMIT {int(limit)}"
 
     if not year:
         max_year = frappe.db.sql("""
@@ -96,7 +100,8 @@ def get_cif_data(filters):
     LEFT JOIN `tabSupplier` sup ON cost.supplier = sup.name
 
     {conditional_filter}
-    ORDER BY cif.creation DESC ;
+    ORDER BY cif.creation DESC 
+    {limit_clause};
     """, as_dict=1)
     return data
 

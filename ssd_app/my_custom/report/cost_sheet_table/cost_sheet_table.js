@@ -74,16 +74,6 @@ frappe.query_reports["Cost Sheet Table"] = {
             `;
         }
 
-
-
-
-
-
-
-
-
-
-
         return value;
     },
     filters: [   
@@ -93,7 +83,57 @@ frappe.query_reports["Cost Sheet Table"] = {
             fieldtype: "Select",
             options: [],   // will be filled dynamically
             reqd: 0
-        }    
+        },
+        {
+            fieldname: "limit",
+            label: __("Limit"),
+            fieldtype: "Select",
+            options: [
+                { "value": 25, "label": __("25") },
+                { "value": 100, "label": __("100") },
+                { "value": 500, "label": __("500") },
+                { "value": 0, "label": __("All") } // Use 0 or "" to represent 'No Limit' in your query
+            ],
+            default: 25,
+            reqd: 0
+        },
+        {
+            fieldname: "quick_search",
+            label: __("Quick Search"),
+            fieldtype: "Data",
+            on_change: function() {
+                const report = frappe.query_report;
+                const search_term = (this.get_value() || "").toLowerCase();
+                
+                if (!report || !report.datatable) return;
+
+                const datatable = report.datatable;
+                const all_rows = datatable.datamanager.getRows();
+
+                if (!search_term) {
+                    // Reset to show everything
+                    datatable.rowmanager.showRows(all_rows.map((_, i) => i));
+                } else {
+                    // Find indices of rows that match
+                    const matches = all_rows
+                        .map((row, index) => {
+                            // Check every cell in the row
+                            const has_match = row.some(cell => {
+                                const val = String(cell.content || "").toLowerCase();
+                                return val.includes(search_term);
+                            });
+                            return has_match ? index : null;
+                        })
+                        .filter(idx => idx !== null);
+
+                    datatable.rowmanager.showRows(matches);
+                }
+
+                // Essential: Update the display dimensions and refresh
+                datatable.dimensions.recompute();
+                datatable.refresh();
+            }
+        }
     ],
 };
 

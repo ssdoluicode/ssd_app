@@ -144,6 +144,19 @@ frappe.query_reports["CIF Sheet Table"] = {
             reqd: 0
         },
         {
+            fieldname: "limit",
+            label: __("Limit"),
+            fieldtype: "Select",
+            options: [
+                { "value": 25, "label": __("25") },
+                { "value": 100, "label": __("100") },
+                { "value": 500, "label": __("500") },
+                { "value": 0, "label": __("All") } // Use 0 or "" to represent 'No Limit' in your query
+            ],
+            default: 25,
+            reqd: 0
+        },
+        {
             fieldname: "quick_search",
             label: __("Quick Search"),
             fieldtype: "Data",

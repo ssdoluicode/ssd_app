@@ -1,72 +1,45 @@
 
-
-
-# def auto_backup():
-#     """Only SQL backup + cleanup"""
-
-#     site = frappe.local.site
-
-#     # Only DB backup
-#     backup = new_backup(ignore_files=True)
-
-#     # Date format (with time to avoid overwrite)
-#     date_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-#     # Backup directory
-#     backup_dir = frappe.get_site_path("private", "backups")
-
-#     # ------------------ DATABASE ONLY ------------------
-#     if backup.backup_path_db and os.path.exists(backup.backup_path_db):
-#         new_db = os.path.join(backup_dir, f"db_{date_str}.sql.gz")
-#         shutil.move(backup.backup_path_db, new_db)
-
-
-#     frappe.logger().info(f"✅ SQL Backup Completed for {site} on {date_str}")
-
-
 import os
 import shutil
 from datetime import datetime
-
 import frappe
 from frappe.utils.backups import new_backup
 
-
 def auto_backup():
-    """Create SQL-only backup in private/auto_backups without deleting old backups"""
+    """Create SQL-only backup inside private/auto_backups/YYYY-MM-DD"""
+    
+    # Ensure we are in a site context
+    if not frappe.local.site:
+        frappe.logger().error("❌ No site context found.")
+        return
 
     site = frappe.local.site
+    now = datetime.now()
+    
+    # Use ISO format for better folder sorting: YYYY-MM-DD
+    date_folder = now.strftime('%Y-%m-%d')
+    time_str = now.strftime("%H-%M-%S")
 
-    # Create DB-only backup (no files)
-    backup = new_backup(ignore_files=True)
-
-    # Timestamp to avoid overwrite
-    date_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-    # Custom backup directory
-    backup_dir = frappe.get_site_path("private", "auto_backups")
-
-    # Create folder if not exists
+    # Path: sites/{site}/private/auto_backups/{date}
+    backup_dir = frappe.get_site_path("private", "auto_backups", date_folder)
     os.makedirs(backup_dir, exist_ok=True)
 
-    # ------------------ DATABASE BACKUP ------------------
-    if backup.backup_path_db and os.path.exists(backup.backup_path_db):
+    try:
+        # Generate DB backup (ignore_files=True skips public/private files)
+        backup = new_backup(ignore_files=True)
+        db_path = backup.backup_path_db
 
-        # Keep .sql.gz format compatible with:
-        # bench --site <site-name> restore <file.sql.gz>
-        new_db_path = os.path.join(
-            backup_dir,
-            f"{site}_db_{date_str}.sql.gz"
-        )
+        if db_path and os.path.exists(db_path):
+            new_db_filename = f"{site}_db_{time_str}.sql.gz"
+            dest_path = os.path.join(backup_dir, new_db_filename)
 
-        # Move generated backup to custom folder
-        shutil.move(backup.backup_path_db, new_db_path)
+            # Move or Copy? 
+            # If you use copy2, remember to occasionally clean /private/backups
+            shutil.copy2(db_path, dest_path)
 
-        frappe.logger().info(
-            f"✅ SQL Backup Completed: {new_db_path}"
-        )
+            frappe.logger().info(f"✅ Backup successful: {dest_path}")
+        else:
+            frappe.logger().error("❌ Backup file was not generated.")
 
-    else:
-        frappe.logger().error(
-            f"❌ SQL Backup Failed for {site}"
-        )
+    except Exception as e:
+        frappe.logger().error(f"❌ Backup failed: {str(e)}")
