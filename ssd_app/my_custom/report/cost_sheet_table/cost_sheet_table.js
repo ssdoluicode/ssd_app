@@ -10,8 +10,10 @@ frappe.query_reports["Cost Sheet Table"] = {
         report.page.add_inner_button("CIF Sheet Table", function () {
             frappe.set_route("query-report", "CIF Sheet Table");
         });
-        report.page.add_inner_button("Open Cost Sheet List", function () {
-            frappe.set_route("List", "Cost Sheet");
+        report.page.add_inner_button(__("Create Cost Sheet"), function () {
+            // Set the flag in sessionStorage before navigating
+            sessionStorage.setItem('return_to_page', 'Cost Sheet Table');
+            frappe.new_doc("Cost Sheet");
         });
         frappe.call({
             method: "ssd_app.my_custom.report.cost_sheet_table.cost_sheet_table.get_years",
@@ -43,6 +45,44 @@ frappe.query_reports["Cost Sheet Table"] = {
         if (column.fieldname === "inv_no" && data && data.cif_id) {
             return `<a href="#" onclick="showCostDetails('${data.cif_id}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
         }
+        if (column.fieldname === "action" && value) {
+
+            return `
+                <div style="display:flex; gap:12px; align-items:center;">
+
+                    <!-- Edit -->
+                    <a href="/app/cost-sheet/${data.name}"
+                        onclick="sessionStorage.setItem('return_to_page', 'Cost Sheet Table')"
+                        title="Edit">
+                        <svg class="icon icon-sm">
+                            <use href="#icon-edit"></use>
+                        </svg>
+                    </a>
+
+                    <!-- Search -->
+                    <a href="#"
+                        onclick="showCostDetails('${data.cif_id}', '${data.inv_no}'); return false;"
+                        title="View Details">
+                        <svg class="icon icon-sm">
+                            <use href="#icon-search"></use>
+                        </svg>
+
+                    </a>
+
+
+                </div>
+            `;
+        }
+
+
+
+
+
+
+
+
+
+
 
         return value;
     },

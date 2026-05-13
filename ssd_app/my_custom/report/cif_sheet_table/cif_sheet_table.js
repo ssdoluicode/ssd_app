@@ -185,7 +185,12 @@ frappe.query_reports["CIF Sheet Table"] = {
 
 
 function create_cost_sheet(inv_no) {
-    frappe.return_to_page='CIF Sheet Table';
+    // frappe.return_to_page='CIF Sheet Table';
+    sessionStorage.setItem(
+        'return_to_page',
+        'CIF Sheet Table'
+    );
+
     frappe.new_doc("Cost Sheet");
 
     setTimeout(() => {

@@ -114,6 +114,7 @@ def get_ref_details(ref_no, customer):
     """Fetches the history of a specific Ref No from CC Breakup"""
     return frappe.db.sql("""
         SELECT 
+            ccr.date,
             ccb.parent, 
             ccb.ref_no, 
             ccb.amount 

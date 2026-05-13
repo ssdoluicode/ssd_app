@@ -316,6 +316,7 @@ window.view_cc_breakup_details = function(ref_no, customer) {
 
             let rows = r.message.map(d => `
                 <tr>
+                    <td>${d.date}</td>
                     <td>${d.ref_no}</td>
                     <td style="text-align:right;">${format_currency(d.amount)}</td>
                     <td style="text-align:center;">
@@ -337,6 +338,7 @@ window.view_cc_breakup_details = function(ref_no, customer) {
                         <table class="table table-bordered small">
                             <thead>
                                 <tr class="text-muted">
+                                    <th>Date</th>
                                     <th>Ref No</th>
                                     <th style="text-align:right;">Amount</th>
                                     <th style="text-align:center;">Action</th>

@@ -42,7 +42,8 @@ def get_cif_data(filters):
     d_port.port AS destination_port,
     l_port.country AS from_country,
     city.country AS to_country,                
-    COALESCE(NULLIF(sup.supplier, ''), '**Multi Supplier**') AS supplier
+    COALESCE(NULLIF(sup.supplier, ''), '**Multi Supplier**') AS supplier,
+    "o" AS action
     FROM `tabCost Sheet` cost
     LEFT JOIN `tabCIF Sheet` cif ON cif.name= cost.inv_no
     LEFT JOIN `tabCompany` com ON cif.accounting_company = com.name
@@ -84,9 +85,10 @@ def execute(filters=None):
         {"label": "Inv Date", "fieldname": "inv_date", "fieldtype": "Date"},
         {"label": "Com", "fieldname": "a_com", "fieldtype": "Data","width": 100},
         {"label": "Category", "fieldname": "product_category", "fieldtype": "Data", "width": 150},
-        {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 150},
-        {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 180},
+        # {"label": "Customer", "fieldname": "customer", "fieldtype": "Data", "width": 150},
+        # {"label": "Notify", "fieldname": "notify", "fieldtype": "Data", "width": 180},
         {"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 180},
+         {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 120},
         {"label": "Purchase", "fieldname": "purchase", "fieldtype": "Float", "width": 110},
         {"label": "Freight", "fieldname": "freight", "fieldtype": "Float", "width": 100},
         {"label": "Local Exp", "fieldname": "local_exp", "fieldtype": "Float", "width": 90},
@@ -94,7 +96,7 @@ def execute(filters=None):
         {"label": "Cost", "fieldname": "cost", "fieldtype": "Float", "width": 120},
         {"label": "Profit", "fieldname": "profit", "fieldtype": "Float", "width": 90},
         {"label": "Profit %", "fieldname": "profit_pct", "fieldtype": "Float", "width": 80},
-        {"label": "Sales", "fieldname": "sales", "fieldtype": "Float", "width": 120},
+        {"label": "Action", "fieldname": "action", "fieldtype": "Data", "width": 70}
         
     ]
     data = get_cif_data(filters)
