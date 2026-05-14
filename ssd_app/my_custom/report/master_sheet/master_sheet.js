@@ -12,18 +12,24 @@ frappe.query_reports["Master Sheet"] = {
         return value;
     },
     "filters": [
+        
 		{
-			"fieldname": "limit",
-			"label": "Rows Per Page",
-			"fieldtype": "Select",
-			"options": "20\n100\n500\n2500",
-			"default": "100"
-		},
+            fieldname: "limit",
+            label: __("Limit"),
+            fieldtype: "Select",
+            options: [
+                { "value": 100, "label": __("100") },
+                { "value": 500, "label": __("500") },
+                { "value": 0, "label": __("All") } // Use 0 or "" to represent 'No Limit' in your query
+            ],
+            default: 100,
+            reqd: 0
+        },
         {
             "fieldname": "from_date",
             "label": "From Date",
             "fieldtype": "Date",
-            "default": "2025-01-01",
+            "default": "2026-01-01",
             "reqd": 0
         },
         {

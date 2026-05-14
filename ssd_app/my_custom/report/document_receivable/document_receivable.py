@@ -66,7 +66,8 @@ def execute(filters=None):
 					shi.document, shi.doc_received AS total_rec, shi.doc_receivable AS receivable, 
 					IF(pt.term_name IN ('LC', 'DA'), CONCAT(pt.term_name, '- ', shi.term_days),pt.term_name) AS p_term, cif.due_date, 
 					IF(shi.doc_nego=0, "", nego.refund_date) AS refund_date,
-					ROUND(shi.document, 2) AS document, shi.doc_collection AS coll, shi.doc_nego AS nego, shi.doc_refund AS refund 
+					ROUND(shi.document, 2) AS document, shi.doc_collection AS coll, shi.doc_nego AS nego, shi.doc_refund AS refund,
+					CASE WHEN nego.refund_date IS NOT NULL THEN DATEDIFF(nego.refund_date, CURDATE()) END AS days_to_due
 					FROM `tabShipping Book` shi 
 					LEFT JOIN `tabPayment Term` pt ON shi.payment_term= pt.name
 					LEFT JOIN `tabNotify` noti ON noti.name= shi.notify

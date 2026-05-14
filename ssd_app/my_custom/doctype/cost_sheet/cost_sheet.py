@@ -135,6 +135,7 @@ def render_cost_sheet_pdf(inv_name, pdf=0):
     sb= frappe.get_doc("Shipping Book", cif_doc.inv_no)
     doc.customer_name=frappe.db.get_value("Customer", sb.customer, "customer")
     doc.notify_name=frappe.db.get_value("Notify", sb.notify, "notify")
+    doc.supplier_name=frappe.db.get_value("Supplier", doc.supplier, "supplier")
     doc.acc_com_name = frappe.db.get_value("Company", cif_doc.accounting_company, "company_code")
     doc.category_name=frappe.db.get_value("Product Category", cif_doc.category, "product_category")
     doc.load_port_name=frappe.db.get_value("Port", cif_doc.load_port, "port")
@@ -150,12 +151,13 @@ def render_cost_sheet_pdf(inv_name, pdf=0):
     doc.profit_pct= profit_pct
 
     product =  frappe.db.sql("""
-        SELECT p.parent, pg.product_group, pro.product, p.po_no, p.qty, u.unit, p.rate, p.currency, p.ex_rate, 
+        SELECT p.parent, pg.product_group, pro.product, p.po_no, sup.supplier, p.qty, u.unit, p.rate, p.currency, p.ex_rate, 
             p.charges, p.charges_amount, p.gross, p.gross_usd 
         FROM `tabProduct Cost` p 
         LEFT JOIN `tabUnit` u ON p.unit = u.name 
         LEFT JOIN `tabProduct` pro ON p.product = pro.name 
-        LEFT JOIN `tabProduct Group` pg ON pro.product_group = pg.name 
+        LEFT JOIN `tabProduct Group` pg ON pro.product_group = pg.name
+        LEFT JOIN `tabSupplier` sup ON sup.name= p.supplier
         WHERE p.parent = %s""", cost_id, as_dict=1)
     product = sorted(product, key=lambda x: x['product_group'])
     exp = frappe.db.sql("""

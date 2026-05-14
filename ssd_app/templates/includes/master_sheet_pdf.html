@@ -165,10 +165,11 @@
         <tr>
             <td>
                 <b>Payment Term:</b> {{ doc.payment_term }}
-                {% if doc.payment_term in ['LC', 'DA'] %}
+
+                {% if doc.payment_term in ['LC', 'DA', "TT"] and doc.term_days %}
                     - {{ doc.term_days }}
                 {% endif %}
-                </td>
+            </td>
             <td><b>From Date:</b> {{doc.from_date}}</td>
             <td><b>Due Date:</b> {{doc.due_date}}</td>
         </tr>

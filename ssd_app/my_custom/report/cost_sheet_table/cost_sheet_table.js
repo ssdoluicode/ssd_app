@@ -66,10 +66,7 @@ frappe.query_reports["Cost Sheet Table"] = {
                         <svg class="icon icon-sm">
                             <use href="#icon-search"></use>
                         </svg>
-
                     </a>
-
-
                 </div>
             `;
         }
@@ -89,12 +86,11 @@ frappe.query_reports["Cost Sheet Table"] = {
             label: __("Limit"),
             fieldtype: "Select",
             options: [
-                { "value": 25, "label": __("25") },
                 { "value": 100, "label": __("100") },
                 { "value": 500, "label": __("500") },
                 { "value": 0, "label": __("All") } // Use 0 or "" to represent 'No Limit' in your query
             ],
-            default: 25,
+            default: 100,
             reqd: 0
         },
         {

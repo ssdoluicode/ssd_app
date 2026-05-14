@@ -3,14 +3,10 @@ import frappe
 def execute(filters=None):
     filters = frappe._dict(filters or {})
 
+    limit = filters.get("limit")
     limit_clause = ""
-    if filters.get("limit"):
-        try:
-            limit = int(filters.get("limit"))
-            if limit > 0:
-                limit_clause = f" LIMIT {limit}"
-        except:
-            pass
+    if limit and int(limit) > 0:
+        limit_clause = f"LIMIT {int(limit)}"
 
     conditions = ""
     if filters.get("from_date") and filters.get("to_date"):
@@ -30,7 +26,7 @@ def execute(filters=None):
     cost.cost, 
     IF(cost.cost IS NULL, NULL, cif.sales - cost.cost) AS profit,
     IF(cost.cost IS NULL, NULL, ROUND((cif.sales - cost.cost)/ cost.cost * 100,2)) AS profit_pct,
-    IF(pt.term_name IN ('LC', 'DA'), CONCAT(pt.term_name, '- ', sb.term_days), pt.term_name) AS p_term,
+    IF(pt.term_name IN ('LC', 'DA', 'TT') AND sb.term_days, CONCAT(pt.term_name, '- ', sb.term_days), pt.term_name) AS p_term,
     cif.from_country AS f_country, lport.port AS l_port, 
     cif.to_country AS t_country, dport.port AS d_port
 FROM `tabCIF Sheet` cif

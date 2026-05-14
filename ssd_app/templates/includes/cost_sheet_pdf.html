@@ -13,6 +13,11 @@
             <td><b>Notify:</b> {{doc.notify_name}}</td>
             <td><b>Customer:</b> {{doc.customer_name}}</td>
         </tr>
+        {% if doc.multiple_supplier == 0 %}
+        <tr>
+            <td><b>Supplier:</b> {{doc.supplier_name}}</td>
+        </tr>
+        {% endif %}
     </table>
 
     <h3>Product Details</h3>
@@ -22,10 +27,11 @@
                 <tr>
                     <th>Product</th>
                     <th>PO No</th>
+                    {% if doc.multiple_supplier %}
+                    <th>Supplier</th>
+                    {% endif %}
                     <th>Qty</th>
-                    <th>Unit</th>
                     <th style="text-align: right;">Rate</th>
-                    <th style="text-align: right;">Chrgs</th>
                     <th>Gross</th>
                     <th>Curr</th>
                     <th style="text-align: right;">Ex. Rate</th>
@@ -58,13 +64,14 @@
                 <tr>
                 <td>{{ p.product }}</td>
                 <td>{{ p.po_no }}</td>
-                <td style="text-align: right;">{{ "{:,.2f}".format(p.qty) }}</td>
-                <td>{{ p.unit }}</td>
+                {% if doc.multiple_supplier %}
+                    <td>{{ p.supplier }}</td>
+                {% endif %}
+                <td style="text-align: right;">{{ "{:,.2f}".format(p.qty) }} {{ p.unit }}</td>
                 {% set is_four = (p.rate * 10000) % 100 != 0 %}
                 <td style="text-align: right;">
                     {{ "{:,.4f}".format(p.rate) if is_four else "{:,.2f}".format(p.rate) }}
                 </td>
-                <td style="text-align: right;">{{ "{:,.2f}".format(p.charges_amount) }}</td>
                 <td style="text-align: right;">{{"{:,.2f}".format( p.gross) }}</td>
                 <td>{{ p.currency }}</td>
                 <td style="text-align: right;">{{ "{:,.2f}".format(p.ex_rate) }}</td>
@@ -77,9 +84,10 @@
                 <tr style="font-weight: bold;">
                     <td colspan="2" style="text-align: center;">Total</td>
                     <td style="text-align: right;">{{ "{:,.2f}".format(ns.total_qty) }}</td>
+                    {% if doc.multiple_supplier%}
                     <td></td>
+                    {% endif %}
                     <td></td>
-                    <td style="text-align: right;">{{ "{:,.2f}".format(ns.total_charges_amount) }}</td>
                     <td style="text-align: right;">{{ "{:,.2f}".format(ns.total_gross) }}</td>
                     <td></td>
                     <td></td>

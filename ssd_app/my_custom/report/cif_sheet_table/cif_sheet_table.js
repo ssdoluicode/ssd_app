@@ -51,7 +51,7 @@ frappe.query_reports["CIF Sheet Table"] = {
     formatter: function(value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
 
-                // 🎯 Action Column
+                // Action Column
         if (column.fieldname === "action" && value) {
 
             let cost_button = "";
@@ -95,10 +95,11 @@ frappe.query_reports["CIF Sheet Table"] = {
                 </div>
             `;
         }
+       if (column.fieldname === "supplier" && value) {
+            return `<div style="text-align:left;">${value}</div>`;
+        }
 
-
-
-        // 🎯 Status column – 2 color pie (Received vs Outstanding)
+        // Status column – 2 color pie (Received vs Outstanding)
         if (column.fieldname === "status" && value) {
 
             let color = "#f59e0b"; // default orange
@@ -112,7 +113,7 @@ frappe.query_reports["CIF Sheet Table"] = {
 
             return `
                 <a href="#"
-                    onclick="showDocFlow('${data.name}'); return false;"
+                    onclick="showDocFlow('${data.name}',  '${data.inv_no}'); return false;"
                     title="${value}"
                     style="display:inline-block; cursor:pointer;">
 
@@ -128,7 +129,7 @@ frappe.query_reports["CIF Sheet Table"] = {
             `;
         }
 
-        // 🔗 Clickable inv_no with modal
+        // Clickable inv_no with modal
         if (column.fieldname === "inv_no" && data && data.cif_id) {
             return `<a href="#" onclick="showCIFDetails('${data.cif_id}', '${data.inv_no}'); return false;">${data.inv_no}</a>`;
         }
@@ -148,12 +149,11 @@ frappe.query_reports["CIF Sheet Table"] = {
             label: __("Limit"),
             fieldtype: "Select",
             options: [
-                { "value": 25, "label": __("25") },
                 { "value": 100, "label": __("100") },
                 { "value": 500, "label": __("500") },
                 { "value": 0, "label": __("All") } // Use 0 or "" to represent 'No Limit' in your query
             ],
-            default: 25,
+            default: 100,
             reqd: 0
         },
         {
