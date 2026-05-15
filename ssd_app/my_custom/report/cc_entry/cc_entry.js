@@ -30,8 +30,12 @@ frappe.query_reports["CC Entry"] = {
 						frappe.set_route('Form', 'CC Received Details', 'new-cc-received-details');
 						return false;
 				">
-				<i class="fa fa-plus-circle"></i>
+				<svg class="icon icon-sm">
+					<use href="#icon-upload"></use>
+				</svg>
 				</a>
+
+				
 			`;
 		}
 

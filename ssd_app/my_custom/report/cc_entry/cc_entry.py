@@ -28,7 +28,7 @@ def execute(filters=None):
         {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 110},
 		{"label": "Currency", "fieldname": "currency", "fieldtype": "Data", "width": 110},
 		{"label": "Amount", "fieldname": "amount", "fieldtype": "Float", "width": 150},
-		{"label": "Action", "fieldname": "action", "fieldtype": "Data", "width": 150},
+		{"label": "Action", "fieldname": "action", "fieldtype": "Data", "width": 80},
 		
 	]
 	return columns, data
