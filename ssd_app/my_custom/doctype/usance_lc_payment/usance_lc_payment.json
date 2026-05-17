@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "u_lc_d-.#####",
+ "autoname": "u_lc_p-.#####",
  "creation": "2025-07-29 23:59:19.642518",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -58,11 +58,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-29 00:03:47.321359",
+ "modified": "2026-05-16 23:26:46.031382",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Usance LC Payment",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -79,6 +79,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

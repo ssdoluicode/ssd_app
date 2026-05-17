@@ -97,11 +97,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-18 09:40:08.865767",
+ "modified": "2026-05-16 23:23:26.489034",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "LC Open",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -118,6 +118,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

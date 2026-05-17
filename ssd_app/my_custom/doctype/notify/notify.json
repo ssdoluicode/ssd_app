@@ -71,11 +71,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-28 16:25:41.016940",
+ "modified": "2026-05-16 23:24:03.638784",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Notify",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

@@ -38,6 +38,7 @@ app_include_js = ["/assets/ssd_app/js/dialog_box.js", "/assets/ssd_app/js/report
 app_include_css = ["/assets/ssd_app/css/custom.css", "/assets/ssd_app/css/report_row_highlight.css"]
 
 
+
 # include js, css files in header of web template
 # web_include_css = "/assets/ssd_app/css/ssd_app.css"
 # web_include_js = "/assets/ssd_app/js/ssd_app.js"

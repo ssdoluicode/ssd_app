@@ -287,9 +287,13 @@ function show_cc_dialog(name) {
             $edit_btn.on("click", function () {
 
                 dialog.hide();
-                frappe.route_options = {
-                    redirect_after_save: "CC Report"
-                };
+                // frappe.route_options = {
+                //     redirect_after_save: "CC Report"
+                // };
+                sessionStorage.setItem(
+                    'return_to_after_save',
+                    'CC Report'
+                );
 
 
                 frappe.set_route(
@@ -354,9 +358,13 @@ window.view_cc_breakup_details = function(ref_no, customer) {
             detail_dialog.$wrapper.on("click", ".btn-edit-cc", function() {
                 const docname = $(this).attr("data-name");
 
-                frappe.route_options = {
-                    "redirect_after_save": "CC Report"
-                };
+                // frappe.route_options = {
+                //     "redirect_after_save": "CC Report"
+                // };
+                sessionStorage.setItem(
+                    'return_to_after_save',
+                    'CC Report'
+                );
 
                 detail_dialog.hide();
                 frappe.set_route("Form", "CC Received", docname);

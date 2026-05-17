@@ -1,16 +1,11 @@
-
 frappe.ui.form.on('Comm Paid', {
 
     refresh(frm) {
-        // Calculate and display running balances when the form opens or reloads
-        calculate_running_balance(frm);
 
-        // Keep the agent field read-only status accurate on load
-        toggle_agent_readonly(frm);
-
-        // Custom keyboard navigation loop
         $(frm.wrapper).off('keydown.form_focus_loop');
+
         $(frm.wrapper).on('keydown.form_focus_loop', function (e) {
+
             if (e.key !== "Tab") return;
 
             let focusable = $(frm.wrapper)
@@ -37,30 +32,19 @@ frappe.ui.form.on('Comm Paid', {
     },
 
     setup(frm) {
-        // Dynamic set_query to exclude already selected invoices on the fly
-        frm.set_query('inv_no', 'comm_breakup', (doc, cdt, cdn) => {
-            const current_row = locals[cdt][cdn];
-
-            const excluded_invoices = (frm.doc.comm_breakup || [])
-                .filter(d => d.name !== current_row.name)
-                .map(d => d.inv_no)
-                .filter(inv => inv);
-
-            return {
-                query: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_filter_inv_no",
-                filters: { 
-                    agent: frm.doc.agent,
-                    excluded_invoices: excluded_invoices 
-                }
-            };
-        });
+        frm.set_query('inv_no', 'comm_breakup', () => ({
+            query: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_filter_inv_no",
+            filters: { agent: frm.doc.agent }
+        }));
     },
 
     onload(frm) {
+
         if (frm.is_new() && !(frm.doc.comm_breakup || []).length) {
             frm.add_child('comm_breakup');
             frm.refresh_field('comm_breakup');
         }
+
     },
 
     onload_post_render(frm) {
@@ -70,12 +54,18 @@ frappe.ui.form.on('Comm Paid', {
     },
 
     agent(frm) {
+
         if ((frm.doc.comm_breakup || []).length) {
+
             frm.clear_table('comm_breakup');
+
             frm.add_child('comm_breakup');
+
             frm.refresh_field('comm_breakup');
+
             toggle_agent_readonly(frm);
         }
+
     },
 
     amount_usd: async function(frm) {
@@ -88,6 +78,7 @@ frappe.ui.form.on('Comm Paid', {
 frappe.ui.form.on('Comm Breakup', {
 
     inv_no: async function(frm, cdt, cdn) {
+
         const row = locals[cdt][cdn];
 
         toggle_agent_readonly(frm);
@@ -100,6 +91,7 @@ frappe.ui.form.on('Comm Breakup', {
         });
 
         const inv_balance = flt(r.message);
+        console.log(inv_balance);
 
         const total_usd = flt(frm.doc.amount_usd);
 
@@ -108,41 +100,15 @@ frappe.ui.form.on('Comm Breakup', {
             .reduce((sum, d) => sum + flt(d.amount), 0);
 
         const remaining = total_usd - allocated_other_rows;
+
         const auto_amount = Math.min(inv_balance, Math.max(0, remaining));
 
         await frappe.model.set_value(cdt, cdn, 'amount', auto_amount);
+
         await calculate_running_balance(frm);
     },
 
-    // CRITICAL UPDATE: Validate manually entered amounts against the maximum allowed balance
-    amount: async function(frm, cdt, cdn) {
-        const row = locals[cdt][cdn];
-
-        // Only validate if an invoice number is selected and an amount is entered
-        if (row.inv_no && flt(row.amount) > 0) {
-            
-            // 1. Fetch the absolute maximum allowed balance for this specific invoice
-            let r = await frappe.call({
-                method: "ssd_app.my_custom.doctype.comm_paid.comm_paid.get_inv_no_balance",
-                args: { inv_no: row.inv_no }
-            });
-            
-            const max_allowed = flt(r.message);
-
-            // 2. If the user typed an amount higher than allowed, block it
-            if (flt(row.amount) > max_allowed) {
-                frappe.msgprint({
-                    title: __('Invalid Amount'),
-                    indicator: 'red',
-                    message: __('Commission Amount cannot exceed of balance payable {0}', [max_allowed])
-                });
-
-                // Reset the amount to 0 or max_allowed to prevent saving invalid values
-                await frappe.model.set_value(cdt, cdn, 'amount', max_allowed);
-            }
-        }
-
-        // Recalculate balances after handling validation
+    amount: async function(frm) {
         await calculate_running_balance(frm);
     },
 
@@ -155,32 +121,48 @@ frappe.ui.form.on('Comm Breakup', {
 
 
 async function calculate_running_balance(frm) {
+
     const total = flt(frm.doc.amount_usd);
+
     let allocated = 0;
 
     (frm.doc.comm_breakup || []).forEach(row => {
+
         allocated += flt(row.amount);
+
         row.balance = total - allocated;
+
     });
 
     const remaining = total - allocated;
+
     const grid = frm.fields_dict.comm_breakup.grid;
 
     if (remaining !== 0) {
+
         frm.disable_save();
+
         grid.cannot_add_rows = false;
+
     } else {
+
         frm.enable_save();
+
         grid.cannot_add_rows = true;
+
     }
 
-    if (grid) {
-        grid.refresh();
-    }
+    frm.refresh_field('comm_breakup');
+
 }
 
 
 function toggle_agent_readonly(frm) {
+
     const has_invoice = (frm.doc.comm_breakup || []).some(d => d.inv_no);
+
     frm.set_df_property('agent', 'read_only', has_invoice ? 1 : 0);
+
 }
+
+

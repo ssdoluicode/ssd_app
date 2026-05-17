@@ -11,13 +11,13 @@ if (typeof html2pdf === "undefined") {
 
 frappe.query_reports["CIF Sheet Table"] = {
     onload: function (report) {
+        report.page.add_inner_button("Shipping Book Table", function (){
+            frappe.set_route("query-report", "Shipping Book Table")
+        })
         report.page.add_inner_button("Cost Sheet Table", function () {
             frappe.set_route("query-report", "Cost Sheet Table");
         });
-        // report.page.add_inner_button("Open CIF Sheet List", function () {
-        //     frappe.set_route("List", "CIF Sheet");
-        // });
-        report.page.add_inner_button(__("Create CIF Sheet"), function () {
+        report.page.add_inner_button(__("Create New"), function () {
             // Set the flag in sessionStorage before navigating
             sessionStorage.setItem('return_to_after_save', 'CIF Sheet Table');
             frappe.new_doc("CIF Sheet");
@@ -200,7 +200,7 @@ frappe.query_reports["CIF Sheet Table"] = {
 function create_cost_sheet(inv_no) {
     // frappe.return_to_page='CIF Sheet Table';
     sessionStorage.setItem(
-        'return_to_page',
+        'return_to_after_save',
         'CIF Sheet Table'
     );
 

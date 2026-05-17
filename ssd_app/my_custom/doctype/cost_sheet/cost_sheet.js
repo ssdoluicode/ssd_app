@@ -335,12 +335,11 @@ frappe.ui.form.on("Cost Sheet", {
     
     after_save(frm) {
         // const returnTo = frappe.return_to_page;
-        const returnTo = sessionStorage.getItem('return_to_page');
+        const returnTo = sessionStorage.getItem('return_to_after_save');
 
-        console.log(returnTo, "hiiiiiii", window.frappe)
         
         if (returnTo === 'CIF Sheet Table' || returnTo === 'Cost Sheet Table') {
-            sessionStorage.removeItem('return_to_page');
+            sessionStorage.removeItem('return_to_after_save');
 
             // This is the fastest safe way in v15
             frappe.run_serially([

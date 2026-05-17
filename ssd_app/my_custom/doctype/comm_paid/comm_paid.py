@@ -5,6 +5,8 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import flt
 from frappe import _
+import json
+from frappe import cint
 
 class CommPaid(Document):
     def validate(self):
@@ -43,12 +45,71 @@ class CommPaid(Document):
         if abs(flt(self.amount_usd) - total_allocated) > 0.001:
             frappe.throw(f"Total allocated {total_allocated} must equal Amount USD ({self.amount_usd})")
 
+# @frappe.whitelist()
+# def get_filter_inv_no(doctype, txt, searchfield, start, page_len, filters=None):
+#     agent = filters.get("agent") if filters else None
+    
+#     # Using a CTE (Common Table Expression) for better readability
+#     return frappe.db.sql("""
+#         WITH PaidInfo AS (
+#             SELECT inv_no, SUM(amount) AS total_paid
+#             FROM `tabComm Breakup`
+#             GROUP BY inv_no
+#         )
+#         SELECT 
+#             c.name, c.custom_title, c.commission, 
+#             (c.commission - IFNULL(p.total_paid, 0)) AS balance
+#         FROM `tabCost Sheet` c
+#         LEFT JOIN PaidInfo p ON c.name = p.inv_no
+#         WHERE (%(agent)s IS NULL OR c.agent = %(agent)s)
+#           AND (c.commission - IFNULL(p.total_paid, 0)) > 0
+#           AND (c.name LIKE %(txt)s OR c.custom_title LIKE %(txt)s)
+#         ORDER BY c.name ASC
+#         LIMIT %(page_len)s OFFSET %(start)s
+#     """, {
+#         "agent": agent,
+#         "txt": f"%{txt}%",
+#         "page_len": page_len,
+#         "start": start
+#     })
+
+
+
+
 @frappe.whitelist()
 def get_filter_inv_no(doctype, txt, searchfield, start, page_len, filters=None):
     agent = filters.get("agent") if filters else None
     
-    # Using a CTE (Common Table Expression) for better readability
-    return frappe.db.sql("""
+    # Capture the incoming dynamic exclusion list
+    excluded = filters.get("excluded_invoices") if filters else None
+
+    
+    # Frappe filters can occasionally arrive stringified over HTTP
+    if isinstance(excluded, str):
+        try:
+            excluded = json.loads(excluded)
+        except (ValueError, TypeError):
+            excluded = []
+
+    # FIX: Use cint() instead of flt() for database LIMIT and OFFSET boundaries
+    query_args = {
+        "agent": agent,
+        "txt": f"%{txt}%",
+        "page_len": cint(page_len),
+        "start": cint(start)
+    }
+
+    # Construct conditions array and inject NOT IN filter if items are selected
+    sql_conditions = []
+    if excluded and len(excluded) > 0:
+        sql_conditions.append("AND c.name NOT IN %(excluded)s")
+        query_args["excluded"] = tuple(excluded)
+    
+    # Join into a clean injection string
+    exclusion_clause = " ".join(sql_conditions)
+
+    # Execute query with your original CTE layout
+    return frappe.db.sql(f"""
         WITH PaidInfo AS (
             SELECT inv_no, SUM(amount) AS total_paid
             FROM `tabComm Breakup`
@@ -62,14 +123,11 @@ def get_filter_inv_no(doctype, txt, searchfield, start, page_len, filters=None):
         WHERE (%(agent)s IS NULL OR c.agent = %(agent)s)
           AND (c.commission - IFNULL(p.total_paid, 0)) > 0
           AND (c.name LIKE %(txt)s OR c.custom_title LIKE %(txt)s)
+          {exclusion_clause}
         ORDER BY c.name ASC
         LIMIT %(page_len)s OFFSET %(start)s
-    """, {
-        "agent": agent,
-        "txt": f"%{txt}%",
-        "page_len": page_len,
-        "start": start
-    })
+    """, query_args)
+
 
 @frappe.whitelist()
 def get_inv_no_balance(inv_no, name=None):

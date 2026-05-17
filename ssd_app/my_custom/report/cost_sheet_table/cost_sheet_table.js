@@ -10,9 +10,9 @@ frappe.query_reports["Cost Sheet Table"] = {
         report.page.add_inner_button("CIF Sheet Table", function () {
             frappe.set_route("query-report", "CIF Sheet Table");
         });
-        report.page.add_inner_button(__("Create Cost Sheet"), function () {
+        report.page.add_inner_button(__("Create New"), function () {
             // Set the flag in sessionStorage before navigating
-            sessionStorage.setItem('return_to_page', 'Cost Sheet Table');
+            sessionStorage.setItem('return_to_after_save', 'Cost Sheet Table');
             frappe.new_doc("Cost Sheet");
         });
         frappe.call({
@@ -52,7 +52,7 @@ frappe.query_reports["Cost Sheet Table"] = {
 
                     <!-- Edit -->
                     <a href="/app/cost-sheet/${data.name}"
-                        onclick="sessionStorage.setItem('return_to_page', 'Cost Sheet Table')"
+                        onclick="sessionStorage.setItem('return_to_after_save', 'Cost Sheet Table')"
                         title="Edit">
                         <svg class="icon icon-sm">
                             <use href="#icon-edit"></use>

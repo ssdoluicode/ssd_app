@@ -5,7 +5,7 @@ from frappe.utils.jinja import render_template
 from frappe import _
 
 
-def get_cif_data(filters):
+def get_data(filters):
     year = filters.year
     limit = filters.get("limit")
     limit_clause = ""
@@ -124,7 +124,7 @@ def execute(filters=None):
         {"label": "Supplier", "fieldname": "supplier", "fieldtype": "Data", "width": 180},
         {"label": "Action", "fieldname": "action", "fieldtype": "Data", "width": 80}
     ]
-    data = get_cif_data(filters)
+    data = get_data(filters)
     return columns, data
 
 

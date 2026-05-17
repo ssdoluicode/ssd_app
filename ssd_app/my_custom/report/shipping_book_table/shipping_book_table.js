@@ -20,14 +20,14 @@ frappe.query_reports["Shipping Book Table"] = {
         // });
         report.page.add_inner_button(__("Create New"), function () {
             // Set the flag in sessionStorage before navigating
-            sessionStorage.setItem('return_to_after_save', 'Shipping Book Table');
+            sessionStorage.setItem('return_to_sbt_after_save', 'Shipping Book Table');
             frappe.new_doc("Shipping Book");
         });
 
         report.refresh();
 
         frappe.call({
-            method: "ssd_app.my_custom.report.cif_sheet_table.cif_sheet_table.get_years",
+            method: "ssd_app.my_custom.report.shipping_book_table.shipping_book_table.get_years",
             callback: function (r) {
                 if (r.message) {
                     let year_filter = report.get_filter("year");
@@ -74,7 +74,7 @@ frappe.query_reports["Shipping Book Table"] = {
 
                     <!-- Edit -->
                     <a href="/app/shipping-book/${data.name}"
-                        onclick="sessionStorage.setItem('return_to_after_save', 'Shipping Book Table')"
+                        onclick="sessionStorage.setItem('return_to_sbt_after_save', 'Shipping Book Table')"
                         title="Edit">
                         <svg class="icon icon-sm">
                             <use href="#icon-edit"></use>

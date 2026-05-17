@@ -72,3 +72,14 @@ def execute(filters=None):
     data = get_cif_data(filters)
     return columns, data
 
+@frappe.whitelist()
+def get_years():
+    years = frappe.db.sql("""
+        SELECT DISTINCT YEAR(bl_date) AS year
+        FROM `tabShipping Book`
+        WHERE bl_date IS NOT NULL
+        ORDER BY year ASC
+    """, as_dict=True)
+
+    # Return a simple list of years as strings
+    return [str(d.year) for d in years]
