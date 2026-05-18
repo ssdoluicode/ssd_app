@@ -64,12 +64,12 @@ def get_cif_data(filters):
     LEFT JOIN (
         SELECT 
         parent,
-        SUM(CASE WHEN expenses = 'Freight' THEN amount ELSE 0 END) AS freight,
-        SUM(CASE WHEN expenses = 'Local Exp' THEN amount ELSE 0 END) AS local_exp,
-        SUM(CASE WHEN expenses = 'Inland Charges' THEN amount ELSE 0 END) AS inland_charges,
-        SUM(CASE WHEN expenses = 'Switch B/L Charges' THEN amount ELSE 0 END) AS switch_bl_charges,
-        SUM(CASE WHEN expenses = 'Insurance' THEN amount ELSE 0 END) AS insurance,
-        SUM(CASE WHEN expenses = 'Others' THEN amount ELSE 0 END) AS others
+        SUM(CASE WHEN expenses = 'Freight' THEN amount_usd ELSE 0 END) AS freight,
+        SUM(CASE WHEN expenses = 'Local Exp' THEN amount_usd ELSE 0 END) AS local_exp,
+        SUM(CASE WHEN expenses = 'Inland Charges' THEN amount_usd ELSE 0 END) AS inland_charges,
+        SUM(CASE WHEN expenses = 'Switch B/L Charges' THEN amount_usd ELSE 0 END) AS switch_bl_charges,
+        SUM(CASE WHEN expenses = 'Insurance' THEN amount_usd ELSE 0 END) AS insurance,
+        SUM(CASE WHEN expenses = 'Others' THEN amount_usd ELSE 0 END) AS others
         FROM `tabExpenses Cost`
         GROUP BY parent
     ) AS exp ON exp.parent= cost.name
