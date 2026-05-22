@@ -2,7 +2,8 @@
 // For license information, please see license.txt
 function inv_no_filter(frm) {
     frm.set_query('inv_no', () => ({
-        query: 'ssd_app.my_custom.doctype.cif_sheet.cif_sheet.get_available_inv_no'
+        query: 'ssd_app.my_custom.doctype.cif_sheet.cif_sheet.get_available_inv_no',
+        page_length: 50
     }));
 }
 

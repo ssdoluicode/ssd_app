@@ -35,8 +35,7 @@ def get_cif_data(filters):
         
     data= frappe.db.sql(f"""
         SELECT sb.name, sb.inv_no, sb.bl_date, com.company_code AS s_com, cus.customer, noti.notify, sb.invoice_amount, sb.document, 
-                        IF(term.term_name IN ("DA", "LC", "TT") AND sb.term_days,CONCAT(term.term_name, "- ",sb.term_days), 
-term.term_name) AS p_term, bank.bank, user.first_name AS created_by, cif.name AS cif_id, "-" AS action
+                        term.term_name AS p_term, sb.term_days, bank.bank, user.first_name AS created_by, cif.name AS cif_id, "-" AS action
 FROM `tabShipping Book` sb
 LEFT JOIN `tabCompany` com ON com.name= sb.company
 LEFT JOIN `tabCustomer` cus ON cus.name= sb.customer
@@ -65,7 +64,7 @@ def execute(filters=None):
         {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 100},
         {"label": "Bank", "fieldname": "bank", "fieldtype": "Data", "width": 60},
         {"label": "P Term", "fieldname": "p_term", "fieldtype": "Data", "width": 100},
-        # {"label": "CIF ID", "fieldname": "cif_id", "fieldtype": "Data", "width": 90},
+        {"label": "T Days", "fieldname": "term_days", "fieldtype": "Data", "width": 80},
         {"label": "Create By", "fieldname": "created_by", "fieldtype": "Data", "width": 80},
         {"label": "Action", "fieldname": "action", "fieldtype": "Data", "width": 80}
     ]

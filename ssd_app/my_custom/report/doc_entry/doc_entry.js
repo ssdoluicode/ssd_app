@@ -57,15 +57,25 @@ frappe.query_reports["Doc Entry"] = {
 
             const inv_no = String(data.name).replace(/'/g, "\\'");
 
-            return `
+            // return `
+            //     ${value}
+            //     <a href="#"
+            //        title="Create ${doctype} for ${inv_no}"
+            //        style="margin-left:6px; color:#007bff; text-decoration:none;"
+            //        onclick="frappe.route_options = { inv_no: '${inv_no}' }; frappe.set_route('Form', '${doctype}', 'new-${doctype}'); return false;">
+            //        <i class="fa fa-plus-circle"></i>
+            //     </a>`;
+           return `
                 ${value}
                 <a href="#"
-                   title="Create ${doctype} for ${inv_no}"
-                   style="margin-left:6px; color:#007bff; text-decoration:none;"
-                   onclick="frappe.route_options = { inv_no: '${inv_no}' }; frappe.set_route('Form', '${doctype}', 'new-${doctype}'); return false;">
-                   <i class="fa fa-plus-circle"></i>
+                    title="Create ${doctype} for ${inv_no}"
+                    style="margin-left:6px; color:#007bff; text-decoration:none;"
+                    onclick="sessionStorage.setItem('return_to_after_save','Doc Entry'); frappe.route_options={inv_no:'${inv_no}'}; frappe.new_doc('${doctype}'); return false;">
+                    <svg class="icon icon-sm">
+                        <use href="#icon-upload"></use>
+                    </svg>
                 </a>`;
-        }
+            }
 
         return value;
     }

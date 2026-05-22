@@ -90,7 +90,7 @@ frappe.query_reports["Cost Sheet Table"] = {
                 { "value": 500, "label": __("500") },
                 { "value": 0, "label": __("All") } // Use 0 or "" to represent 'No Limit' in your query
             ],
-            default: 100,
+            default: 0,
             reqd: 0
         },
         {

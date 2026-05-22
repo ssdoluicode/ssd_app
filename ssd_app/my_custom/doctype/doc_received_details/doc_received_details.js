@@ -200,8 +200,31 @@ frappe.ui.form.on("Doc Received Details", {
     short_payment: calculate_bank_amount,
     foreign_charges: calculate_bank_amount,
 
+    // after_save(frm) {
+    //     window.location.href = "/app/query-report/Doc Entry";
+    // }
     after_save(frm) {
-        window.location.href = "/app/query-report/Doc Entry";
+        const returnTo = sessionStorage.getItem('return_to_after_save');
+        
+        if (returnTo === 'Doc Entry') {
+            sessionStorage.removeItem('return_to_after_save');
+
+            // This is the fastest safe way in v15
+            frappe.run_serially([
+                // 1. Wait a tiny bit for the save UI to settle (200ms is fine here)
+                () => frappe.timeout(0.2), 
+                
+                // 2. Change the route (Internal redirect, no full reload)
+                () => frappe.set_route("query-report", returnTo),
+                
+                // 3. Refresh the report data immediately upon arrival
+                () => {
+                    if (frappe.query_report && frappe.query_report.report_name === returnTo) {
+                        frappe.query_report.refresh();
+                    }
+                }
+            ]);
+        }
     }
 
 });

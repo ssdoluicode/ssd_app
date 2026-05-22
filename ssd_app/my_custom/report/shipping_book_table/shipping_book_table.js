@@ -20,7 +20,7 @@ frappe.query_reports["Shipping Book Table"] = {
         // });
         report.page.add_inner_button(__("Create New"), function () {
             // Set the flag in sessionStorage before navigating
-            sessionStorage.setItem('return_to_sbt_after_save', 'Shipping Book Table');
+            sessionStorage.setItem('return_to_after_save', 'Shipping Book Table');
             frappe.new_doc("Shipping Book");
         });
 
@@ -60,7 +60,7 @@ frappe.query_reports["Shipping Book Table"] = {
             if (!data.cif_id) {
                 cif_button = `
                     <a href="#"
-                        onclick="create_shipping_book('${data.name}'); return false;"
+                        onclick="create_cif_sheet('${data.name}'); return false;"
                         title="Create CIF Sheet">
                         <svg class="icon icon-sm">
                             <use href="#icon-upload"></use>
@@ -74,7 +74,7 @@ frappe.query_reports["Shipping Book Table"] = {
 
                     <!-- Edit -->
                     <a href="/app/shipping-book/${data.name}"
-                        onclick="sessionStorage.setItem('return_to_sbt_after_save', 'Shipping Book Table')"
+                        onclick="sessionStorage.setItem('return_to_after_save', 'Shipping Book Table')"
                         title="Edit">
                         <svg class="icon icon-sm">
                             <use href="#icon-edit"></use>
@@ -168,7 +168,7 @@ frappe.query_reports["Shipping Book Table"] = {
 };
 
 
-function create_shipping_book(name) {
+function create_cif_sheet(name) {
     // frappe.return_to_page='CIF Sheet Table';
     sessionStorage.setItem(
         'return_to_page',

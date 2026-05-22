@@ -3,6 +3,7 @@
 
 function get_supplier(frm) {
     if (!frm.doc.inv_no) return;
+    if (frm.doc.supplier && frm.doc.inv_date) return;
 
     if (frm.is_new() && !frappe.quick_entry) {
         frappe.call({
@@ -12,10 +13,12 @@ function get_supplier(frm) {
                 const data = r.message;
                 if (!data) return;
 
-                frm.set_value({
-                    supplier: data.supplier,
-                    inv_date: data.inv_date
-                });
+                if (!frm.doc.supplier){
+                    frm.set_value("supplier", data.supplier);
+                }
+                if (!frm.doc.inv_date){
+                    frm.set_value("inv_date", data.inv_date);
+                }
             }
         });
     }
