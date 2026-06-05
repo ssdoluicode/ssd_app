@@ -170,7 +170,11 @@ def get_doc_flow(inv_name):
 	
 	if round(coll,2) > 0 and use_banking_line:
 		buttons_html += f"""
-		<a href="#" onclick="frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); return false;" class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
+		<a href="#" onclick="
+		sessionStorage.setItem('return_to_after_save', 'Document Receivable');
+		frappe.new_doc('Doc Nego', {{ inv_no: '{inv_name}', term_days:'{doc.term_days}', nego_amount: {coll}, bank_due_date:'{due_date_str}' }}); 
+		return false;" 
+		class="btn btn-primary btn-sm" style="margin-left:8px;background-color:blue;">Nego</a>"""
 		
 	if round(nego_amt,2) > 0:
 		buttons_html += f"""
