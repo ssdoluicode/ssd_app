@@ -185,13 +185,9 @@ def render_master_sheet_pdf(inv_name, pdf=0):
         WHERE p.parent = %s""", inv_name, as_dict=1)
     product = sorted(product, key=lambda x: x['product_group'])
 
-    # Sales Expenses
-    exp = frappe.get_all("Expenses CIF", filters={'parent': inv_name}, fields=['expenses', 'amount', 'currency', 'amount_usd as total_amount'])
-    exp_dict = {i.expenses: i for i in exp}
-    expenses = {e: exp_dict.get(e, 0) for e in ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Others"]}
 
+    expenses_list= ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "China Commission", "Others"]
     # Cost Expenses
-    cost_expenses = {e: 0 for e in ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Others"]}
     cost_insurance = 0
     if cost_name:
         c_exp = frappe.get_all("Expenses Cost", filters={'parent': cost_name}, fields=['expenses', 'amount', 'currency', 'amount_usd as total_amount'])
@@ -200,7 +196,16 @@ def render_master_sheet_pdf(inv_name, pdf=0):
             if i.expenses == "Insurance":
                 cost_insurance = i.amount
             cost_exp_dict[i.expenses] = i
-        cost_expenses = {e: cost_exp_dict.get(e, 0) for e in ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Others"]}
+        cost_expenses = {e: cost_exp_dict.get(e, 0) for e in expenses_list}
+    
+    if not cost_exp_dict.get("China Commission"):
+         expenses_list.remove("China Commission")
+
+    # Sales Expenses
+    exp = frappe.get_all("Expenses CIF", filters={'parent': inv_name}, fields=['expenses', 'amount', 'currency', 'amount_usd as total_amount'])
+    exp_dict = {i.expenses: i for i in exp}
+    expenses = {e: exp_dict.get(e, 0) for e in expenses_list}
+
 
     context = {
         "doc": doc,

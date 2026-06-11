@@ -179,12 +179,11 @@ body{
     );
 
     border-radius:14px;
-
     padding:12px;
-
     max-height:260px;
-
     overflow-y:auto;
+    overflow-y: auto;
+    scrollbar-width: none;
 }
 
 .mini-row{
@@ -220,7 +219,7 @@ body{
 
 .mini-amount{
 
-    color:#cbd5e1;
+    color:white;
 
     font-size:13px;
 }

@@ -120,8 +120,15 @@
         {% endfor %}
 
         <tr>
-            <!-- <td> Commission ({{doc.agent_name}} @ {{doc.comm_rate}})</td> -->
-             <td>Commission{% if doc.commission %} ({{ doc.agent_name }} @ {{ doc.comm_rate }}){% endif %}</td>
+            <td>
+                Commission
+                {% if doc.agent_name or doc.comm_rate %}
+                (
+                    {% if doc.agent_name %}{{ doc.agent_name }}{% endif %}
+                    {% if doc.comm_rate %} @ {{ doc.comm_rate }}{% endif %}
+                )
+                {% endif %}
+            </td>
             <td style="text-align: right;">{{"{:,.2f}".format(doc.commission)}}</td>
         </tr>
     </table>

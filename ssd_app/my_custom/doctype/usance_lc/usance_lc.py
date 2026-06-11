@@ -46,12 +46,13 @@ def bank_line_validtation(doc):
         lc_term_name= frappe.db.get_value("Payment Term", {"term_name":"LC Open"}, "name")
         lc_bl_data=check_banking_line(doc.bank, doc.company,lc_term_name)
         lc_open_line = lc_bl_data["banking_line_name"]
-
         term_name_2= frappe.db.get_value("Payment Term", {"term_name":"Usance LC"}, "name")
         bl_data_2=check_banking_line(doc.bank, doc.company, term_name_2)
         u_lc_line = bl_data_2["banking_line_name"]
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", group_id)
 
         if (lc_open_line == u_lc_line):
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ IF 1")
             bl = frappe.db.sql("""
                 SELECT
                     SUM(lc_o.amount_usd)
@@ -67,24 +68,27 @@ def bank_line_validtation(doc):
                 LEFT JOIN (
                     SELECT group_id, SUM(loan_amount_usd) AS to_imp_ln
                     FROM `tabImport Loan`
-                    WHERE from_lc_open = 1
+                    WHERE from_lc_open = 1 
                     GROUP BY group_id
                 ) imp_ln ON imp_ln.group_id = lc_o.group_id
                 LEFT JOIN (
                     SELECT group_id, SUM(usance_lc_amount_usd) AS to_usance_lc
                     FROM `tabUsance LC`
-                    WHERE from_lc_open = 1
+                    WHERE from_lc_open = 1 AND name !=  %s
                     GROUP BY group_id
                 ) usance_lc ON usance_lc.group_id = lc_o.group_id
                 WHERE lc_o.group_id = %s
-            """, group_id)[0][0] or 0.0
+            """,(doc.name, group_id))[0][0] or 0.0
         else:
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Else")
             bl= bl_data_2["balance_line"]
 
 
     else:
         term_name= frappe.db.get_value("Payment Term", {"term_name":"LC Open"}, "name")
+
         bl_data = check_banking_line( doc.bank, doc.company, term_name)
+        print(bl_data)
         bl= bl_data["balance_line"]
     
     if bl == 0:

@@ -59,7 +59,7 @@ def bank_line_validtation(doc):
                 LEFT JOIN (
                     SELECT group_id, SUM(loan_amount_usd) AS to_imp_ln
                     FROM `tabImport Loan`
-                    WHERE from_lc_open = 1
+                    WHERE from_lc_open = 1 AND name !=  %s
                     GROUP BY group_id
                 ) imp_ln ON imp_ln.group_id = lc_o.group_id
                 LEFT JOIN (
@@ -69,7 +69,7 @@ def bank_line_validtation(doc):
                     GROUP BY group_id
                 ) usance_lc ON usance_lc.group_id = lc_o.group_id
                 WHERE lc_o.group_id = %s
-            """, group_id)[0][0] or 0.0
+            """, (doc.name, group_id))[0][0] or 0.0
         
         else:
               bl= bl_data_2["balance_line"]

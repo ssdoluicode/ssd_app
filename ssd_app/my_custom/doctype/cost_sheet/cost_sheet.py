@@ -181,7 +181,10 @@ def render_cost_sheet_pdf(inv_name, pdf=0):
         }
         for i in exp
     }
-    expenses = {e: exp_dict.get(e, 0) for e in ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Insurance", "Others"]}
+    expenses_list= ["Freight", "Local Exp", "Inland Charges", "Switch B/L Charges", "Insurance", "China Commission", "Others"]
+    if not exp_dict.get("China Commission"):
+        expenses_list.remove("China Commission")
+    expenses = {e: exp_dict.get(e, 0) for e in expenses_list}
 
     context = {
         "doc": doc,

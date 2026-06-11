@@ -32,6 +32,7 @@ def final_validation(doc):
             LEFT JOIN (
                 SELECT group_id, SUM(amount_usd) AS lc_p_amount
                 FROM `tabLC Payment`
+				WHERE name !=  %s
                 GROUP BY group_id
             ) lc_p ON lc_p.group_id = lc_o.group_id
             LEFT JOIN (
@@ -47,7 +48,7 @@ def final_validation(doc):
                 GROUP BY group_id
             ) usance_lc ON usance_lc.group_id = lc_o.group_id
             WHERE lc_o.group_id = %s
-        """, group_id)[0][0] or 0.0
+        """, (doc.name,group_id))[0][0] or 0.0
 
 	if bl <= 0:
 		frappe.throw("❌ No Banking Line available for this Company & Bank")
