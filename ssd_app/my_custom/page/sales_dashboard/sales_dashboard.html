@@ -1,3 +1,5 @@
+
+
 <div class="main-dashboard">
 
     <div class="analysis-area">
@@ -31,10 +33,128 @@
 
 
 <!-- ================= SEPARATE INDEPENDENT REPORT ================= -->
-<div class="separate-report mt-4">
 
-    <h4>Independent Report Section</h4>
-    <div id="independent-report"></div>
 
+<div class="dashboard-2">
+    <div class="analysis-area">
+        <div class="dashboard-table">
+
+            <div class="frappe-page-container">
+
+                <div class="dashboard-controls-row">
+
+
+                    <div class="period-field">
+                        <div class="date-input-wrapper">
+                            <label for="from_date">From:</label>
+                            <input type="date" id="from_date" class="period-date-custom">
+                        </div>
+                        <div class="date-input-wrapper">
+                            <label for="to_date">To:</label>
+                            <input type="date" id="to_date" class="period-date-custom">
+                        </div>
+                    </div>
+
+
+                    <div class="ctrl-middle">
+                        <div class="btn-group-segmented" id="column-toggle-group">
+                            <input type="radio" name="dashboard_period" id="per_month" checked>
+                            <label class="btn-control" for="per_month">Monthly</label>
+
+                            <input type="radio" name="dashboard_period" id="per_quarter">
+                            <label class="btn-control" for="per_quarter">Quarterly</label>
+
+                            <input type="radio" name="dashboard_period" id="per_year">
+                            <label class="btn-control" for="per_year">Yearly</label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group-segmented" id="metric-toggle-group">
+                        <input type="radio" name="row_metric" id="row_category" checked>
+                        <label class="btn-control" for="row_category">Category</label>
+
+                        <input type="radio" name="row_metric" id="row_customer">
+                        <label class="btn-control" for="row_customer">Customer</label>
+
+                        <input type="radio" name="row_metric" id="row_notify">
+                        <label class="btn-control" for="row_notify">Notify</label>
+
+                        <input type="radio" name="row_metric" id="row_company">
+                        <label class="btn-control" for="row_company">Company</label>
+                        
+                        <div class="btn-control has-dropdown" id="dropdown-toggle-btn-1">More</div>
+                        
+                        <div class="dropdown-menu-panel-1" id="dropdown-menu-panel-1">
+                            <input type="radio" name="row_metric" id="row_supplier">
+                            <label class="dropdown-item" for="row_supplier">Supplier</label>
+
+                            <input type="radio" name="row_metric" id="row_to_country">
+                            <label class="dropdown-item" for="row_to_country">To Country</label>
+
+                            <input type="radio" name="row_metric" id="row_from_country">
+                            <label class="dropdown-item" for="row_from_country">From Country</label>
+
+                            <input type="radio" name="row_metric" id="row_shi_com">
+                            <label class="dropdown-item" for="row_shi_com">Ship Com</label>
+                        </div>
+                    </div>
+                    
+
+                    <div class="btn-group-segmented" id="metric-toggle-group">
+                        <input type="radio" name="dashboard_metric" id="met_sales" checked>
+                        <label class="btn-control" for="met_sales">Sales</label>
+
+                        <input type="radio" name="dashboard_metric" id="met_purchase">
+                        <label class="btn-control" for="met_purchase">Purchase</label>
+
+                        <input type="radio" name="dashboard_metric" id="met_cost">
+                        <label class="btn-control" for="met_cost">Cost</label>
+
+                        <input type="radio" name="dashboard_metric" id="met_profit">
+                        <label class="btn-control" for="met_profit">Profit</label>
+
+                        <input type="radio" name="dashboard_metric" id="met_profit_pct">
+                        <label class="btn-control" for="met_profit_pct">Profit %</label>
+                        
+                        <div class="btn-control has-dropdown" id="dropdown-toggle-btn">More</div>
+                        
+                        <div class="dropdown-menu-panel" id="dropdown-menu-panel">
+                            <input type="radio" name="dashboard_metric" id="met_freight">
+                            <label class="dropdown-item" for="met_freight">Freight</label>
+
+                            <input type="radio" name="dashboard_metric" id="met_local">
+                            <label class="dropdown-item" for="met_local">Local Expenses</label>
+
+                            <input type="radio" name="dashboard_metric" id="met_comm">
+                            <label class="dropdown-item" for="met_comm">Commission</label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="dashboard-data-container frappe-list">
+                    <div class="report-view-container" style="overflow: auto; max-height: 500px; border: 1px solid #d1d8dc; border-radius: 4px;">
+                        <table class="table table-bordered frappe-data-table" style="margin: 0; background: #fff;">
+                            <thead>
+                                <tr class="report-heading-row">
+                                    <th style="color: #6c757d; font-weight: 500; background: #f8f9fa;">---</th>
+                                    <th style="color: #6c757d; font-weight: 500; background: #f8f9fa;">---</th>
+                                    <th style="color: #6c757d; font-weight: 500; background: #f8f9fa;">---</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: #888; padding: 20px;">
+                                        Waiting for backend metrics...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 </div>
-

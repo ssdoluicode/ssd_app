@@ -450,3 +450,213 @@ g{
     }
 
 }
+
+
+
+/* trying  */
+
+.frappe-page-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 120px);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        gap: 16px;
+        box-sizing: border-box;
+        background-color: #ffffff;
+    }
+
+    .dashboard-controls-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffffff;
+        padding: 4px 0;
+        width: 100%;
+        gap: 12px;
+    }
+
+    /* =====================================================
+       DATE PARAMETERS STYLING
+    ===================================================== */
+    .period-field {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .date-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        font-family: inherit;
+        color: #606266;
+    }
+
+    .period-date-custom {
+        padding: 6px 10px;
+        border: 1px solid #dcdfe6;
+        border-radius: 6px;
+        outline: none;
+        background-color: #fff;
+        font-size: 13px;
+        color: #606266;
+        transition: border-color 0.15s ease;
+    }
+
+    .period-date-custom:focus {
+        border-color: #4f46e5;
+    }
+
+    .ctrl-middle {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        padding: 0 12px;
+    }
+
+    /* =====================================================
+       SEGMENTED CONTROL BUTTON GROUPS
+    ===================================================== */
+    .btn-group-segmented {
+        display: inline-flex;
+        border: 1px solid #dcdfe6;
+        border-radius: 6px;
+        padding: 2px;
+        background-color: #ffffff;
+        position: relative;
+    }
+
+    /* Hide raw logic check elements completely */
+    .btn-group-segmented input[type="radio"] {
+        display: none !important;
+    }
+
+    .btn-group-segmented .btn-control {
+        display: inline-block;
+        background: transparent;
+        border: none;
+        color: #606266;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 4px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.1s ease;
+    }
+
+    /* Standard active state when main bar radio input is checked */
+    .btn-group-segmented input[type="radio"]:checked + .btn-control {
+        background-color: #edeefb !important;
+        color: #4f46e5 !important;
+        font-weight: 600 !important;
+    }
+
+    .btn-control.has-dropdown::after {
+        content: " ▾";
+        font-size: 13px;
+        color: #909399;
+    }
+
+    /* Active highlight when a child hidden option inside the panel is active */
+    .btn-control.has-dropdown.active {
+        background-color: #edeefb !important;
+        color: #4f46e5 !important;
+        font-weight: 600 !important;
+    }
+
+    /* =====================================================
+       UNIFIED DROPDOWN MENUS STYLE (BOTH DROPDOWNS MATCHING)
+    ===================================================== */
+    .dropdown-menu-panel,
+    .dropdown-menu-panel-1 {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        background: #ffffff;
+        border: 1px solid #dcdfe6;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        min-width: 160px;
+        z-index: 100;
+        padding: 4px 0;
+    }
+
+    /* Open trigger utility rules */
+    .dropdown-menu-panel.open,
+    .dropdown-menu-panel-1.open {
+        display: block !important;
+    }
+
+    /* Clean inner options text lines */
+    .dropdown-menu-panel .dropdown-item,
+    .dropdown-menu-panel-1 .dropdown-item {
+        display: block;
+        padding: 9px 16px;
+        font-size: 14px;
+        color: #606266;
+        cursor: pointer;
+        text-align: left;
+        margin: 0;
+        transition: background-color 0.1s ease;
+    }
+
+    .dropdown-menu-panel .dropdown-item:hover,
+    .dropdown-menu-panel-1 .dropdown-item:hover {
+        background-color: #f5f7fa;
+        color: #212529;
+    }
+
+    /* Shared active selection rule for BOTH drop-panels */
+    .dropdown-menu-panel input[type="radio"]:checked + .dropdown-item,
+    .dropdown-menu-panel-1 input[type="radio"]:checked + .dropdown-item {
+        background-color: #edeefb !important;
+        color: #4f46e5 !important;
+        font-weight: 600 !important;
+    }
+
+    /* =====================================================
+       DATATABLE DISPLAY PANELS
+    ===================================================== */
+    .dashboard-data-container {
+        flex: 1;
+        background: #ffffff;
+        border: 1px solid #e4e7ed;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .report-view-container {
+        overflow: auto;
+        max-height: 100%;
+        width: 100%;
+    }
+
+    .frappe-data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 14px;
+    }
+
+    .frappe-data-table th {
+        background: #f8f9fa;
+        color: #909399;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        padding: 14px 20px;
+        border-bottom: 1px solid #e4e7ed;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .frappe-data-table td {
+        padding: 14px 20px;
+        border-bottom: 1px solid #f2f6fc;
+        color: #303133;
+    }
