@@ -61,7 +61,29 @@ frappe.query_reports["Dynamic Sales Report"] = {
             "options": "\nCategory\nCustomer\nNotify\nCompany\nFrom Country\nTo Country",
             "default": "Category",
             "reqd": 1
-        }
+        },
+        {
+            "fieldname": "column",
+            "label": __("Column"),
+            "fieldtype": "Select",
+            "options": "\nMonthly\nQuaterly\nYearly",
+            "default": "Monthly",
+            "reqd": 1
+        },
+        {
+        "fieldname": "value",
+        "label": __("Value"),
+        "fieldtype": "Select",
+        "options": [
+            { "value": "sales", "label": __("Sales") },
+            { "value": "purchase", "label": __("Purchase") },
+            { "value": "cost", "label": __("Cost") },
+            { "value": "profit", "label": __("Profit") },
+            { "value": "profit_pct", "label": __("Profit %") }
+        ],
+        "default": "sales",
+        "reqd": 1
+    }
     ]
 };
 

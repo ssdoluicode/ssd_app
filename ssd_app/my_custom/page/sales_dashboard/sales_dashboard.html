@@ -1,60 +1,51 @@
+<div class="sales-dashboard-container">
 
+    <!-- <div class="common-dashboard-header mb-4">
+        <div class="header-title-wrapper">
+            <h2>Corporate Performance Suite</h2>
+            <p class="text-muted">Dynamic high-velocity metrics grid panel interface with real-time analytics matrix data views</p>
+        </div>
+    </div> -->
 
-<div class="main-dashboard">
-
-    <div class="analysis-area">
-
+    <div class="analysis-area dashboard-section mb-4">
+        <h4 class="section-title">Dashboard 1: Executive Period Analytics</h4>
         <div class="dashboard-layout">
-
-            <!-- LEFT SIDE -->
+            
             <div class="dashboard-left">
-
                 <div class="analysis-content mt-3">
                     <div class="empty-state">
-                        Select a month to view analysis.
+                        <i class="fa fa-calendar mb-2" style="font-size: 24px;"></i>
+                        <div>Select a timeline block parameter from the right sidebar to construct data canvas maps.</div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- RIGHT SIDE -->
             <div class="dashboard-right">
-
-                <div class="cube-title">Period</div>
+                <div class="cube-title">Reporting Timelines</div>
                 <div class="monthly-cubes"></div>
-
             </div>
 
         </div>
-
     </div>
 
-</div>
-
-
-<!-- ================= SEPARATE INDEPENDENT REPORT ================= -->
-
-
-<div class="dashboard-2">
-    <div class="analysis-area">
+    <div class="analysis-area dashboard-section">
+        <h4 class="section-title">Dashboard 2: Dynamic Multi-Dimensional Pivot Matrix</h4>
+        
         <div class="dashboard-table">
-
             <div class="frappe-page-container">
 
                 <div class="dashboard-controls-row">
 
-
                     <div class="period-field">
                         <div class="date-input-wrapper">
                             <label for="from_date">From:</label>
-                            <input type="date" id="from_date" class="period-date-custom">
+                            <input type="date" id="from_date" min="2000-01-01" class="period-date-custom">
                         </div>
                         <div class="date-input-wrapper">
                             <label for="to_date">To:</label>
-                            <input type="date" id="to_date" class="period-date-custom">
+                            <input type="date" id="to_date" min="2000-01-01" class="period-date-custom">
                         </div>
                     </div>
-
 
                     <div class="ctrl-middle">
                         <div class="btn-group-segmented" id="column-toggle-group">
@@ -69,12 +60,12 @@
                         </div>
                     </div>
 
-                    <div class="btn-group-segmented" id="metric-toggle-group">
-                        <input type="radio" name="row_metric" id="row_category" checked>
-                        <label class="btn-control" for="row_category">Category</label>
-
-                        <input type="radio" name="row_metric" id="row_customer">
+                    <div class="btn-group-segmented" id="row-metric-group">
+                        <input type="radio" name="row_metric" id="row_customer" checked>
                         <label class="btn-control" for="row_customer">Customer</label>
+
+                        <input type="radio" name="row_metric" id="row_category">
+                        <label class="btn-control" for="row_category">Category</label>
 
                         <input type="radio" name="row_metric" id="row_notify">
                         <label class="btn-control" for="row_notify">Notify</label>
@@ -82,9 +73,9 @@
                         <input type="radio" name="row_metric" id="row_company">
                         <label class="btn-control" for="row_company">Company</label>
                         
-                        <div class="btn-control has-dropdown" id="dropdown-toggle-btn-1">More</div>
+                        <div class="btn-control has-dropdown" id="row-dropdown-btn">More Fields</div>
                         
-                        <div class="dropdown-menu-panel-1" id="dropdown-menu-panel-1">
+                        <div class="dropdown-menu-panel" id="row-dropdown-panel">
                             <input type="radio" name="row_metric" id="row_supplier">
                             <label class="dropdown-item" for="row_supplier">Supplier</label>
 
@@ -99,8 +90,7 @@
                         </div>
                     </div>
                     
-
-                    <div class="btn-group-segmented" id="metric-toggle-group">
+                    <div class="btn-group-segmented" id="value-metric-group">
                         <input type="radio" name="dashboard_metric" id="met_sales" checked>
                         <label class="btn-control" for="met_sales">Sales</label>
 
@@ -116,9 +106,9 @@
                         <input type="radio" name="dashboard_metric" id="met_profit_pct">
                         <label class="btn-control" for="met_profit_pct">Profit %</label>
                         
-                        <div class="btn-control has-dropdown" id="dropdown-toggle-btn">More</div>
+                        <div class="btn-control has-dropdown" id="metric-dropdown-btn">More Values</div>
                         
-                        <div class="dropdown-menu-panel" id="dropdown-menu-panel">
+                        <div class="dropdown-menu-panel" id="metric-dropdown-panel">
                             <input type="radio" name="dashboard_metric" id="met_freight">
                             <label class="dropdown-item" for="met_freight">Freight</label>
 
@@ -132,20 +122,18 @@
 
                 </div>
 
-                <div class="dashboard-data-container frappe-list">
-                    <div class="report-view-container" style="overflow: auto; max-height: 500px; border: 1px solid #d1d8dc; border-radius: 4px;">
-                        <table class="table table-bordered frappe-data-table" style="margin: 0; background: #fff;">
+                <div class="dashboard-data-container frappe-list mt-2">
+                    <div class="report-view-container">
+                        <table class="table table-bordered frappe-data-table sort-table" id="matrix-pivot-table">
                             <thead>
                                 <tr class="report-heading-row">
-                                    <th style="color: #6c757d; font-weight: 500; background: #f8f9fa;">---</th>
-                                    <th style="color: #6c757d; font-weight: 500; background: #f8f9fa;">---</th>
-                                    <th style="color: #6c757d; font-weight: 500; background: #f8f9fa;">---</th>
+                                    <th style="width: 100%;">—</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="3" style="text-align: center; color: #888; padding: 20px;">
-                                        Waiting for backend metrics...
+                                    <td class="text-center text-muted p-4">
+                                        Initializing analytics core dashboard workspace panel rows view grid...
                                     </td>
                                 </tr>
                             </tbody>
@@ -154,7 +142,7 @@
                 </div>
 
             </div>
-
         </div>
+
     </div>
 </div>
