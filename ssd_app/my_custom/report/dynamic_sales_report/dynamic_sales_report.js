@@ -1,6 +1,39 @@
-// Copyright (c) 2025, SSDolui and contributors
+// Copyright (c) 2026, SSDolui and contributors
 // For license information, please see license.txt
 
+// FAST & RELIABLE: Look up data directly by its unique string group identifier name
+window.updateChartWithRowData = function(rowValueString) {
+    const report = frappe.query_report;
+    if (!report || !report.data) return;
+
+    // Direct O(1) hash map behavior: Find the active dictionary object from report memory
+    const activeRow = report.data.find(r => r[report.columns[0].fieldname] === rowValueString);
+    if (!activeRow) return;
+
+    const columns = report.columns;
+    const first_column_fieldname = columns[0].fieldname;
+    
+    let labels = [];
+    let rowValues = [];
+    
+    // Construct single-row baseline metrics timeline array
+    for (let i = 1; i < columns.length; i++) {
+        const col = columns[i];
+        if (col.fieldname !== "GRAND_TOTAL") {
+            labels.push(col.label);
+            rowValues.push(parseFloat(activeRow[col.fieldname]) || 0);
+        }
+    }
+
+    report.render_chart({
+        data: {
+            labels: labels,
+            datasets: [{ name: activeRow[first_column_fieldname], values: rowValues }]
+        },
+        type: "bar",
+        colors: ["#765eff"]
+    });
+};
 
 frappe.query_reports["Dynamic Sales Report"] = {
     onload: function(report) {
@@ -14,31 +47,56 @@ frappe.query_reports["Dynamic Sales Report"] = {
                 }
             }
         });
-        
     },
     
     formatter: function (value, row, column, data, default_formatter) {
-        // Use default_formatter first for non-numeric columns
         value = default_formatter(value, row, column, data);
 
-        // Skip if no data (will be undefined on total row)
-        if (!data) {
-            return value;
-        }
-        const columns = frappe.query_report.columns;
-        // const col_index = columns.findIndex(col => col.fieldname === column.fieldname);
-        const field_value = data[column.fieldname];
+        if (!data) return value;
 
-        if (field_value !== 0) {
-            const first_column_fieldname = columns[0].label; // Corrected
-            const group_value = data[first_column_fieldname] || data.group_value || "";
-            return `<a href="#" onclick="showInvWise('${first_column_fieldname}', '${group_value}', '${column.fieldname}'); return false;">${value}</a>`;
+        const columns = frappe.query_report.columns;
+        const first_column_fieldname = columns[0].fieldname;
+
+        // =====================================================
+        // STYLING RULES FOR THE FINAL SUMMARY "TOTAL" ROW
+        // =====================================================
+        if (data[first_column_fieldname] === "Total") {
+            if (column.fieldname === first_column_fieldname) {
+                return `<span style="font-weight: bold; color: #1f2937; letter-spacing: 0.5px;">${value}</span>`;
+            }
+            return `<span style="font-weight: bold; color: #111827;">${value}</span>`;
+        }
+
+        // =====================================================
+        // CASE A: CLICK 1ST COLUMN -> UPDATE THE CHART DYNAMICALLY
+        // =====================================================
+        if (column.fieldname === first_column_fieldname) {
+            // Clean single quotes to prevent template syntax breaks on values like "Customer's Name"
+            const escaped_value = String(data[first_column_fieldname]).replace(/'/g, "\\'");
+
+            return `<a href="#"  onclick="window.updateChartWithRowData('${escaped_value}'); return false;">${value}</a>`;
+        }
+        
+        // =====================================================
+        // CASE B: CLICK MID-GRID VALUES -> DRILL DOWN WINDOW
+        // =====================================================
+        const field_value = data[column.fieldname];
+        if (
+            column.fieldname !== "GRAND_TOTAL" &&
+            field_value !== 0 &&
+            field_value !== undefined
+        ) {
+            const group_by = columns[0].label; 
+            const selected_row = data[first_column_fieldname] || ""; 
+            const selected_column = column.label; 
+            
+            const escaped_row = String(selected_row).replace(/'/g, "\\'");
+
+            return `<a href="#" onclick="showInvWise('${group_by}', '${escaped_row}', '${selected_column}'); return false;">${value}</a>`;
         }
          
         return value;
     },
-    
-
 
     "filters": [
         {
@@ -66,54 +124,52 @@ frappe.query_reports["Dynamic Sales Report"] = {
             "fieldname": "column",
             "label": __("Column"),
             "fieldtype": "Select",
-            "options": "\nMonthly\nQuaterly\nYearly",
+            "options": "\nMonthly\nQuarterly\nYearly",
             "default": "Monthly",
             "reqd": 1
         },
         {
-        "fieldname": "value",
-        "label": __("Value"),
-        "fieldtype": "Select",
-        "options": [
-            { "value": "sales", "label": __("Sales") },
-            { "value": "purchase", "label": __("Purchase") },
-            { "value": "cost", "label": __("Cost") },
-            { "value": "profit", "label": __("Profit") },
-            { "value": "profit_pct", "label": __("Profit %") }
-        ],
-        "default": "sales",
-        "reqd": 1
-    }
+            "fieldname": "value",
+            "label": __("Value"),
+            "fieldtype": "Select",
+            "options": [
+                { "value": "sales", "label": __("Sales") },
+                { "value": "purchase", "label": __("Purchase") },
+                { "value": "cost", "label": __("Cost") },
+                { "value": "freight", "label": __("Freight") },
+                { "value": "local_exp", "label": __("Local Expenses") },
+                { "value": "comm", "label": __("Commission") },
+                { "value": "profit", "label": __("Profit") },
+                { "value": "profit_pct", "label": __("Profit %") }
+            ],
+            "default": "sales",
+            "reqd": 1
+        }
     ]
 };
 
-
 // 🧾 Modal Dialog to Show Document Flow
-function showInvWise(group_by, head, month_year) {
-    inv_name="cif-0027"
-    inv_no="cif-0027"
+function showInvWise(group_by, head, period) {
     frappe.call({
         method: "ssd_app.my_custom.report.dynamic_sales_report.dynamic_sales_report.show_inv_wise",
-        args: { inv_name, group_by, head, month_year},
+        args: { group_by, head, period },
         callback: function (r) {
             if (r.message) {
                 const d = new frappe.ui.Dialog({
-                    title: `Invoice Details of: ${group_by}: ${head}, ${month_year}`,
+                    title: `Invoice Details of: ${group_by}: ${head}, ${period}`,
                     size: 'extra-large',
                     fields: [
                         {
                             fieldtype: 'HTML',
                             fieldname: 'details_html',
                             options: `
-                                <div id="cif-details-a4" style="box-shadow: 0 0 8px rgba(0,0,0,0.2);">
+                                <div id="cif-details-a4" style="box-shadow: 0 0 8px rgba(0,0,0,0.2); max-height: 70vh; overflow-y: auto; padding: 10px;">
                                     ${r.message}
                                 </div>`
                         }
                     ]
                 });
-
                 d.show();
-
             }
         }
     });

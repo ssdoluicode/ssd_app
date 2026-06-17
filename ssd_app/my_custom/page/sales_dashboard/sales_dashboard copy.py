@@ -21,7 +21,7 @@ def get_month_summary():
 
     ROUND(IFNULL(SUM(cs.cost),0),0) AS cost,
 
-    -- ✅ NEW COLUMN (Sales where cost = 0)
+    --  NEW COLUMN (Sales where cost = 0)
     ROUND(SUM(CASE 
             WHEN IFNULL(cs.cost,0) = 0 
             THEN cif.sales 
@@ -355,6 +355,7 @@ def dashboard_two(from_date, to_date, view_type, row_metric, metric_target):
             "from_date": from_date if from_date else None,
             "to_date": to_date if to_date else None
         }
+        print(query)
 
         records = frappe.db.sql(query, query_params, as_dict=True)
         return records
