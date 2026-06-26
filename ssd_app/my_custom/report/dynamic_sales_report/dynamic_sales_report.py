@@ -35,8 +35,8 @@ def execute(filters=None):
             "sales": "IFNULL(cif.sales, 0)",
             "purchase": "IFNULL(cost.purchase, 0)",
             "cost": "IFNULL(cost.cost, 0)",
-            "freight": "IFNULL(cost.freight, 0)",
-            "local_exp": "IFNULL(cost.local_exp, 0)",
+            "freight": "IFNULL(exp.freight, 0)",
+            "local_exp": "IFNULL(exp.local_exp, 0)",
             "comm": "IFNULL(cost.commission, 0)",
             "profit": "(IFNULL(cif.sales, 0) - IFNULL(cost.cost, 0))",
             "profit_pct": "0"  
@@ -131,6 +131,7 @@ def execute(filters=None):
             LEFT JOIN `tabPort` dport ON cif.destination_port = dport.name
             LEFT JOIN (
                 SELECT 
+                    cost_s.name, 
                     cost_s.inv_no, 
                     cost_s.purchase,
                     cost_s.commission, 
@@ -139,6 +140,17 @@ def execute(filters=None):
                 FROM `tabCost Sheet` cost_s 
                 LEFT JOIN `tabSupplier` sup ON sup.name = cost_s.supplier 
             ) cost ON cif.name = cost.inv_no
+            LEFT JOIN (
+                SELECT 
+                    ec.parent,
+                    SUM(CASE WHEN ec.expenses = 'Freight' THEN ec.amount_usd ELSE 0 END) AS freight,
+                    SUM(CASE WHEN ec.expenses = 'Local Exp' THEN ec.amount_usd ELSE 0 END) AS local_exp
+                FROM `tabExpenses Cost` ec
+                GROUP BY 
+                    ec.parent
+                ORDER BY 
+                    ec.parent
+            ) exp ON exp.parent= cost.name
             WHERE 
                 cost.cost > 0
                 AND (%(from_date)s IS NULL OR %(to_date)s IS NULL OR cif.inv_date BETWEEN %(from_date)s AND %(to_date)s)
@@ -146,9 +158,7 @@ def execute(filters=None):
                 {row_field}
             ORDER BY 
                 `raw_total_sales` DESC
-            LIMIT 300
         """
-
         query_params = {
             "from_date": from_date if from_date else None,
             "to_date": to_date if to_date else None
@@ -270,8 +280,6 @@ def show_inv_wise(group_by, head, period):
         "Company": {"dc": "tabCompany", "jdc":"cif", "as":"com", "field": "company_code", "l_field": "accounting_company"}
     }
     month_map= {"jan":1, "feb":2, "mar":3, "apr":4, "may":5, "jun":6, "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
-    print ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print (group_by, head, period)
     period_clean = period.strip().replace("-", "_")
 
     if period_clean.lower() == "total" or period_clean.lower() == "grand_total":
@@ -299,7 +307,6 @@ def show_inv_wise(group_by, head, period):
         month, year = period_clean.split("_")
         period_filter = f"YEAR(cif.inv_date) = '{year}'"
 
-    print("Generated Period Filter:", period_filter)
     filter_field = filter_data_dict[group_by]["field"]
     as_name = filter_data_dict[group_by]["as"]
     filters={

@@ -1,0 +1,114 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "cus_tally_name-.####",
+ "creation": "2026-06-25 12:10:48.189845",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "customer_id",
+  "company_2_doc",
+  "company_2_cc",
+  "company_3_doc",
+  "company_3_cc",
+  "column_break_woky",
+  "customer_name",
+  "company_8_doc",
+  "company_8_cc",
+  "company_9_doc",
+  "company_9_cc"
+ ],
+ "fields": [
+  {
+   "fieldname": "company_2_doc",
+   "fieldtype": "Data",
+   "label": "Company 2 (Doc)"
+  },
+  {
+   "fieldname": "company_2_cc",
+   "fieldtype": "Data",
+   "label": "Company 2 (CC)"
+  },
+  {
+   "fieldname": "company_3_doc",
+   "fieldtype": "Data",
+   "label": "Company 3 (Doc)"
+  },
+  {
+   "fieldname": "company_3_cc",
+   "fieldtype": "Data",
+   "label": "Company 3 (CC)"
+  },
+  {
+   "fieldname": "company_8_doc",
+   "fieldtype": "Data",
+   "label": "Company 8 (Doc)"
+  },
+  {
+   "fieldname": "company_8_cc",
+   "fieldtype": "Data",
+   "label": "Company 8 (CC)"
+  },
+  {
+   "fieldname": "company_9_doc",
+   "fieldtype": "Data",
+   "label": "Company 9 (Doc)"
+  },
+  {
+   "fieldname": "company_9_cc",
+   "fieldtype": "Data",
+   "label": "Company 9 (CC)"
+  },
+  {
+   "fieldname": "customer_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer ID",
+   "no_copy": 1,
+   "options": "Customer",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_woky",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "customer_id.customer",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-25 16:22:34.872913",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "Customer Tally Name",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}

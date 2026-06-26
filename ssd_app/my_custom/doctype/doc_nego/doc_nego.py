@@ -266,6 +266,7 @@ def get_available_inv_no(doctype, txt, searchfield, start, page_len, filters):
 
 @frappe.whitelist()
 def used_banking_line(as_on, columns_order=[]):
+    
     columns_order = frappe.get_all(
         "Payment Term",
         filters={

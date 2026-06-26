@@ -19,7 +19,7 @@ def execute(filters=None):
 		SELECT ccr.name, cus.customer, ccr.date, ccr.currency, ccr.amount, ccr.cc_received_details AS details FROM `tabCC Received` ccr
 		LEFT JOIN `tabCustomer` cus on cus.name= ccr.customer
 		WHERE ccr.entry_type= 'Bank Entry' {where_clause}
-		ORDER BY ccr.date
+		ORDER BY ccr.date, ccr.amount ASC;
 	"""
 	
 	data = frappe.db.sql(query, as_dict=1)
@@ -29,6 +29,5 @@ def execute(filters=None):
 		{"label": "Currency", "fieldname": "currency", "fieldtype": "Data", "width": 110},
 		{"label": "Amount", "fieldname": "amount", "fieldtype": "Float", "width": 150},
 		{"label": "Action", "fieldname": "action", "fieldtype": "Data", "width": 80},
-		
 	]
 	return columns, data

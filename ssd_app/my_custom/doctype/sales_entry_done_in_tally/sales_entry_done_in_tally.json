@@ -1,49 +1,61 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "pcat-.####",
- "creation": "2025-06-03 14:47:57.961460",
+ "autoname": "tally_s_entry-.#####",
+ "creation": "2026-06-26 09:54:30.185337",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "product_category",
-  "sales_head_in_tally",
-  "description",
+  "inv_no",
+  "company",
+  "entry_date",
+  "invoice_no",
   "note"
  ],
  "fields": [
   {
-   "fieldname": "product_category",
+   "fieldname": "inv_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Inv No",
+   "options": "CIF Sheet",
+   "reqd": 1
+  },
+  {
+   "fieldname": "entry_date",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Product Category",
-   "reqd": 1,
+   "label": "Entry Date",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "inv_no.invoice_no",
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "label": "Invoice No",
+   "read_only": 1,
    "unique": 1
   },
   {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Description"
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   },
   {
    "fieldname": "note",
    "fieldtype": "Data",
    "label": "Note"
-  },
-  {
-   "fieldname": "sales_head_in_tally",
-   "fieldtype": "Data",
-   "label": "Sales Head in Tally",
-   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-26 13:52:38.630572",
+ "modified": "2026-06-26 11:18:50.633304",
  "modified_by": "Administrator",
  "module": "My Custom",
- "name": "Product Category",
+ "name": "Sales Entry Done in Tally",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
@@ -60,12 +72,12 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "product_category"
+ "title_field": "invoice_no",
+ "track_changes": 1
 }
