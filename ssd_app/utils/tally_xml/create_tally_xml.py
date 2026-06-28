@@ -1,16 +1,70 @@
 import frappe
 import numpy as np
+import re
 import pandas as pd
-from ssd_app.my_custom.report.tally_entry.tally_entry import execute
+from ssd_app.my_custom.report.tally_entry.tally_entry import execute_sales
+
+from ssd_app.utils.tally_xml.generate_xml import GenerateTallyXML
 from frappe.utils import flt
+from frappe.utils import today
 
 
 @frappe.whitelist()
 def create_tally_xml(filters):
     filters = frappe.parse_json(filters)
+    entry_for = filters.get("entry_for")
+    company = filters.get("company")
+    company_code = frappe.db.get_value("Company", company, "number_code")
+    comp_name = frappe.db.get_value("Company", company, "company_code")
+    safe_comp_name = re.sub(r'[^\w]', '_', comp_name)
+    safe_comp_name = re.sub(r'_+', '_', safe_comp_name).strip('_')
+    gen_xml= GenerateTallyXML(int(company_code))
+    cost_center_already_in_tally= frappe.get_all("Cost Center in Tally", filters={"company": company}, pluck="invoice_no")
+    sales_already_in_tally= frappe.get_all("Sales Entry Done in Tally", filters={"company": company}, pluck="invoice_no")
 
+    if entry_for == "Sales":
+        xml_df= generate_sales_xml(filters)
+        all_invoices = xml_df['inv_no'].dropna().unique().tolist()
+        cost_center_need_to_create= []
+        for i in all_invoices:
+            if i not in cost_center_already_in_tally:
+                cost_center_need_to_create.append(i)
+            if i in sales_already_in_tally:
+                frappe.throw(f"Sales entry of inv no {i} already in tally")
+
+        cost_center_need_to_create= [inv_no for inv_no in all_invoices if inv_no not in cost_center_already_in_tally]
+        cost_center_xml= gen_xml.generate_create_cost_center_xml(cost_center_need_to_create)
+        sales_xml= gen_xml.generate_sales_entry_xml(xml_df)
+        data_context= [
+            {"file_name": f"cost_center_xml_{safe_comp_name}", "data":cost_center_xml, "alert_msg":f"Cost Center XML Generate for {len(cost_center_need_to_create)} inv"},
+            {"file_name": f"sales_xml_{safe_comp_name}", "data":sales_xml, "alert_msg":f"Sales XML Generate for {len(xml_df)} inv"}
+            ]
+        for row in xml_df.itertuples():
+            frappe.get_doc({
+                        "doctype": "Sales Entry Done in Tally",
+                        "inv_no": row.cif_id,
+                        "company": company,
+                        "entry_date": today()
+                    }).insert(ignore_permissions=True)
+        
+        for row in xml_df.itertuples():
+            if (row.inv_no in cost_center_need_to_create):
+                frappe.get_doc({
+                            "doctype": "Cost Center in Tally",
+                            "inv_no": row.cif_id,
+                            "company": company,
+                            "entry_date": today()
+                        }).insert(ignore_permissions=True)
+
+    return {
+        "status": "success",
+        "data_context": data_context,
+    }
+
+@frappe.whitelist()
+def generate_sales_xml(filters):
     # 1. Fetch Report Data
-    columns, data = execute(filters)
+    columns, data = execute_sales(filters)
 
     # Early exit: If report data is completely empty
     if not data:
@@ -21,9 +75,7 @@ def create_tally_xml(filters):
     company_code = frappe.db.get_value("Company", company, "number_code")
 
     if not company_code:
-        frappe.throw(
-            f"Number code not found for company: {company}. Please configure it."
-        )
+        frappe.throw(f"Number code not found for company: {company}. Please configure it.")
 
     # 2. Fetch Master Maps
     customer_data = frappe.db.sql(
@@ -74,9 +126,8 @@ def create_tally_xml(filters):
         )
     # 6. Row-by-Row Validation Loop
     records = merged_df.to_dict(orient="records")
-
     for row in records:
-        if row.get("document") and not row.get("direct_to_supplier"):
+        if row.get("document") and not row.get("dir_to_sup"):
             if not row.get("customer_doc"):
                 error_msg= f"In Inv no {row.get('inv_no')} Customer Doc A/C Missing"
                 frappe.throw(error_msg)
@@ -88,9 +139,4 @@ def create_tally_xml(filters):
 
     # 6. Output to file
     merged_df.to_excel("temp.xlsx", index=False)
-
-    return {
-        "status": "success",
-        "report_rows": len(merged_df),
-    }
-
+    return merged_df

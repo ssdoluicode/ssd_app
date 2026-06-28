@@ -71,12 +71,12 @@ def execute_sales(filters):
     where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 
     query = f"""
-        SELECT shi.inv_no, shi.customer AS cus_id, cif.inv_date, cus.customer, noti.notify, pcat.product_category, 
+        SELECT cif.name AS cif_id, shi.inv_no, shi.customer AS cus_id, cif.inv_date, cus.customer, noti.notify, pcat.product_category, 
         cif.category AS cat_id,
         CAST(ROUND(cif.sales * -1, 2) AS DECIMAL(18,2)) AS sales,
         CAST(ROUND(cif.document, 2) AS DECIMAL(18,2)) AS document,
         CAST(ROUND(cif.cc, 2) AS DECIMAL(18,2)) AS cc,
-        pt.term_name, pt.direct_to_supplier, noti.country, cif.accounting_company AS acc_com FROM `tabCIF Sheet` cif
+        pt.term_name AS p_term, pt.direct_to_supplier AS dir_to_sup, noti.country, cif.accounting_company AS acc_com FROM `tabCIF Sheet` cif
         LEFT JOIN `tabShipping Book` shi ON shi.name= cif.inv_no
         LEFT JOIN `tabCustomer` cus ON cus.name= shi.customer
         LEFT JOIN `tabNotify` noti ON shi.notify=noti.name
