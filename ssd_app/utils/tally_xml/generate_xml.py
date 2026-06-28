@@ -751,7 +751,9 @@ class GenerateTallyXML:
     # ---------- Function for Generating Cost Center Creation XML ---------- 
     def generate_create_cost_center_xml(self, cost_centers: list) -> str:
         masters_xml = []
-    
+        if not cost_centers:
+            return ""
+            
         for cc in cost_centers:
             # String parsing & escaping directly from the list elements
             cc_name = self.escape_xml(cc)

@@ -32,11 +32,9 @@ def create_tally_xml(filters):
             if i in sales_already_in_tally:
                 frappe.throw(f"Sales entry of inv no {i} already in tally")
 
-        cost_center_need_to_create= [inv_no for inv_no in all_invoices if inv_no not in cost_center_already_in_tally]
-        cost_center_xml= gen_xml.generate_create_cost_center_xml(cost_center_need_to_create)
+        
         sales_xml= gen_xml.generate_sales_entry_xml(xml_df)
         data_context= [
-            {"file_name": f"cost_center_xml_{safe_comp_name}", "data":cost_center_xml, "alert_msg":f"Cost Center XML Generate for {len(cost_center_need_to_create)} inv"},
             {"file_name": f"sales_xml_{safe_comp_name}", "data":sales_xml, "alert_msg":f"Sales XML Generate for {len(xml_df)} inv"}
             ]
         for row in xml_df.itertuples():
@@ -46,15 +44,21 @@ def create_tally_xml(filters):
                         "company": company,
                         "entry_date": today()
                     }).insert(ignore_permissions=True)
+        cost_center_need_to_create= [inv_no for inv_no in all_invoices if inv_no not in cost_center_already_in_tally]
+
+        if cost_center_need_to_create:
+            cost_center_xml = gen_xml.generate_create_cost_center_xml(cost_center_need_to_create)
         
-        for row in xml_df.itertuples():
-            if (row.inv_no in cost_center_need_to_create):
-                frappe.get_doc({
-                            "doctype": "Cost Center in Tally",
-                            "inv_no": row.cif_id,
-                            "company": company,
-                            "entry_date": today()
-                        }).insert(ignore_permissions=True)
+            data_context.insert(0,{"file_name": f"cost_center_xml_{safe_comp_name}", "data":cost_center_xml, "alert_msg":f"Cost Center XML Generate for {len(cost_center_need_to_create)} inv"})
+        
+            for row in xml_df.itertuples():
+                if (row.inv_no in cost_center_need_to_create):
+                    frappe.get_doc({
+                                "doctype": "Cost Center in Tally",
+                                "inv_no": row.cif_id,
+                                "company": company,
+                                "entry_date": today()
+                            }).insert(ignore_permissions=True)
 
     return {
         "status": "success",

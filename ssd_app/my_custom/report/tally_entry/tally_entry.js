@@ -75,85 +75,85 @@ frappe.query_reports["Tally Entry"] = {
 				// 	}
 				// }
 				callback: async function (r) { // Added 'async' keyword here
-					if (
-						r.message &&
-						r.message.status === "success" &&
-						Array.isArray(r.message.data_context) &&
-						r.message.data_context.length > 0
-					) {
-						// Helper function for the 1-second delay
-						const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+		if (
+			r.message &&
+			r.message.status === "success" &&
+			Array.isArray(r.message.data_context) &&
+			r.message.data_context.length > 0
+		) {
+			// Helper function for the 1-second delay
+			const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-						// Changed from .forEach to a sequential for...of loop to support sleep tracking
-						for (const item of r.message.data_context) {
-							try {
-								// Skip empty data
-								if (!item.data) {
-									continue; // Changed 'return' to 'continue' for loop compatibility
-								}
-
-								// Ensure XML content is a string
-								const xmlContent = typeof item.data === "string"
-									? item.data.trim()
-									: String(item.data);
-
-								if (!xmlContent) {
-									continue;
-								}
-
-								// Safe filename
-								let fileName = item.file_name || "tally_export";
-								fileName = fileName.replace(/[<>:"/\\|?*\x00-\x1F]/g, "_");
-
-								if (!fileName.toLowerCase().endsWith(".xml")) {
-									fileName += ".xml";
-								}
-
-								// Create XML Blob
-								const blob = new Blob([xmlContent], {
-									type: "application/xml;charset=utf-8"
-								});
-
-								// Download
-								const url = window.URL.createObjectURL(blob);
-								const link = document.createElement("a");
-
-								link.href = url;
-								link.download = fileName;
-								link.style.display = "none";
-
-								document.body.appendChild(link);
-								link.click();
-
-								// Immediate clean up for this iteration (safe because loop waits)
-								document.body.removeChild(link);
-								window.URL.revokeObjectURL(url);
-
-								// Success message
-								if (item.alert_msg) {
-									frappe.show_alert({
-										message: __(item.alert_msg),
-										indicator: "green"
-									});
-								}
-
-								// Sleep for exactly 1 second before allowing the next loop item to download
-								await sleep(500);
-
-							} catch (err) {
-								console.error("XML download failed:", err);
-
-								frappe.msgprint({
-									title: __("Download Error"),
-									message: __("Unable to download {0}.", [item.file_name || "XML file"]),
-									indicator: "red"
-								});
-							}
-						}
-					} else {
-						frappe.msgprint(__("No records compiled for the selected filters. File generation stopped."));
+			// Changed from .forEach to a sequential for...of loop to support sleep tracking
+			for (const item of r.message.data_context) {
+				try {
+					// Skip empty data
+					if (!item.data) {
+						continue; // Changed 'return' to 'continue' for loop compatibility
 					}
+
+					// Ensure XML content is a string
+					const xmlContent = typeof item.data === "string"
+						? item.data.trim()
+						: String(item.data);
+
+					if (!xmlContent) {
+						continue;
+					}
+
+					// Safe filename
+					let fileName = item.file_name || "tally_export";
+					fileName = fileName.replace(/[<>:"/\\|?*\x00-\x1F]/g, "_");
+
+					if (!fileName.toLowerCase().endsWith(".xml")) {
+						fileName += ".xml";
+					}
+
+					// Create XML Blob
+					const blob = new Blob([xmlContent], {
+						type: "application/xml;charset=utf-8"
+					});
+
+					// Download
+					const url = window.URL.createObjectURL(blob);
+					const link = document.createElement("a");
+
+					link.href = url;
+					link.download = fileName;
+					link.style.display = "none";
+
+					document.body.appendChild(link);
+					link.click();
+
+					// Immediate clean up for this iteration (safe because loop waits)
+					document.body.removeChild(link);
+					window.URL.revokeObjectURL(url);
+
+					// Success message
+					if (item.alert_msg) {
+						frappe.show_alert({
+							message: __(item.alert_msg),
+							indicator: "green"
+						});
+					}
+
+					// Sleep for exactly 1 second before allowing the next loop item to download
+					await sleep(1000);
+
+				} catch (err) {
+					console.error("XML download failed:", err);
+
+					frappe.msgprint({
+						title: __("Download Error"),
+						message: __("Unable to download {0}.", [item.file_name || "XML file"]),
+						indicator: "red"
+					});
 				}
+			}
+		} else {
+			frappe.msgprint(__("No records compiled for the selected filters. File generation stopped."));
+		}
+	}
             });
         });
     },
