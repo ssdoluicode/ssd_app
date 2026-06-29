@@ -98,7 +98,7 @@ def execute_sales(filters):
         {"label": "Document", "fieldname": "document", "fieldtype": "Float", "width": 110},
         {"label": "CC", "fieldname": "cc", "fieldtype": "Float", "width": 110},
         {"label": "P Term", "fieldname": "term_name", "fieldtype": "Data", "width": 100},
-        {"label": "Dir To Sup", "fieldname": "direct_to_supplier", "fieldtype": "Int", "width": 100},
+        {"label": "Dir To Sup", "fieldname": "dir_to_sup", "fieldtype": "Int", "width": 100},
         {"label": "Country", "fieldname": "country", "fieldtype": "Data", "width": 120},
     ]
 

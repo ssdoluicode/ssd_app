@@ -150,6 +150,10 @@ class GenerateTallyXML:
             document = round(self.clean_amount(r["document"]), 2)
             cc = round(self.clean_amount(r["cc"]), 2)
             dir_to_sup = self.clean_amount(r["dir_to_sup"])
+            if (dir_to_sup==0):
+                v_type="Sales"
+            else:
+                v_type= "Journal"
 
              # 🔒 Financial validation
             amount_tally = sales + document + cc
@@ -163,9 +167,9 @@ class GenerateTallyXML:
             # -----------------------------
             voucher = f"""
                         <TALLYMESSAGE>
-                         <VOUCHER ACTION="Create" VCHTYPE="Sales">
+                         <VOUCHER ACTION="Create" VCHTYPE={v_type}>
                           <DATE>{date}</DATE>
-                          <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
+                          <VOUCHERTYPENAME>{v_type}</VOUCHERTYPENAME>
                           <VOUCHERNUMBER>{inv_no}</VOUCHERNUMBER>
                           <NARRATION>{notify}-- USD{sales}-- Payment Term {p_term}-- {customer}</NARRATION>
                         """
@@ -189,7 +193,6 @@ class GenerateTallyXML:
                 # Cr "Bank Charges - EB" if Document=0
                 if (document == 0):
                     voucher += self.ledger_entry(ledger="Bank Charges - EB",amount=-1)
-            
             else:
                 continue
 
