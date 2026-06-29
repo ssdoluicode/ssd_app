@@ -26,15 +26,13 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Company",
-   "options": "Company",
-   "reqd": 1
+   "options": "Company"
   },
   {
    "fieldname": "entry_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Entry Date",
-   "reqd": 1
+   "label": "Entry Date"
   },
   {
    "fetch_from": "inv_no.invoice_no",
@@ -54,7 +52,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-26 11:02:06.839220",
+ "modified": "2026-06-29 14:31:03.438720",
  "modified_by": "Administrator",
  "module": "My Custom",
  "name": "Cost Center in Tally",

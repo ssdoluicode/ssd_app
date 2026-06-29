@@ -183,7 +183,8 @@ class GenerateTallyXML:
                 voucher += self.ledger_entry(ledger=sales_head,amount=sales, cost_centers= cost_center_details)
                     
                 # Dr/Cr Customer CC Amount:
-                voucher += self.ledger_entry(ledger=customer_cc, amount=cc, is_party=True)
+                if (cc != 0):
+                    voucher += self.ledger_entry(ledger=customer_cc, amount=cc, is_party=True)
 
                 # Cr "Bank Charges - EB" if Document=0
                 if (document == 0):

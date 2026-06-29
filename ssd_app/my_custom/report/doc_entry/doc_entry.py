@@ -134,7 +134,7 @@ def execute(filters=None):
 			ON cif.inv_no = all_data.shi_id
         LEFT JOIN `tabCompany` com
 			ON com.name = cif.accounting_company
-		ORDER BY date
+		ORDER BY all_data.date, all_data.amount
 	"""
 
 
