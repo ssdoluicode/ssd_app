@@ -155,7 +155,7 @@ class GenerateTallyXML:
             else:
                 v_type= "Journal"
 
-             # 🔒 Financial validation
+             # Financial validation
             amount_tally = sales + document + cc
             if round(amount_tally, 2) != 0:
                 raise ValueError(
@@ -167,7 +167,7 @@ class GenerateTallyXML:
             # -----------------------------
             voucher = f"""
                         <TALLYMESSAGE>
-                         <VOUCHER ACTION="Create" VCHTYPE={v_type}>
+                         <VOUCHER ACTION="Create" VCHTYPE="{v_type}">
                           <DATE>{date}</DATE>
                           <VOUCHERTYPENAME>{v_type}</VOUCHERTYPENAME>
                           <VOUCHERNUMBER>{inv_no}</VOUCHERNUMBER>
@@ -193,8 +193,16 @@ class GenerateTallyXML:
                 # Cr "Bank Charges - EB" if Document=0
                 if (document == 0):
                     voucher += self.ledger_entry(ledger="Bank Charges - EB",amount=-1)
-            else:
-                continue
+
+            else: # (If Direct to Supplier)
+                cost_center_details=[{"name": inv_no, "amount": document}]
+                voucher += self.ledger_entry(ledger="Purchase - Import",amount=document, cost_centers= cost_center_details)
+
+                cost_center_details=[{"name": inv_no, "amount": sales}]
+                voucher += self.ledger_entry(ledger=sales_head,amount=sales, cost_centers= cost_center_details)
+
+                if (cc != 0):
+                    voucher += self.ledger_entry(ledger=customer_cc, amount=cc, is_party=True)
 
         
             voucher += """
@@ -327,7 +335,7 @@ class GenerateTallyXML:
             interest = self.clean_amount(r["interest"])
             bank_amount = self.clean_amount(r["bank_amount"])
 
-             # 🔒 Financial validation
+             # Financial validation
             amount_tally = round(nego_amount + bank_charge + interest + bank_amount, 2)
             if round(amount_tally, 2) != 0:
                 raise ValueError(
@@ -417,7 +425,7 @@ class GenerateTallyXML:
             bank_charge = self.clean_amount(r.get("bank_charge", 0))
             bank_amount = self.clean_amount(r["bank_amount"])
     
-            # 🔒 Financial validation
+            # Financial validation
             amount_tally = round(ref_amt + interest + bank_charge + bank_amount, 2)
             if round(amount_tally, 2) != 0:
                 raise ValueError(
@@ -677,13 +685,21 @@ class GenerateTallyXML:
 
 
          # ---------- Function for Generate Doc Received XML---------- 
-    def generate_cc_received_xml(self, df: pd.DataFrame) -> None:
+    def generate_cc_received_xml(self, df: pd.DataFrame, rec_ref_no: str = None) -> None:
         vouchers_xml = []
-    
+        # 1. Split the reference into prefix and number if provided
+        prefix = ""
+        current_num = 0
+        
+        if rec_ref_no and "/" in rec_ref_no:
+            prefix, num_part = rec_ref_no.split("/", 1)
+            current_num = int(num_part)
+        
         for i, r in df.iterrows():
             customer_cc = self.escape_xml(r["customer_cc"])
             customer = self.escape_xml(r["customer"])
-            ref_no = self.escape_xml(r["ref_no"])
+            current_num += 1
+            ref_no = f"{prefix}/{current_num}"
             bank_name = self.escape_xml(r["bank_name"])
             date = self.fmt_date(r["date"])
     
@@ -694,7 +710,7 @@ class GenerateTallyXML:
             bank_charge       = self.clean_amount(r["bank_charge"])
             bank_amount    = self.clean_amount(r["bank_amount"])
 
-             # 🔒 Financial validation
+             # Financial validation
             amount_tally = round(cc_received + bank_charge + bank_amount, 2)
             if round(amount_tally, 2) != 0:
                 raise ValueError(

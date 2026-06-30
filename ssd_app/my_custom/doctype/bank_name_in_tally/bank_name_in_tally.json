@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "autoname": "bank_tally_name-.####",
+ "creation": "2026-06-30 14:08:58.927029",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "bank_id",
+  "company_2_bank",
+  "company_2_nego",
+  "company_3_bank",
+  "company_3_nego",
+  "column_break_lgyf",
+  "bank_name",
+  "company_8_bank",
+  "company_8_nego",
+  "company_9_bank",
+  "company_9_nego"
+ ],
+ "fields": [
+  {
+   "fieldname": "bank_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Bank ID",
+   "no_copy": 1,
+   "options": "Bank",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fetch_from": "bank_id.bank",
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company_2_bank",
+   "fieldtype": "Data",
+   "label": "Company 2 (Bank)"
+  },
+  {
+   "fieldname": "company_2_nego",
+   "fieldtype": "Data",
+   "label": "Company 2 (Nego)"
+  },
+  {
+   "fieldname": "company_3_bank",
+   "fieldtype": "Data",
+   "label": "Company 3 (Bank)"
+  },
+  {
+   "fieldname": "company_3_nego",
+   "fieldtype": "Data",
+   "label": "Company 3 (Nego)"
+  },
+  {
+   "fieldname": "column_break_lgyf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company_8_bank",
+   "fieldtype": "Data",
+   "label": "Company 8 (Bank)"
+  },
+  {
+   "fieldname": "company_8_nego",
+   "fieldtype": "Data",
+   "label": "Company 8 (Nego)"
+  },
+  {
+   "fieldname": "company_9_bank",
+   "fieldtype": "Data",
+   "label": "Company 9 (Bank)"
+  },
+  {
+   "fieldname": "company_9_nego",
+   "fieldtype": "Data",
+   "label": "Company 9 (Nego)"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-30 14:16:53.665304",
+ "modified_by": "Administrator",
+ "module": "My Custom",
+ "name": "Bank Name in Tally",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

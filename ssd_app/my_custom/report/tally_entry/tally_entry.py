@@ -326,9 +326,11 @@ def execute_cc_received(filters):
 
     query = f"""
         SELECT 
+        ccr.customer AS cus_id,
         cus.customer,
         ccr.date,
         com.company_code AS com,
+        ccrd.bank AS bank_id,
         bank.bank,
         CAST(ccrd.amount AS DECIMAL(18,6))*-1 AS cc_received,
         CAST(ccrd.bank_amount AS DECIMAL(18,6)) AS bank_amount,
