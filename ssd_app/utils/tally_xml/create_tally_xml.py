@@ -2,7 +2,7 @@ import frappe
 import numpy as np
 import re
 import pandas as pd
-from ssd_app.my_custom.report.tally_entry.tally_entry import execute_sales, execute_cc_received
+from ssd_app.my_custom.report.tally_entry.tally_entry import execute_sales, execute_cc_received, execute_doc_nego
 
 from ssd_app.utils.tally_xml.generate_xml import GenerateTallyXML
 from frappe.utils import flt
@@ -63,6 +63,14 @@ def create_tally_xml(filters):
     elif entry_for == "CC Received":
         xml_df= cc_rec_entry_df(filters)
         cc_entry_xml= gen_xml.generate_cc_received_xml(xml_df, rec_ref_no = filters.get("rec_ref_no"))
+        data_context= [
+            {"file_name": f"cc_entry_xml_{safe_comp_name}", "data":cc_entry_xml, "alert_msg":f"CC Received XML Generate for {len(cc_entry_xml)} Entries"}
+            ]
+        
+    
+    elif entry_for == "Doc Nego":
+        xml_df= doc_nego_entry_df(filters)
+        cc_entry_xml= gen_xml.generate_doc_nego_xml(xml_df, rec_ref_no = filters.get("rec_ref_no"))
         data_context= [
             {"file_name": f"cc_entry_xml_{safe_comp_name}", "data":cc_entry_xml, "alert_msg":f"CC Received XML Generate for {len(cc_entry_xml)} Entries"}
             ]
@@ -206,6 +214,55 @@ def cc_rec_entry_df(filters):
             error_msg= f" Bank A/C Missing in {row.get('bank')} Bank"
             frappe.throw(error_msg)
 
+    return merged_df
+
+
+@frappe.whitelist()
+def doc_nego_entry_df(filters):
+    # 1. Fetch Report Data
+    columns, data = execute_doc_nego(filters)
+
+    # Early exit: If report data is completely empty
+    if not data:
+        frappe.msgprint("No report data found for the selected filters.")
+        return {"status": "failed", "report_rows": 0}
+
+    company = filters.get("company")
+    company_code = frappe.db.get_value("Company", company, "number_code")
+
+    if not company_code:
+        frappe.throw(f"Number code not found for company: {company}. Please configure it.")
+
+    # 2. Fetch Master Maps
+    bank_data = frappe.db.sql(
+        f"""
+        SELECT
+            bank_tn.bank_id AS bank_id,
+            bank_tn.company_{company_code}_bank AS bank_name,
+            bank_tn.company_{company_code}_nego AS bank_dpda
+        FROM `tabBank Name in Tally` bank_tn
+        """,
+        as_dict=True,
+    )
+
+
+    # 3. Clean and Build DataFrames (Using list comprehension to fix __array_struct__ error)
+    data_df = pd.DataFrame([dict(row) for row in data])
+    bank_df = pd.DataFrame([dict(row) for row in bank_data])
+    
+    # 4. Perform Left Merges
+    merged_df = pd.merge(data_df, bank_df, on="bank_id", how="left")
+   
+    # 5. Row-by-Row Validation Loop
+    records = merged_df.to_dict(orient="records")
+    for row in records:
+        if not row.get("bank_dpda"):
+            error_msg= f"In Bank DP DA A/C Missing of {row.get('bank')}"
+            frappe.throw(error_msg)
+        if not row.get("bank_name"):
+            error_msg= f" Bank A/C Missing in {row.get('bank')} Bank"
+            frappe.throw(error_msg)
+
     # 6. Output to file
-    merged_df.to_excel("temp.xlsx", index=False)
+    merged_df.to_excel("tempp.xlsx", index=False)
     return merged_df

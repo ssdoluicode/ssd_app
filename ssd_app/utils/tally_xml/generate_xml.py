@@ -315,14 +315,22 @@ class GenerateTallyXML:
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # ---------- Function for Generate Doc Received Entry XML---------- 
-    def generate_doc_nego_xml(self, df: pd.DataFrame) -> None:
+    def generate_doc_nego_xml(self, df: pd.DataFrame, rec_ref_no: str = None) -> None:
         vouchers_xml = []
+         # 1. Split the reference into prefix and number if provided
+        prefix = ""
+        current_num = 0
+        
+        if rec_ref_no and "/" in rec_ref_no:
+            prefix, num_part = rec_ref_no.split("/", 1)
+            current_num = int(num_part)
     
         for i, r in df.iterrows():
             # String -----------------------------
             bank_dpda = self.escape_xml(r["bank_dpda"])
             notify_party = self.escape_xml(r["notify_party"])
-            ref_no = self.escape_xml(r["ref_no"])
+            current_num += 1
+            ref_no = f"{prefix}/{current_num}"
             bank_name = self.escape_xml(r["bank_name"])
             inv_no = self.escape_xml(r["inv_no"])
 

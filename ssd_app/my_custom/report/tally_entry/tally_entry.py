@@ -118,6 +118,7 @@ def execute_doc_nego(filters):
         SELECT 
             dnd.invoice_no AS inv_no,
             dn.nego_date AS date,
+            shi.bank AS bank_id,
             com.company_code AS com,
             noti.code AS notify_party,
             pt.term_name AS payment_term,

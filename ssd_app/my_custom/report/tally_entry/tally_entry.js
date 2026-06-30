@@ -217,7 +217,7 @@ frappe.query_reports["Tally Entry"] = {
             }
         ];
 
-        if (filters.entry_for === "CC Received") {
+        if (filters.entry_for === "CC Received" || filters.entry_for === "Doc Nego") {
             prompt_fields.push({
                 label: __('Received Ref No.'),
                 fieldname: 'received_ref_no',
