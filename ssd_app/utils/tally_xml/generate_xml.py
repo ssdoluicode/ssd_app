@@ -521,14 +521,14 @@ class GenerateTallyXML:
             pay_current_num = int(num_part)
         
         jv_prefix = "J"
-        j_current_num = 0
+        jv_current_num = 0
         if jv_ref_no and "/" in jv_ref_no:
             jv_prefix, num_part = jv_ref_no.split("/", 1)
             jv_current_num = int(num_part)
     
         for i, r in df.iterrows():
             inv_no = self.escape_xml(r["inv_no"])
-            acc_com_id = r["inv_no"]
+            acc_com_id = r["acc_com_id"]
             bank_name = self.escape_xml(r["bank_name"])
             bank_dpda = self.escape_xml(r["bank_dpda"])
             customer = self.escape_xml(r["customer_doc"])
@@ -651,6 +651,78 @@ class GenerateTallyXML:
                 </ENVELOPE>
                 """
         return final_xml
+    
+
+
+    # ---------- Function for Generate Doc Received XML in UXL- China---------- 
+    def generate_doc_rec_xml_china(self, df: pd.DataFrame, int_com: str = None) -> None:
+        vouchers_xml = []
+        
+        jv_prefix = "JV"
+        jv_current_num = 0
+    
+        for i, r in df.iterrows():
+            inv_no = self.escape_xml(r["inv_no"])
+            customer = self.escape_xml(r["customer_doc_9"])
+            notify_party = self.escape_xml(r["notify_party"])
+            jv_current_num += 1
+            ref_no = f"{jv_prefix}/{jv_current_num}"
+
+            # Date -----------------------------
+            date = self.fmt_date(r["date"])
+    
+            # -----------------------------
+            # Amounts
+            # -----------------------------
+            rec_amount_dr = self.clean_amount(r["rec_amount"])
+            rec_amount_cr= self.clean_amount(rec_amount_dr * -1)
+
+            # -----------------------------
+            # Build Voucher XML
+            # -----------------------------
+            voucher = f"""
+                        <TALLYMESSAGE>
+                         <VOUCHER ACTION="Create" VCHTYPE="Journal">
+                          <DATE>{date}</DATE>
+                          <VOUCHERTYPENAME>Journal</VOUCHERTYPENAME>
+                          <VOUCHERNUMBER>{ref_no}</VOUCHERNUMBER>
+                          <NARRATION>Being payment made by {notify_party} against inv no {inv_no}</NARRATION>
+                        """
+            
+            voucher += self.ledger_entry(int_com, rec_amount_dr, is_party=True)
+
+            bill_details=[{"name": inv_no, "type": "Agst Ref", "amount": abs(rec_amount_cr)}]
+            voucher += self.ledger_entry(ledger=customer, amount=rec_amount_cr, bill_details=bill_details)
+        
+            voucher += """
+                     </VOUCHER>
+                    </TALLYMESSAGE>
+                    """
+            vouchers_xml.append(voucher)
+        # -----------------------------
+        # Write Final XML
+        # -----------------------------
+        final_xml = f"""<ENVELOPE>
+                 <HEADER>
+                  <TALLYREQUEST>Import Data</TALLYREQUEST>
+                 </HEADER>
+                 <BODY>
+                  <IMPORTDATA>
+                   <REQUESTDESC>
+                    <REPORTNAME>Vouchers</REPORTNAME>
+                    <STATICVARIABLES>
+                     <SVCURRENTCOMPANY>{self.company}</SVCURRENTCOMPANY>
+                    </STATICVARIABLES>
+                   </REQUESTDESC>
+                   <REQUESTDATA>
+                {''.join(vouchers_xml)}
+                   </REQUESTDATA>
+                  </IMPORTDATA>
+                 </BODY>
+                </ENVELOPE>
+                """
+        return final_xml
+
 
         # ---------- Function for Generate Doc Received XML---------- (This is final)
     def generate_interest_paid_xml(self, df: pd.DataFrame) -> None:
@@ -723,7 +795,7 @@ class GenerateTallyXML:
         return final_xml
 
 
-         # ---------- Function for Generate Doc Received XML---------- 
+    # ---------- Function for Generate Doc Received XML---------- 
     def generate_cc_received_xml(self, df: pd.DataFrame, rec_ref_no: str = None) -> None:
         vouchers_xml = []
         # 1. Split the reference into prefix and number if provided

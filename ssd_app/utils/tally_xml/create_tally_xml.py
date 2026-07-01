@@ -64,7 +64,7 @@ def create_tally_xml(filters):
         xml_df= cc_rec_entry_df(filters)
         tally_entry_xml= gen_xml.generate_cc_received_xml(xml_df, rec_ref_no = filters.get("rec_ref_no"))
         data_context= [
-            {"file_name": f"cc_rec_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"CC Received XML Generate for {len(tally_entry_xml)} Entries"}
+            {"file_name": f"cc_rec_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"CC Received XML Generate for {len(xml_df)} Entries"}
             ]
         
     
@@ -72,22 +72,29 @@ def create_tally_xml(filters):
         xml_df= doc_nego_entry_df(filters)
         tally_entry_xml= gen_xml.generate_doc_nego_xml(xml_df, rec_ref_no = filters.get("rec_ref_no"))
         data_context= [
-            {"file_name": f"doc_nego_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"Doc Nego XML Generate for {len(tally_entry_xml)} Entries"}
+            {"file_name": f"doc_nego_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"Doc Nego XML Generate for {len(xml_df)} Entries"}
             ]
         
     elif entry_for == "Doc Refund":
         xml_df= doc_refund_entry_df(filters)
         tally_entry_xml= gen_xml.generate_doc_ref_xml(xml_df, pay_ref_no = filters.get("pay_ref_no"))
         data_context= [
-            {"file_name": f"doc_refund_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"Doc Refund  XML Generate for {len(tally_entry_xml)} Entries"}
+            {"file_name": f"doc_refund_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"Doc Refund  XML Generate for {len(xml_df)} Entries"}
             ]
     
     elif entry_for == "Doc Received":
         xml_df= doc_rec_entry_df(filters)
         tally_entry_xml= gen_xml.generate_doc_rec_xml(xml_df, com= company,  rec_ref_no = filters.get("rec_ref_no"), pay_ref_no = filters.get("pay_ref_no"), jv_ref_no = filters.get("jv_ref_no"))
         data_context= [
-            {"file_name": f"doc_refund_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"Doc Refund  XML Generate for {len(xml_df)} Entries"}
+            {"file_name": f"doc_rec_entry_xml_{safe_comp_name}", "data":tally_entry_xml, "alert_msg":f"Doc Rec XML Generate for {len(xml_df)} Entries"}
             ]
+        china_xml_df = xml_df[xml_df["acc_com_id"] != company].copy()
+        china_xml_df= china_xml_df[["date", "inv_no", "notify_party", "customer_doc_9", "rec_amount"]]
+        int_com_map= {2:"UXL- Taiwan (CC)", 3: "Tunwa Inds. (CC)", 8 : "GDI (CC)", 9 : "UXL- China (CC)"}
+        tally_entry_xml_china= gen_xml.generate_doc_rec_xml_china(china_xml_df, int_com=int_com_map[company_code])
+        data_context.insert(0,{"file_name": f"doc_rec_entry_xml_uxl-china", "data":tally_entry_xml_china, "alert_msg":f"Doc Received XML Generate for {len(china_xml_df)} inv in China"})
+        
+
 
     return {
         "status": "success",
@@ -360,7 +367,8 @@ def doc_rec_entry_df(filters):
         f"""
         SELECT
             cus_tn.customer_id AS cus_id,
-            cus_tn.company_{company_code}_doc AS customer_doc
+            cus_tn.company_{company_code}_doc AS customer_doc,
+            cus_tn.company_9_doc AS customer_doc_9
         FROM `tabCustomer Tally Name` cus_tn
         """,
         as_dict=True,
@@ -387,8 +395,13 @@ def doc_rec_entry_df(filters):
             frappe.throw(error_msg)
 
         if not row.get("customer_doc"):
-            if(row.get('acc_com_idrow') == company):
+            if(row.get('acc_com_id') == company):
                 error_msg= f"In Inv no {row.get('inv_no')} Customer Doc A/C Missing"
+                frappe.throw(error_msg)
+
+        if not row.get("customer_doc_9"):
+            if(row.get('acc_com_id') != company):
+                error_msg= f"In Inv no {row.get('inv_no')} Customer Doc A/C Missing in UXL- China"
                 frappe.throw(error_msg)
 
     # 6. Output to file

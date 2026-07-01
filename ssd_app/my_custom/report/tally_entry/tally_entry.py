@@ -227,7 +227,7 @@ def execute_doc_received(filters):
             cus.customer, shi.customer AS cus_id,
             noti.code AS notify_party,
             bank.bank AS bank, shi.bank AS bank_id,
-            com.company_code AS shi_com, cif.accounting_company AS acc_co_id,
+            com.company_code AS shi_com, cif.accounting_company AS acc_com_id,
             a_com.company_code AS acc_com,
 
             CAST(dr.received AS DECIMAL(18,2))*-1 AS rec_amount,
