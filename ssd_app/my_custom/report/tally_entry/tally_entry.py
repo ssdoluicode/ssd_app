@@ -170,6 +170,7 @@ def execute_doc_refund(filters):
             dr.refund_date AS date,
             com.company_code AS com,
             noti.code AS notify_party,
+            shi.bank AS bank_id,
             bank.bank AS bank,
 
             ROUND(CAST(dr.refund_amount AS DECIMAL(18,2)),2) AS refund_amount,
@@ -223,16 +224,10 @@ def execute_doc_received(filters):
         SELECT
             shi.inv_no AS inv_no,
             dr.received_date AS date,
-
-            CASE
-                WHEN a_com.company_code = 'UXL- China'
-                THEN 'UXL- China (CC)'
-                ELSE cus.customer
-            END AS customer,
-
+            cus.customer, shi.customer AS cus_id,
             noti.code AS notify_party,
-            bank.bank AS bank,
-            com.company_code AS shi_com,
+            bank.bank AS bank, shi.bank AS bank_id,
+            com.company_code AS shi_com, cif.accounting_company AS acc_co_id,
             a_com.company_code AS acc_com,
 
             CAST(dr.received AS DECIMAL(18,2))*-1 AS rec_amount,

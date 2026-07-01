@@ -210,9 +210,9 @@ frappe.query_reports["Tally Entry"] = {
         // 2. Dynamically Prepare Prompt Fields
         let prompt_fields = [
             {
-                label: __('Enter Authorization Code'),
+                label: __('Enter Entry Type'),
                 fieldname: 'auth_code',
-                fieldtype: 'Password',
+                fieldtype: 'Data',
                 reqd: 1
             }
         ];
@@ -220,10 +220,26 @@ frappe.query_reports["Tally Entry"] = {
         if (filters.entry_for === "CC Received" || filters.entry_for === "Doc Nego") {
             prompt_fields.push({
                 label: __('Received Ref No.'),
-                fieldname: 'received_ref_no',
+                fieldname: 'rec_ref_no',
                 fieldtype: 'Data',
                 reqd: 1
             });
+        }
+        else if (filters.entry_for === "Doc Refund") {
+            prompt_fields.push({
+                label: __('Payment Ref No.'),
+                fieldname: 'pay_ref_no',
+                fieldtype: 'Data',
+                reqd: 1
+            });
+        }
+
+        else if (filters.entry_for === "Doc Received") {
+            prompt_fields.push(
+                { label: __('Received Ref No.'),fieldname: 'rec_ref_no',fieldtype: 'Data', reqd: 1},
+                { label: __('Payment Ref No.'),fieldname: 'pay_ref_no',fieldtype: 'Data', reqd: 1},
+                { label: __('Journal Ref No.'),fieldname: 'jv_ref_no',fieldtype: 'Data', reqd: 1}
+            );
         }
 
         // 2. Security Prompt
@@ -231,19 +247,23 @@ frappe.query_reports["Tally Entry"] = {
             // 3. Match Verification
             if (values.auth_code && values.auth_code.toLowerCase() === filters.entry_for.trim().toLowerCase()) {
                 frappe.msgprint(__("Code verified. Generating Tally XML..."));
-                if (values.received_ref_no) {
-                    let clean_ref = values.received_ref_no.trim();
-                    
-                    // 1. Update the local filters object key to 'ref_no' for the API call
-                    filters.rec_ref_no = clean_ref;
-                    console.log(filters);
-
-                    
-                    // 2. Update the frontend UI filter field so the user sees it in the filter bar
-                    if (frappe.query_report && frappe.query_report.set_filter_value) {
-                        frappe.query_report.set_filter_value('rec_ref_no', clean_ref);
+                if (values) {
+                    if ((values.rec_ref_no)){
+                        filters.rec_ref_no = values.rec_ref_no.trim();
                     }
+                    if (values.pay_ref_no) {
+                        filters.pay_ref_no = values.pay_ref_no.trim();
+                    }
+                    if (values.jv_ref_no) {
+                        filters.jv_ref_no = values.jv_ref_no.trim();
+                    }
+                    // // 2. Update the frontend UI filter field so the user sees it in the filter bar
+                    // if (frappe.query_report && frappe.query_report.set_filter_value) {
+                    //     frappe.query_report.set_filter_value('rec_ref_no', clean_ref);
+                    // }
                 }
+                console.log(filters);
+              
                 frappe.query_reports["Tally Entry"].fetch_tally_data(filters);
             } else {
                 frappe.msgprint({

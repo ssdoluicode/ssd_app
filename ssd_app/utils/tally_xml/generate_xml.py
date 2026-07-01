@@ -318,7 +318,7 @@ class GenerateTallyXML:
     def generate_doc_nego_xml(self, df: pd.DataFrame, rec_ref_no: str = None) -> None:
         vouchers_xml = []
          # 1. Split the reference into prefix and number if provided
-        prefix = ""
+        prefix = "R"
         current_num = 0
         
         if rec_ref_no and "/" in rec_ref_no:
@@ -412,14 +412,20 @@ class GenerateTallyXML:
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # ---------- Function for Generate Doc Refund XML----------
-    def generate_doc_ref_xml(self, df: pd.DataFrame) -> None:
-    
+    def generate_doc_ref_xml(self, df: pd.DataFrame,  pay_ref_no: str = None) -> None:
         vouchers_xml = []
+        prefix = "P"
+        current_num = 0
+        
+        if pay_ref_no and "/" in pay_ref_no:
+            prefix, num_part = pay_ref_no.split("/", 1)
+            current_num = int(num_part)
     
         for i, r in df.iterrows():
-             # String -----------------------------
+            # String -----------------------------
             inv_no = str(r["inv_no"]).strip()
-            ref_no = str(r["ref_no"]).strip()
+            current_num += 1
+            ref_no = f"{prefix}/{current_num}"
             bank_name = str(r["bank_name"]).strip()
             bank_dpda = str(r["bank_dpda"]).strip()
             notify_party = str(r["notify_party"]).strip()
@@ -428,7 +434,7 @@ class GenerateTallyXML:
             date = self.fmt_date(r["date"])
 
             # Amounts -----------------------------
-            ref_amt = self.clean_amount(r["ref_amount"])
+            ref_amt = self.clean_amount(r["refund_amount"])
             interest = self.clean_amount(r.get("interest", 0))
             bank_charge = self.clean_amount(r.get("bank_charge", 0))
             bank_amount = self.clean_amount(r["bank_amount"])
@@ -499,12 +505,30 @@ class GenerateTallyXML:
         return final_xml
     
     # ---------- Function for Generate Doc Received XML---------- (This is final)
-    def generate_doc_rec_xml(self, df: pd.DataFrame) -> None:
+    def generate_doc_rec_xml(self, df: pd.DataFrame, com: str = None, rec_ref_no: str = None, pay_ref_no: str = None, jv_ref_no: str = None) -> None:
         vouchers_xml = []
+        
+        rec_prefix = "R"
+        rec_current_num = 0
+        if rec_ref_no and "/" in rec_ref_no:
+            rec_prefix, num_part = rec_ref_no.split("/", 1)
+            rec_current_num = int(num_part)
+
+        pay_prefix = "P"
+        pay_current_num = 0
+        if pay_ref_no and "/" in pay_ref_no:
+            pay_prefix, num_part = pay_ref_no.split("/", 1)
+            pay_current_num = int(num_part)
+        
+        jv_prefix = "J"
+        j_current_num = 0
+        if jv_ref_no and "/" in jv_ref_no:
+            jv_prefix, num_part = jv_ref_no.split("/", 1)
+            jv_current_num = int(num_part)
     
         for i, r in df.iterrows():
             inv_no = self.escape_xml(r["inv_no"])
-            ref_no = self.escape_xml(r["ref_no"])
+            acc_com_id = r["inv_no"]
             bank_name = self.escape_xml(r["bank_name"])
             bank_dpda = self.escape_xml(r["bank_dpda"])
             customer = self.escape_xml(r["customer_doc"])
@@ -534,10 +558,17 @@ class GenerateTallyXML:
             # -----------------------------
             if bank_amount > 0:
                 vch_type = "Receipt"
+                rec_current_num += 1
+                ref_no = f"{rec_prefix}/{rec_current_num}"
+
             elif bank_amount < 0:
                 vch_type = "Payment"
+                pay_current_num += 1
+                ref_no = f"{pay_prefix}/{pay_current_num}"
             else:
                 vch_type = "Journal"
+                jv_current_num += 1
+                ref_no = f"{jv_prefix}/{jv_current_num}"
     
             # -----------------------------
             # Build Voucher XML
@@ -552,8 +583,8 @@ class GenerateTallyXML:
                         """
             if vch_type == "Receipt": # Beause of in Tally in Received mode always 1st credit entry
                 if rec_amount != 0:
-                    if customer == "UXL- China (CC)":
-                        voucher += self.ledger_entry(customer, rec_amount, is_party=True)
+                    if com == acc_com_id:
+                        voucher += self.ledger_entry("UXL- China (CC)", rec_amount, is_party=True)
                     else:
                         bill_details=[{"name": inv_no, "type": "Agst Ref", "amount": rec_amount}]
                         voucher += self.ledger_entry(customer, rec_amount, is_party=True, bill_details=bill_details)
@@ -624,7 +655,7 @@ class GenerateTallyXML:
         # ---------- Function for Generate Doc Received XML---------- (This is final)
     def generate_interest_paid_xml(self, df: pd.DataFrame) -> None:
         vouchers_xml = []
-    
+
         for i, r in df.iterrows():
             inv_no = self.escape_xml(r["inv_no"])
             ref_no = self.escape_xml(r["ref_no"])

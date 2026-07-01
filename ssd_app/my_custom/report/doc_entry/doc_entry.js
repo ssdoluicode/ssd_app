@@ -23,12 +23,15 @@ frappe.query_reports["Doc Entry"] = {
     
 
     onload: function(report) {
-        report.page.add_inner_button(
-            "New Interest Paid",
-            function () {
-                frappe.set_route("Form", "Interest Paid", "new-Interest Paid");
+        report.page.add_inner_button(__("Interest Paid"),function () {
+                sessionStorage.setItem('return_to_after_save', 'Doc Entry');
+                frappe.new_doc("Interest Paid");
             }
         );
+       report.page.add_inner_button(__("Bank Charge Paid"), function () {
+            sessionStorage.setItem('return_to_after_save', 'Doc Entry');
+            frappe.new_doc("Bank Charge Paid");
+        });
     },
 
     formatter: function (value, row, column, data, default_formatter) {
