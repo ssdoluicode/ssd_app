@@ -725,12 +725,19 @@ class GenerateTallyXML:
 
 
         # ---------- Function for Generate Doc Received XML---------- (This is final)
-    def generate_interest_paid_xml(self, df: pd.DataFrame) -> None:
+    def generate_interest_paid_xml(self, df: pd.DataFrame, pay_ref_no: str = None) -> None:
         vouchers_xml = []
+        prefix = "P"
+        current_num = 0
+        
+        if pay_ref_no and "/" in pay_ref_no:
+            prefix, num_part = pay_ref_no.split("/", 1)
+            current_num = int(num_part)
 
         for i, r in df.iterrows():
             inv_no = self.escape_xml(r["inv_no"])
-            ref_no = self.escape_xml(r["ref_no"])
+            current_num += 1
+            ref_no = f"{prefix}/{current_num}"
             bank_name = self.escape_xml(r["bank_name"])
 
             # Date -----------------------------
@@ -740,7 +747,7 @@ class GenerateTallyXML:
             bank_amount    = self.clean_amount(r["bank_amount"])
             interest       = self.clean_amount(r.get("interest", 0))
 
-            # 🔒 Financial validation
+            # Financial validation
             amount_tally = round(bank_amount + interest, 2)
             if round(amount_tally, 2) != 0:
                 raise ValueError(

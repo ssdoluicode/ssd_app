@@ -286,7 +286,7 @@ def execute_interest_payment(filters):
 
     query = f"""
         SELECT 
-        shi.inv_no AS inv_no, ip.date, com.company_code AS com, bank.bank AS bank, 
+        shi.inv_no AS inv_no, ip.date, com.company_code AS com, bank.bank AS bank, shi.bank AS bank_id,
         CAST(ip.interest AS DECIMAL(18,2)) AS interest,
         CAST(ip.interest AS DECIMAL(18,2))*-1 AS bank_amount,  "" AS ref_no
         FROM `tabInterest Paid` ip

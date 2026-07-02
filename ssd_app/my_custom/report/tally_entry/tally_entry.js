@@ -225,7 +225,7 @@ frappe.query_reports["Tally Entry"] = {
                 reqd: 1
             });
         }
-        else if (filters.entry_for === "Doc Refund") {
+        else if (filters.entry_for === "Doc Refund" || filters.entry_for === "Interest Payment") {
             prompt_fields.push({
                 label: __('Payment Ref No.'),
                 fieldname: 'pay_ref_no',
@@ -262,7 +262,6 @@ frappe.query_reports["Tally Entry"] = {
                     //     frappe.query_report.set_filter_value('rec_ref_no', clean_ref);
                     // }
                 }
-                console.log(filters);
               
                 frappe.query_reports["Tally Entry"].fetch_tally_data(filters);
             } else {
